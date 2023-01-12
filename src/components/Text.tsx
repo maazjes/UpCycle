@@ -30,10 +30,11 @@ const Text = ({
   style,
   ...props
 }: {
-  color: 'textSecondary' | 'primary';
-  fontSize: 'subheading';
-  fontWeight: 'bold';
-  style: TextStyle;
+  color?: 'textSecondary' | 'primary' | undefined;
+  fontSize?: 'subheading';
+  fontWeight?: 'bold';
+  style?: TextStyle;
+  children: string;
 }) => {
   const textStyle = [
     styles.text,
@@ -44,7 +45,7 @@ const Text = ({
     style
   ];
 
-  return <NativeText style={textStyle} {...props} />;
+  return <NativeText style={textStyle} {...props}></NativeText>;
 };
 
 export default Text;
