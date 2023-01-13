@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "strict": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "strictNullChecks": true,
@@ -10,7 +11,8 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
-    "declaration": true
+    "declaration": true,
+    "target": "ES6"
   },
   "extends": "expo/tsconfig.base"
 }
