@@ -1,5 +1,4 @@
-import { StyleSheet } from 'react-native';
-import { Image, View } from 'react-native';
+import { StyleSheet, Image, View } from 'react-native';
 import Text from './Text';
 
 const styles = StyleSheet.create({
@@ -17,16 +16,24 @@ const styles = StyleSheet.create({
   }
 });
 
-const GridPost = ({ imageSrc, title, price }: { imageSrc: string; title: string; price: string }) => {
-  return (
-    <View>
-      <Image style={styles.gridPostImage} source={require(imageSrc)} />
-      <View style={styles.gridPostText}>
-        <Text>{title}</Text>
-        <Text>{price}</Text>
-      </View>
+const GridPost = ({
+  imageSrc,
+  title,
+  price
+}: {
+  imageSrc: string;
+  title: string;
+  price: string;
+}) => (
+  <View>
+    {/* eslint-disable-next-line max-len */}
+    {/* eslint-disable-next-line import/no-dynamic-require, global-require */}
+    <Image style={styles.gridPostImage} source={require(imageSrc)} />
+    <View style={styles.gridPostText}>
+      <Text>{title}</Text>
+      <Text>{price}</Text>
     </View>
-  );
-};
+  </View>
+);
 
 export default GridPost;

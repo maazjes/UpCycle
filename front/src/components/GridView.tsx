@@ -1,6 +1,5 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, FlatList } from 'react-native';
 import GridPost from './GridPost';
-import { FlatList } from 'react-native';
 
 const styles = StyleSheet.create({
   gridPostContainer: {}
@@ -8,8 +7,16 @@ const styles = StyleSheet.create({
 
 const GridView = () => {
   const posts = [];
-  for (let i = 0; i < 10; i++) {
-    posts.push(<GridPost title={'lamppu'} price={'30€'} imageSrc={'../../assets/icon.png'} key={i + 3} />);
+  for (let i = 0; i < 10; i += 1) {
+    posts.push(
+      <GridPost
+        title="lamppu"
+        price="30€"
+        // eslint-disable-next-line global-require
+        imageSrc={require('../../assets/icon.png')}
+        key={i + 3}
+      />
+    );
   }
   return (
     <FlatList

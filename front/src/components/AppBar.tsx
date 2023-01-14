@@ -15,12 +15,9 @@ const styles = StyleSheet.create({
   }
 });
 
-const AppBar = () => {
-  return (
-    <View style={styles.container}>
-      <Menu />
-    </View>
-  );
-};
-
+const AppBar = () => (
+  <View style={styles.container}>
+    <Menu />
+  </View>
+);
 export default AppBar;

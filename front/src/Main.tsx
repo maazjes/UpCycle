@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
 import { Route, Routes, Navigate } from 'react-router-native';
 import Profile from './views/Profile';
-import Menu from './components/Menu';
 import AppBar from './components/AppBar';
+import NewPostForm from './views/NewPostForm';
 
 export default () => (
   <View>
@@ -11,6 +11,7 @@ export default () => (
     <Routes>
       <Route path="/" element={<Profile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/new-post" element={<NewPostForm />} />
     </Routes>
   </View>
 );

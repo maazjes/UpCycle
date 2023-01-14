@@ -20,6 +20,12 @@ module.exports = {
       price: {
         type: DataTypes.TEXT,
         allowNull: false
+      },
+      created_at: {
+        type: DataTypes.DATE
+      },
+      updated_at: {
+        type: DataTypes.DATE
       }
     });
     await queryInterface.createTable('users', {
@@ -52,7 +58,8 @@ module.exports = {
   },
   // @ts-ignore
   down: async ({ context: queryInterface }) => {
-    await queryInterface.dropTable('blogs');
+    await queryInterface.removeColumn('posts', 'user_id');
+    await queryInterface.dropTable('posts');
     await queryInterface.dropTable('users');
   }
 };

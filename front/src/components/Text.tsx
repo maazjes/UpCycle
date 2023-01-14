@@ -24,15 +24,15 @@ const styles = StyleSheet.create({
 });
 
 const Text = ({
-  color,
-  fontSize,
-  fontWeight,
-  style,
+  color = 'primary',
+  fontSize = 'body',
+  fontWeight = 'normal',
+  style = {},
   ...props
 }: {
-  color?: 'textSecondary' | 'primary' | undefined;
-  fontSize?: 'subheading';
-  fontWeight?: 'bold';
+  color?: 'textSecondary' | 'primary';
+  fontSize?: 'subheading' | 'body';
+  fontWeight?: 'bold' | 'normal';
   style?: TextStyle;
   children: string;
 }) => {
@@ -45,7 +45,7 @@ const Text = ({
     style
   ];
 
-  return <NativeText style={textStyle} {...props}></NativeText>;
+  return <NativeText style={textStyle} {...props} />;
 };
 
 export default Text;

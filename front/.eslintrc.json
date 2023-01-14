@@ -15,7 +15,16 @@
     "@typescript-eslint/react/react-in-jsx": "off",
     "@typescript-eslint/comma-dangle": ["error", "never"],
     "@typescript-eslint/no-redeclare": 0,
-    "@typescript-eslint/no-explicit-any": 2
+    "@typescript-eslint/no-explicit-any": 2,
+    "react/react-in-jsx-scope": "off",
+    "react/function-component-definition": "off",
+    "react/jsx-props-no-spreading": "off",
+    "react/require-default-props": [
+      2,
+      {
+        "functions": "defaultArguments"
+      }
+    ]
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
