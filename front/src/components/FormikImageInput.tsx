@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const FormikTextInput = ({ name, ...props }: { name: string; props: TextInputProps }) => {
+const FormikImageInput = ({ name, ...props }: { name: string; props: TextInputProps }) => {
   const [field, meta, helpers] = useField(name);
   const showError = meta.touched;
   const error = meta.error;
@@ -39,4 +39,4 @@ const FormikTextInput = ({ name, ...props }: { name: string; props: TextInputPro
   );
 };
 
-export default FormikTextInput;
+export default FormikImageInput;

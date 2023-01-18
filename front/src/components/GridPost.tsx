@@ -16,24 +16,19 @@ const styles = StyleSheet.create({
   }
 });
 
-const GridPost = ({
-  imageSrc,
-  title,
-  price
-}: {
-  imageSrc: string;
-  title: string;
-  price: string;
-}) => (
-  <View>
-    {/* eslint-disable-next-line max-len */}
-    {/* eslint-disable-next-line import/no-dynamic-require, global-require */}
-    <Image style={styles.gridPostImage} source={require(imageSrc)} />
-    <View style={styles.gridPostText}>
-      <Text>{title}</Text>
-      <Text>{price}</Text>
+const GridPost = ({ title, price }: { title: string; price: string }) => {
+  // eslint-disable-next-line max-len
+  // eslint-disable-next-line import/no-dynamic-require, global-require
+  const src = require('../../assets/icon.png');
+  return (
+    <View>
+      <Image style={styles.gridPostImage} source={src} />
+      <View style={styles.gridPostText}>
+        <Text>{title}</Text>
+        <Text>{price}</Text>
+      </View>
     </View>
-  </View>
-);
+  );
+};
 
 export default GridPost;

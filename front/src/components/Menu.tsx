@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { Navigate } from 'react-router-native';
+import { useNavigate } from 'react-router-native';
 import { Button, Menu as PaperMenu } from 'react-native-paper';
 
 const Menu = () => {
   const [visible, setVisible] = React.useState(false);
+  const navigate = useNavigate();
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
-  const onProfileClick = () => <Navigate to="/profile" replace />;
-  const onNewPostClick = () => <Navigate to="/profile" replace />;
+  const onProfileClick = () => navigate('/profile');
+  const onNewPostClick = () => navigate('/new-post');
   return (
     <View
       style={{

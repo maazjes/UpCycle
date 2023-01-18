@@ -1,7 +1,10 @@
 import { View, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import * as ImagePicker from 'expo-image-picker';
+
 import FormikTextInput from '../components/FormikTextInput';
+import FormikImageInput from '../components/FormikImageInput';
 import Button from '../components/Button';
 
 const styles = StyleSheet.create({
@@ -30,13 +33,40 @@ const NewPostForm = () => {
     price: ''
   };
 
+  const onSubmit = async ({ title, price, image }) => {
+    console.log(title);
+    console.log(price);
+    console.log(image);
+  };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+    <Formik
+      initialValues={initialValues}
+      /* validationSchema={validationSchema} */ onSubmit={onSubmit}
+    >
       {({ handleSubmit }) => (
         <View style={styles.loginForm}>
           <FormikTextInput name="title" placeholder="Title" />
           <FormikTextInput name="price" placeholder="Price" />
-          <Button handleSubmit={handleSubmit} text="Register" />
+          <FormikTextInput name="image" placeholder="Image" />
+          <FormikImageInput name="image" text="Choose image" />
+          <Button handleSubmit={handleSubmit} text="Submit" />
         </View>
       )}
     </Formik>

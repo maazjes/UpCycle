@@ -8,15 +8,7 @@ const styles = StyleSheet.create({
 const GridView = () => {
   const posts = [];
   for (let i = 0; i < 10; i += 1) {
-    posts.push(
-      <GridPost
-        title="lamppu"
-        price="30€"
-        // eslint-disable-next-line global-require
-        imageSrc={require('../../assets/icon.png')}
-        key={i + 3}
-      />
-    );
+    posts.push(<GridPost title="lamppu" price="30€" key={i + 3} />);
   }
   return (
     <FlatList
