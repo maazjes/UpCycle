@@ -24,7 +24,14 @@
       {
         "functions": "defaultArguments"
       }
-    ]
+    ],
+    "@typescript-eslint/explicit-function-return-type": [
+      "error",
+      {
+        "allowTypedFunctionExpressions": false
+      }
+    ],
+    "@typescript-eslint/member-delimiter-style": "error"
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

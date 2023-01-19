@@ -35,7 +35,7 @@ const Text = ({
   fontWeight?: 'bold' | 'normal';
   style?: TextStyle;
   children: string;
-}) => {
+}): JSX.Element => {
   const textStyle = [
     styles.text,
     color === 'textSecondary' && styles.colorTextSecondary,

@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const { connectToDatabase } = require('./util/db');
-const postsRouter = require('./controllers/posts');
-const usersRouter = require('./controllers/users');
-const loginRouter = require('./controllers/login');
-const imagesRouter = require('./controllers/images');
+import express from 'express';
+import cors from 'cors';
+import { connectToDatabase } from './util/db';
+import postsRouter from './controllers/posts';
+import usersRouter from './controllers/users';
+import loginRouter from './controllers/login';
+import imagesRouter from './controllers/images';
 
 const app = express();
 app.use(express.json());

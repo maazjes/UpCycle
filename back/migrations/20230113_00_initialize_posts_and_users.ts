@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 
-module.exports = {
+export default {
   // @ts-ignore
   up: async ({ context: queryInterface }) => {
     await queryInterface.createTable('posts', {

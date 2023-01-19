@@ -30,5 +30,4 @@ Post.init(
   }
 );
 
-module.exports = Post;
-export {};
+export default Post;

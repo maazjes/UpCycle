@@ -1,8 +1,7 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, GestureResponderEvent } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import * as ImagePicker from 'expo-image-picker';
-
+import postService from '../services/posts';
 import FormikTextInput from '../components/FormikTextInput';
 import FormikImageInput from '../components/FormikImageInput';
 import Button from '../components/Button';
@@ -13,7 +12,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const NewPostForm = () => {
+const NewPostForm = (): JSX.Element => {
   const validationSchema = yup.object().shape({
     username: yup
       .string()
@@ -30,43 +29,29 @@ const NewPostForm = () => {
 
   const initialValues = {
     title: '',
-    price: ''
+    price: '',
+    imageUri: ''
   };
 
-  const onSubmit = async ({ title, price, image }) => {
-    console.log(title);
-    console.log(price);
-    console.log(image);
-  };
-
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
-    }
+  const onSubmit = async (values: {
+    imageUri: string;
+    title: string;
+    price: string;
+  }): Promise<void> => {
+    await postService.newPost(values);
   };
 
   return (
-    <Formik
-      initialValues={initialValues}
-      /* validationSchema={validationSchema} */ onSubmit={onSubmit}
-    >
-      {({ handleSubmit }) => (
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ handleSubmit }): JSX.Element => (
         <View style={styles.loginForm}>
           <FormikTextInput name="title" placeholder="Title" />
           <FormikTextInput name="price" placeholder="Price" />
-          <FormikTextInput name="image" placeholder="Image" />
-          <FormikImageInput name="image" text="Choose image" />
-          <Button handleSubmit={handleSubmit} text="Submit" />
+          <FormikImageInput name="imageUri" />
+          <Button
+            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            text="Submit"
+          />
         </View>
       )}
     </Formik>

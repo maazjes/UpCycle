@@ -14,4 +14,5 @@ const tokenExtractor = async (req, res, next) => {
   next();
 };
 
-module.exports = { tokenExtractor };
+// eslint-disable-next-line import/prefer-default-export
+export { tokenExtractor };

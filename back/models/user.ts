@@ -27,5 +27,4 @@ User.init(
   }
 );
 
-module.exports = User;
-export {};
+export default User;

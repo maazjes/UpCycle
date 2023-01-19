@@ -20,21 +20,25 @@ const styles = StyleSheet.create({
   }
 });
 
-const FormikTextInput = ({ name, ...props }: { name: string; props: TextInputProps }) => {
+interface Props extends TextInputProps {
+  name: string;
+}
+
+const FormikTextInput = ({ name, ...props }: Props): JSX.Element => {
   const [field, meta, helpers] = useField(name);
   const showError = meta.touched;
-  const error = meta.error;
+  const { error } = meta;
   return (
     <>
       <TextInput
         style={styles.loginField}
-        onChangeText={(value: string) => helpers.setValue(value)}
-        onBlur={() => helpers.setTouched(true)}
+        onChangeText={(value: string): void => helpers.setValue(value)}
+        onBlur={(): void => helpers.setTouched(true)}
         value={field.value}
         error={showError}
         {...props}
       />
-      {showError && <Text style={styles.errorText}>{error}</Text>}
+      {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </>
   );
 };

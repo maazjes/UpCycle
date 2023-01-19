@@ -1,8 +1,9 @@
+import upload from '../util/multer';
+
 const router = require('express').Router();
-const upload = require('../util/multer');
 
 // @ts-ignore
-router.post('/', upload.single('img'), (req, res) => {
+router.post('/', upload.single('img'), (req, res): void => {
   res.send({
     message: 'Uploaded!',
     // @ts-ignore
@@ -10,5 +11,4 @@ router.post('/', upload.single('img'), (req, res) => {
   });
 });
 
-module.exports = router;
-export {};
+export default router;

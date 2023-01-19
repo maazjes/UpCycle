@@ -1,15 +1,11 @@
 import { TextInput as NativeTextInput, TextInputProps } from 'react-native';
 
-const TextInput = ({
-  style,
-  error,
-  ...props
-}: {
-  style: object;
+interface Props extends TextInputProps {
   error: boolean;
-  props: TextInputProps;
-}) => {
-  const textInputStyle = { ...style, ...(error && { borderColor: 'red', marginBottom: 0 }) };
+}
+
+const TextInput = ({ style, error, ...props }: Props): JSX.Element => {
+  const textInputStyle = { ...(error && { borderColor: 'red', marginBottom: 0 }) };
 
   return <NativeTextInput style={textInputStyle} {...props} />;
 };

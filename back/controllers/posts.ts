@@ -1,9 +1,12 @@
-const router = require('express').Router();
-const { Post, User } = require('../models');
-const { tokenExtractor } = require('../util/middleware');
+import { Response } from 'express';
+import { TypedRequestBody } from '../types';
+import upload from '../util/multer';
+import { Post, User } from '../models';
+import { tokenExtractor } from '../util/middleware';
 
-// @ts-ignore
-router.get('/', async (_req, res) => {
+const router = require('express').Router();
+
+router.get('/', async (_req: TypedRequestBody<null>, res: Response): Promise<void> => {
   const posts = await Post.findAll({
     attributes: { exclude: ['userId'] },
     include: {
@@ -11,22 +14,22 @@ router.get('/', async (_req, res) => {
       attributes: ['name']
     }
   });
-  return res.json(posts);
+  res.json(posts);
 });
 
-// @ts-ignore
-router.post('/', tokenExtractor, async (req, res) => {
-  console.log('body', req);
+router.post('/', upload.single('img'), tokenExtractor, async (req: TypedRequestBody<{ title: string; price: string; img: File }>, res: Response): Promise<void> => {
+  // @ts-ignore
   const user = await User.findByPk(req.decodedToken.id);
   if (user) {
     const post = await Post.create({
       ...req.body,
-      userId: user.id
+      userId: user.id,
+      // @ts-ignore
+      imageUrl: req.file?.location
     });
-    return res.json(post);
+    res.json(post);
   }
-  return res.status(401).json({ error: 'invalid token' });
+  res.status(401).json({ error: 'invalid token' });
 });
 
-module.exports = router;
-export {};
+export default router;

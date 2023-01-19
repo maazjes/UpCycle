@@ -1,11 +1,11 @@
-const jwt = require('jsonwebtoken');
+import jwt from 'jsonwebtoken';
+import { SECRET } from '../util/config';
+import { User } from '../models';
+
 const router = require('express').Router();
 
-const { SECRET } = require('../util/config');
-const { User } = require('../models');
-
 // @ts-ignore
-router.post('/', async (req, res) => {
+router.post('/', async (req, res): void => {
   const { username, password } = req.body;
   const user = await User.findOne({
     where: {
@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
   });
   const passwordCorrect = password === 'salainen';
   if (!(user && passwordCorrect)) {
-    return res.status(401).json({
+    res.status(401).json({
       error: 'invalid username or password'
     });
   }
@@ -23,8 +23,7 @@ router.post('/', async (req, res) => {
     id: user.id
   };
   const token = jwt.sign(userForToken, SECRET);
-  return res.status(200).send({ token, username: user.username, name: user.name });
+  res.status(200).send({ token, username: user.username, name: user.name });
 });
 
-module.exports = router;
-export {};
+export default router;

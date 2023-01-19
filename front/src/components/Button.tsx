@@ -1,4 +1,6 @@
-import { View, StyleSheet, Pressable, PressableProps } from 'react-native';
+import {
+  View, StyleSheet, Pressable, PressableProps, GestureResponderEvent
+} from 'react-native';
 import Text from './Text';
 
 const styles = StyleSheet.create({
@@ -12,17 +14,14 @@ const styles = StyleSheet.create({
   }
 });
 
-const Button = ({
-  text,
-  handleSubmit,
-  ...props
-}: {
+interface Props extends PressableProps {
   text: string;
-  handleSubmit: Function;
-  props: PressableProps;
-}) => (
+  handleSubmit: (event: GestureResponderEvent) => void;
+}
+
+const Button = ({ text, handleSubmit, ...props }: Props): JSX.Element => (
   <View style={{ display: 'flex' }}>
-    <Pressable style={[styles.loginButton, props.style]} onPress={handleSubmit}>
+    <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={handleSubmit}>
       <Text fontWeight="bold">{text}</Text>
     </Pressable>
   </View>
