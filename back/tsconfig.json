@@ -12,10 +12,10 @@
     "alwaysStrict": true,
     "esModuleInterop": true,
     "declaration": true,
-    "target": "es6",
+    "target": "ESNext",
     "outDir": "./build/",
-    "module": "commonjs",
-    "moduleResolution": "nodenext",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
     "noEmit": false,
     "noEmitOnError": false,
   }

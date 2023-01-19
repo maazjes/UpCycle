@@ -1,5 +1,5 @@
-import Post from './post';
 import User from './user';
+import Post from './post';
 
 User.hasMany(Post);
 Post.belongsTo(User);

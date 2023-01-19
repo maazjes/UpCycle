@@ -14,17 +14,16 @@ const styles = StyleSheet.create({
 
 const NewPostForm = (): JSX.Element => {
   const validationSchema = yup.object().shape({
-    username: yup
+    title: yup
       .string()
-      .min(1, 'Minimum length of username is 1')
-      .max(30, 'Maximum length of username is 30')
-      .required('Username is required'),
-    password: yup
+      .min(3, 'Minimum length of title is 1')
+      .max(30, 'Maximum length of title is 30')
+      .required('Title is required'),
+    price: yup
       .string()
-      .min(5, 'Minimum length os password is 5')
-      .max(50, 'Maximum length of password is 50')
-      .required('Password is required'),
-    passwordConfirmation: yup.string().oneOf([yup.ref('password'), null], 'Passwords must match')
+      .min(1, 'Minimum length of price is 1')
+      .max(50, 'Maximum length of price is 4')
+      .required('Price is required')
   });
 
   const initialValues = {

@@ -5,21 +5,15 @@ const styles = StyleSheet.create({
   gridPostContainer: {}
 });
 
-const GridView = () => {
-  const posts = [];
-  for (let i = 0; i < 10; i += 1) {
-    posts.push(<GridPost title="lamppu" price="30€" key={i + 3} />);
-  }
-  return (
-    <FlatList
-      contentContainerStyle={styles.gridPostContainer}
-      columnWrapperStyle={{ justifyContent: 'space-evenly' }}
-      numColumns={2}
-      keyExtractor={(item) => item.key}
-      data={posts}
-      renderItem={({ item }) => item}
-    />
-  );
-};
+const GridView = ({ posts }): JSX.Element => (
+  <FlatList
+    contentContainerStyle={styles.gridPostContainer}
+    columnWrapperStyle={{ justifyContent: 'space-evenly' }}
+    numColumns={2}
+    keyExtractor={(item) => item.key}
+    data={posts}
+    renderItem={({ item }): JSX.Element => <GridPost title={item.title} price={item.price} imageUrl={item.imageUrl} />}
+  />
+);
 
 export default GridView;

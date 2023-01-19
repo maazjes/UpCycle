@@ -25,7 +25,7 @@ const Menu = () => {
       >
         <PaperMenu.Item onPress={onProfileClick} title="Your profile" />
         <PaperMenu.Item onPress={onNewPostClick} title="New Post" />
-        <PaperMenu.Item onPress={() => {}} title="Item 3" />
+        <PaperMenu.Item onPress={() => { navigate('/'); }} title="Front page" />
       </PaperMenu>
     </View>
   );

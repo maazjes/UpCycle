@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const baseUrl = 'http://192.168.0.104:8080/api/posts';
 
 const newPost = async ({
@@ -36,8 +38,17 @@ const newPost = async ({
     });
     return res;
   } catch (e) {
-    throw new Error('Adding the post failed');
+    throw new Error(`Adding the post failed ${e}`);
   }
 };
 
-export default { newPost };
+const getPosts = async (page: number, size: number) => {
+  try {
+    const response = await axios.get(`${baseUrl}?page=${page}&size=${size}`);
+    return response;
+  } catch (e) {
+    throw new Error(`Getting posts failed ${e}`);
+  }
+};
+
+export default { newPost, getPosts };

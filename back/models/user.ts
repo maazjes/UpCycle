@@ -1,7 +1,15 @@
-const { Model, DataTypes } = require('sequelize');
-const { sequelize } = require('../util/db');
+import {
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+} from 'sequelize';
+import { sequelize } from '../util/db';
 
-class User extends Model {}
+class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+  declare id: CreationOptional<number>;
+
+  declare username: string;
+
+  declare name: string;
+}
 
 User.init(
   {

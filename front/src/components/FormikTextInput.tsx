@@ -28,6 +28,7 @@ const FormikTextInput = ({ name, ...props }: Props): JSX.Element => {
   const [field, meta, helpers] = useField(name);
   const showError = meta.touched;
   const { error } = meta;
+  console.log(meta);
   return (
     <>
       <TextInput

@@ -1,16 +1,26 @@
-const jwt = require('jsonwebtoken');
-const { SECRET } = require('./config');
+import { NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { SECRET } from './config';
+import { Request, Response } from '../types';
 
-// @ts-ignore
-// eslint-disable-next-line consistent-return
-const tokenExtractor = async (req, res, next) => {
+interface TokenExtractorRequest extends Request<{}, { authorization?: string }, {}> {
+  decodedToken?: string | JwtPayload;
+}
+
+const tokenExtractor = async (
+  req: TokenExtractorRequest,
+  res: Response<{ error?: string }>,
+  next: NextFunction
+): Promise<void> => {
   const authorization = req.get('authorization');
   if (!(authorization && authorization.toLowerCase().startsWith('bearer '))) {
-    return res.status(401).json({ error: 'token missing' });
+    res.status(401).json({ error: 'token missing' });
   }
-  const token = authorization.substring(7);
-  const decodedToken = jwt.verify(token, SECRET);
-  req.decodedToken = decodedToken;
+  const token = authorization?.substring(7);
+  if (token) {
+    const decodedToken = jwt.verify(token, SECRET);
+    req.decodedToken = decodedToken;
+  }
   next();
 };
 

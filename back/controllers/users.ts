@@ -1,8 +1,10 @@
-const router = require('express').Router();
-const { User, Post } = require('../models');
+import express from 'express';
+import { User, Post } from '../models';
+import { Request, Response } from '../types';
 
-// @ts-ignore
-router.get('/', async (req, res) => {
+const router = express.Router();
+
+router.get('/', async (_req: Request<{}, {}, {}>, res: Response<User[]>): Promise<void> => {
   const users = await User.findAll({
     include: {
       model: Post,
@@ -12,8 +14,7 @@ router.get('/', async (req, res) => {
   res.json(users);
 });
 
-// @ts-ignore
-router.post('/', async (req, res) => {
+router.post('/', async (req: Request<{}, {}, { username: string; name: string }>, res: Response<User>): Promise<void> => {
   const user = await User.create(req.body);
   res.json(user);
 });

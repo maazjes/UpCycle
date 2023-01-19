@@ -1,5 +1,19 @@
-import { Request, Response, NextFunction } from 'express';
+import Express from 'express';
+import { Query, Send } from 'express-serve-static-core';
+import { IncomingHttpHeaders } from 'http';
 
-export interface TypedRequestBody<T> extends Request {
-  body: T
+export interface Request<ReqQuery extends Query, ReqHeaders, ReqBody> extends Express.Request {
+  query: ReqQuery;
+  body: ReqBody;
+  headers: IncomingHttpHeaders & ReqHeaders;
+}
+
+export interface Response<ResBody> extends Express.Response {
+  json: Send<ResBody, this>;
+}
+
+export interface PaginationBase {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
 }

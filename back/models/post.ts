@@ -1,7 +1,19 @@
-const { Model, DataTypes } = require('sequelize');
-const { sequelize } = require('../util/db');
+import {
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+} from 'sequelize';
+import { sequelize } from '../util/db';
 
-class Post extends Model {}
+class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
+  declare id: CreationOptional<number>;
+
+  declare imageUrl: string;
+
+  declare title: string;
+
+  declare price: string;
+
+  declare userId: number;
+}
 
 Post.init(
   {
@@ -21,6 +33,11 @@ Post.init(
     price: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    userId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'users', key: 'id' }
     }
   },
   {
