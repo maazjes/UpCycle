@@ -1,7 +1,7 @@
 import express from 'express';
 import { Request, Response, PaginationBase } from '../types';
 import upload from '../util/multer';
-import { Post, User } from '../models';
+import { Post, User, Category } from '../models';
 import { tokenExtractor } from '../util/middleware';
 
 const router = express.Router();
@@ -33,7 +33,7 @@ interface PostsResponse extends PaginationBase {
 }
 
 router.get('/', async (req: Request<{ page: string; size: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
-  const { page, size } = req.query;
+  const { page, size, user } = req.query;
   const { limit, offset } = getPagination(Number(page), Number(size));
   const posts = await Post.findAndCountAll({
     attributes: { exclude: ['userId'] },
@@ -52,21 +52,30 @@ interface MulterFile extends File {
   location: string;
 }
 
-interface AuthRequest extends Request<{}, {}, { title: string; price: string; img: MulterFile }> {
+interface AuthRequest extends Request<{}, {}, {
+  title: string; price: string; category: string; img: MulterFile; }> {
   decodedToken?: { id: string };
 }
-router.post('/', upload.single('img'), tokenExtractor, async (req: AuthRequest, res: Response<{}>): Promise<void> => {
+
+router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<{}>): Promise<void> => {
   const user = await User.findByPk(req.decodedToken?.id);
-  if (user) {
-    const post = await Post.create({
-      ...req.body,
-      userId: user.id,
-      // @ts-ignore
-      imageUrl: req.file?.location
-    });
-    res.json(post);
+  const category = await Category.findOne({ where: { name: req.body.category } });
+  if (!user) {
+    res.status(401).json({ error: 'invalid token' });
+    return;
   }
-  res.status(401).json({ error: 'invalid token' });
+  if (!category) {
+    res.status(400).json({ error: 'invalid category' });
+    return;
+  }
+  const post = await Post.create({
+    ...req.body,
+    userId: user.id,
+    categoryId: category.id,
+    // @ts-ignore
+    imageUrl: req.file?.location
+  });
+  res.json(post);
 });
 
 export default router;

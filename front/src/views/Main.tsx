@@ -1,17 +1,21 @@
-import { View, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
+import { Text } from 'react-native';
 import postsService from '../services/posts';
 import GridView from '../components/GridView';
+import { PostBase } from '../types';
 
 const Main = (): JSX.Element => {
-  const [posts, setPosts] = useState([]);
-  useEffect(() => {
-    const getResponse = async () => {
+  const [posts, setPosts] = useState<PostBase[] | null>(null);
+  useEffect((): void => {
+    const getResponse = async (): Promise<void> => {
       const postsResponse = await postsService.getPosts(0, 5);
       setPosts(postsResponse.data.posts);
     };
     getResponse();
   }, []);
+  if (posts === null) {
+    return <Text>loading</Text>;
+  }
   return <GridView posts={posts} />;
 };
 

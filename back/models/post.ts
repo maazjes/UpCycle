@@ -13,6 +13,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare price: string;
 
   declare userId: number;
+
+  declare categoryId: number;
 }
 
 Post.init(
@@ -38,6 +40,11 @@ Post.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: 'users', key: 'id' }
+    },
+    categoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'categories', key: 'id' }
     }
   },
   {

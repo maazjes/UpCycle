@@ -16,16 +16,18 @@ const styles = StyleSheet.create({
   }
 });
 
-const GridPost = ({ title, price, imageUrl }: { title: string; price: string; imageUrl: string }): JSX.Element => {
-  console.log(imageUrl);
-  return (
-    <View>
-      <Image style={styles.gridPostImage} source={{ uri: imageUrl }} />
-      <View style={styles.gridPostText}>
-        <Text>{title}</Text>
-        <Text>{price}</Text>
-      </View>
+const GridPost = ({ title, price, imageUrl }: {
+  title: string;
+  price: string;
+  imageUrl: string;
+}): JSX.Element => (
+  <View>
+    <Image style={styles.gridPostImage} source={{ uri: imageUrl }} />
+    <View style={styles.gridPostText}>
+      <Text>{title}</Text>
+      <Text>{price}</Text>
     </View>
-  );
-};
+  </View>
+);
+
 export default GridPost;

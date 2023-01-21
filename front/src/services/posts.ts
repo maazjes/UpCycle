@@ -1,19 +1,23 @@
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import { PostBase } from '../types';
 
 const baseUrl = 'http://192.168.0.104:8080/api/posts';
 
 const newPost = async ({
   title,
   price,
-  imageUri
+  imageUri,
+  category
 }: {
   imageUri: string;
   title: string;
   price: string;
+  category: string;
 }): Promise<Object> => {
   const formdata = new FormData();
   formdata.append('title', title);
   formdata.append('price', price);
+  formdata.append('category', category);
   const split = imageUri.split('.');
   const extension = split[split.length - 1];
   formdata.append(
@@ -27,22 +31,27 @@ const newPost = async ({
     )
   );
   try {
-    const res = await fetch(baseUrl, {
-      method: 'post',
+    console.log(axios.defaults.headers.common.Authorization);
+    const res = await axios.post(baseUrl, formdata, {
       headers: {
-        authorization:
-          'bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpZCI6MiwiaWF0IjoxNjc0MDcyNzg2fQ.H6RRe6_c9wXHXuuQckN0CYEVVrvOtTBCTQv2z1E7n14',
         'Content-Type': 'multipart/form-data'
-      },
-      body: formdata
+      }
     });
+    console.log(res);
     return res;
   } catch (e) {
     throw new Error(`Adding the post failed ${e}`);
   }
 };
 
-const getPosts = async (page: number, size: number) => {
+interface PostsResponse {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  posts: PostBase[];
+}
+
+const getPosts = async (page: number, size: number): Promise<AxiosResponse<PostsResponse>> => {
   try {
     const response = await axios.get(`${baseUrl}?page=${page}&size=${size}`);
     return response;

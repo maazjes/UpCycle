@@ -4,6 +4,7 @@ import { connectToDatabase } from './util/db';
 import postsRouter from './controllers/posts';
 import usersRouter from './controllers/users';
 import loginRouter from './controllers/login';
+import categoriesRouter from './controllers/categories';
 
 const app = express();
 app.use(express.json());
@@ -12,6 +13,7 @@ app.use(cors());
 app.use('/api/posts', postsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/login', loginRouter);
+app.use('/api/categories', categoriesRouter);
 
 const start = async (): Promise<void> => {
   await connectToDatabase();
@@ -21,4 +23,3 @@ const start = async (): Promise<void> => {
 };
 
 start();
-export {};

@@ -1,6 +1,5 @@
 import multer from 'multer';
 import multerS3 from 'multer-s3';
-import aws from 'aws-sdk';
 import { S3Client } from '@aws-sdk/client-s3';
 import { AWS_S3_ACCESS_KEY_ID, AWS_S3_SECRET_ACCESS_KEY } from './config';
 import { Request } from '../types';

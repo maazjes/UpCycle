@@ -1,6 +1,7 @@
+// eslint-disable-next-line import/no-import-module-exports
 import { DataTypes, QueryInterface } from 'sequelize';
 
-export default {
+module.exports = {
   up: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
     await queryInterface.createTable('posts', {
       id: {

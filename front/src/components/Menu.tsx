@@ -2,14 +2,21 @@ import * as React from 'react';
 import { View } from 'react-native';
 import { useNavigate } from 'react-router-native';
 import { Button, Menu as PaperMenu } from 'react-native-paper';
+import axios from 'axios';
+import useAuthStorage from '../hooks/useAuthStorage';
 
-const Menu = () => {
+const Menu = (): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
+  const authStorage = useAuthStorage();
   const navigate = useNavigate();
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
-  const onProfileClick = () => navigate('/profile');
-  const onNewPostClick = () => navigate('/new-post');
+  const openMenu = (): void => setVisible(true);
+  const closeMenu = (): void => setVisible(false);
+
+  const logout = async (): Promise<void> => {
+    await authStorage.removeAccessToken();
+    axios.defaults.headers.common.Authorization = undefined;
+  };
+
   return (
     <View
       style={{
@@ -23,9 +30,19 @@ const Menu = () => {
         onDismiss={closeMenu}
         anchor={<Button onPress={openMenu}>Show menu</Button>}
       >
-        <PaperMenu.Item onPress={onProfileClick} title="Your profile" />
-        <PaperMenu.Item onPress={onNewPostClick} title="New Post" />
-        <PaperMenu.Item onPress={() => { navigate('/'); }} title="Front page" />
+        { axios.defaults.headers.common.Authorization ? (
+          <>
+            <PaperMenu.Item onPress={(): void => navigate('/profile')} title="Your profile" />
+            <PaperMenu.Item onPress={(): void => navigate('/new-post')} title="New Post" />
+            <PaperMenu.Item onPress={(): void => navigate('/')} title="Front page" />
+            <PaperMenu.Item onPress={logout} title="Logout" />
+          </>
+        ) : (
+          <>
+            <PaperMenu.Item onPress={(): void => navigate('/')} title="Front page" />
+            <PaperMenu.Item onPress={(): void => navigate('/login')} title="Login" />
+          </>
+        )}
       </PaperMenu>
     </View>
   );

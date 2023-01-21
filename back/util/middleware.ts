@@ -15,6 +15,7 @@ const tokenExtractor = async (
   const authorization = req.get('authorization');
   if (!(authorization && authorization.toLowerCase().startsWith('bearer '))) {
     res.status(401).json({ error: 'token missing' });
+    return;
   }
   const token = authorization?.substring(7);
   if (token) {

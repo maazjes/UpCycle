@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const AppBar = () => (
+const AppBar = (): JSX.Element => (
   <View style={styles.container}>
     <Menu />
   </View>

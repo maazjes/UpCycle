@@ -5,8 +5,9 @@ import Profile from './views/Profile';
 import AppBar from './components/AppBar';
 import NewPostForm from './views/NewPostForm';
 import Main from './views/Main';
+import LoginForm from './views/LoginForm';
 
-export default () => (
+export default (): JSX.Element => (
   <View>
     <AppBar />
     <Routes>
@@ -14,6 +15,7 @@ export default () => (
       <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/new-post" element={<NewPostForm />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/login" element={<LoginForm />} />
     </Routes>
   </View>
 );
