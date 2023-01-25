@@ -2,18 +2,19 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useNavigate } from 'react-router-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { Button, Menu as PaperMenu } from 'react-native-paper';
 import axios from 'axios';
-import { addUser } from '../../reducers/userReducer';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
+import { User } from '../types';
+import { addUser } from '../reducers/userReducer';
 import useAuthStorage from '../hooks/useAuthStorage';
-import { State, User } from '../types';
+import Text from './Text';
 
 const Menu = (): JSX.Element => {
-  const currentUser = useSelector<State, User>((state): User => state.user);
+  const currentUser = useAppSelector((state): User => state.user);
   const [visible, setVisible] = React.useState(false);
   const authStorage = useAuthStorage();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const openMenu = (): void => setVisible(true);
   const closeMenu = (): void => setVisible(false);
@@ -21,7 +22,9 @@ const Menu = (): JSX.Element => {
   const logout = async (): Promise<void> => {
     await authStorage.removeUser();
     axios.defaults.headers.common.Authorization = undefined;
-    dispatch(addUser({ username: '', token: '' }));
+    dispatch(addUser({
+      username: '', token: '', name: '', id: -1
+    }));
   };
 
   useEffect((): void => {
@@ -46,7 +49,7 @@ const Menu = (): JSX.Element => {
       <PaperMenu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Button onPress={openMenu}>Show menu</Button>}
+        anchor={<Button onPress={openMenu}><Text color="textSecondary">Show menu</Text></Button>}
       >
         { currentUser.token !== '' ? (
           <>

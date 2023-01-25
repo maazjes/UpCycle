@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import { Route, Routes, Navigate } from 'react-router-native';
-import Profile from './views/Profile';
+import PrivateProfile from './views/PrivateProfile';
+import PublicProfile from './views/PublicProfile';
 import AppBar from './components/AppBar';
 import NewPostForm from './views/NewPostForm';
 import Main from './views/Main';
@@ -16,10 +17,11 @@ export default (): JSX.Element => (
       <Route path="/" element={<Main />} />
       <Route path="*" element={<Navigate to="/" replace />} />
       <Route path="/new-post" element={<NewPostForm />} />
-      <Route path="/profile" element={<Profile />} />
+      <Route path="/profile" element={<PrivateProfile />} />
+      <Route path="/users/:userId" element={<PublicProfile />} />
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegistrationForm />} />
-      <Route path="/:postId" element={<SinglePost />} />
+      <Route path="/posts/:postId" element={<SinglePost />} />
     </Routes>
   </View>
 );

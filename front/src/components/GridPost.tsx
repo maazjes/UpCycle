@@ -4,16 +4,12 @@ import {
 import Text from './Text';
 
 const styles = StyleSheet.create({
-  gridPostText: {
+  gridPostInfo: {
     flexDirection: 'column',
     margin: 10
   },
   gridPostImage: {
-    resizeMode: 'contain',
-    width: 150,
-    height: 150,
-    margin: 10,
-    borderRadius: 4,
+    borderWidth: 1,
     borderColor: 's#ff00ff'
   }
 });
@@ -33,7 +29,7 @@ const GridPost = ({
       style={StyleSheet.flatten([styles.gridPostImage, imageStyle])}
       source={{ uri: imageUrl }}
     />
-    <View style={styles.gridPostText}>
+    <View style={styles.gridPostInfo}>
       <Text>{title}</Text>
       <Text>{price}</Text>
       <Text>{description}</Text>

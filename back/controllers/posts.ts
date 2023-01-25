@@ -1,5 +1,7 @@
 import express from 'express';
-import { Request, Response, PaginationBase } from '../types';
+import {
+  Request, Response, PaginationBase, ErrorResponse
+} from '../types';
 import upload from '../util/multer';
 import { Post, User, Category } from '../models';
 import { tokenExtractor } from '../util/middleware';
@@ -32,19 +34,21 @@ interface PostsResponse extends PaginationBase {
   posts: Post[];
 }
 
-router.get('/', async (req: Request<{ page?: string; size?: string; username?: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
-  let where = {};
-  if (req.query.username) {
-    where = { user: { username: req.query.username } };
-  }
+router.get('/', async (req: Request<{ page?: string; size?: string; userId?: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
+  const { userId } = req.query;
+  const where = userId ? { userId } : {};
   const { page, size } = req.query;
   const { limit, offset } = getPagination(Number(page), Number(size));
   const posts = await Post.findAndCountAll({
     attributes: { exclude: ['userId'] },
-    include: {
+    include: [{
       model: User,
-      attributes: ['name']
+      attributes: ['id', 'username']
     },
+    {
+      model: Category,
+      attributes: ['id', 'name']
+    }],
     limit,
     offset,
     where
@@ -54,15 +58,35 @@ router.get('/', async (req: Request<{ page?: string; size?: string; username?: s
 });
 
 router.get('/:id', async (req: Request<{}, {}, {}>, res: Response<Post>): Promise<void> => {
-  let where = {};
   const { id } = req.params;
-  if (id) {
-    where = { id };
-  }
-  const post = await Post.findOne({ where });
-  if (post === null) {
+  const where = id ? { id } : {};
+  const post = await Post.findOne({
+    attributes: { exclude: ['userId', 'categoryId'] },
+    include: [{
+      model: User,
+      attributes: ['id', 'username']
+    },
+    {
+      model: Category,
+      attributes: ['id', 'name']
+    }],
+    where
+  });
+  if (!post) {
     return;
   }
+  res.json(post);
+});
+
+router.delete('/:id', async (req: Request<{}, {}, {}>, res: Response<Post | ErrorResponse>): Promise<void> => {
+  const { id } = req.params;
+  const where = id ? { id } : {};
+  const post = await Post.findOne({ where });
+  if (!post) {
+    res.status(404).json({ error: 'post not found' });
+    return;
+  }
+  await post.destroy();
   res.json(post);
 });
 
@@ -75,7 +99,7 @@ interface AuthRequest extends Request<{}, {}, {
   decodedToken?: { id: string };
 }
 
-router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<{}>): Promise<void> => {
+router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<Post | ErrorResponse>): Promise<void> => {
   const user = await User.findByPk(req.decodedToken?.id);
   const category = await Category.findOne({ where: { name: req.body.category } });
   if (!user) {

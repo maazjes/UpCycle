@@ -6,26 +6,29 @@ import GridPost from './GridPost';
 import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
-  gridPostContainer: {}
+  gridPostImage: {
+    width: 150,
+    height: 150
+  }
 });
 
-const GridView = ({ posts, style }:
-{ posts: PostBase[]; style: StyleProp<ViewStyle> }): JSX.Element => {
+const GridView = ({ posts, style = {} }:
+{ posts: PostBase[]; style?: StyleProp<ViewStyle> }): JSX.Element => {
   const navigate = useNavigate();
 
   return (
     <FlatList
-      contentContainerStyle={styles.gridPostContainer}
       columnWrapperStyle={{ justifyContent: 'space-evenly' }}
       numColumns={2}
       keyExtractor={(item): string => String(item.id)}
       data={posts}
       renderItem={({ item }): JSX.Element => (
-        <Pressable onPress={(): void => navigate(`/${item.id}`)}>
+        <Pressable onPress={(): void => navigate(`/posts/${item.id}`)}>
           <GridPost
             title={item.title}
             price={item.price}
             imageUrl={item.imageUrl}
+            imageStyle={styles.gridPostImage}
           />
 
         </Pressable>

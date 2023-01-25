@@ -1,14 +1,19 @@
-import { Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import { useParams } from 'react-router-native';
-import { useEffect, useState } from 'react';
-import postsService from '../services/posts';
-import { PostBase } from '../types';
+import Text from '../components/Text';
 import GridPost from '../components/GridPost';
+import usePost from '../hooks/usePost';
+import UserBar from '../components/UserBar';
+
+const screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
+  userBar: {
+    padding: 10
+  },
   image: {
-    width: 250,
-    height: 250
+    width: screenWidth,
+    height: screenWidth
   },
   container: {
     justifyContent: 'center'
@@ -16,32 +21,23 @@ const styles = StyleSheet.create({
 });
 
 const SinglePost = (): JSX.Element => {
-  const [post, setPost] = useState<null | PostBase>(null);
   const { postId } = useParams();
-  useEffect((): void => {
-    const getPost = async (): Promise<void> => {
-      if (!postId) {
-        return;
-      }
-      const response = await postsService.getPostById(postId);
-      if (response.data) {
-        setPost(response.data);
-      }
-    };
-    getPost();
-  }, []);
+  const post = usePost(Number(postId));
   if (!post) {
     return <Text>loading</Text>;
   }
   return (
-    <GridPost
-      title={post.title}
-      price={post.price}
-      imageUrl={post.imageUrl}
-      description={post.description}
-      imageStyle={styles.image}
-      containerStyle={styles.container}
-    />
+    <View>
+      <UserBar style={styles.userBar} userId={post.user.id} username={post.user.username} />
+      <GridPost
+        title={post.title}
+        price={post.price}
+        imageUrl={post.imageUrl}
+        description={post.description}
+        imageStyle={styles.image}
+        containerStyle={styles.container}
+      />
+    </View>
   );
 };
 

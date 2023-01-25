@@ -33,16 +33,12 @@ const newPost = async ({
       })
     )
   );
-  try {
-    const res = await axios.post(baseUrl, formdata, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    return res;
-  } catch (e) {
-    throw new Error(`Adding the post failed ${e}`);
-  }
+  const res = await axios.post(baseUrl, formdata, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return res;
 };
 
 interface PostsResponse {
@@ -52,25 +48,28 @@ interface PostsResponse {
   posts: PostBase[] | [];
 }
 
-const getPosts = async (page?: number, size?: number):
+const getPosts = async ({ page, size, userId }: { page: number; size: number; userId?: number }):
 Promise<AxiosResponse<PostsResponse>> => {
-  const query = `${baseUrl}?page=${page}&size=${size}`;
-  try {
-    const response = await axios.get(query);
-    return response;
-  } catch (e) {
-    throw new Error(`Getting posts failed ${e}`);
+  let query = `${baseUrl}?page=${page}&size=${size}`;
+  if (userId) {
+    query += `&userId=${userId}`;
   }
+  const response = await axios.get(query);
+  return response;
 };
 
-const getPostById = async (id: string): Promise<AxiosResponse<PostBase | null>> => {
+const getPostById = async (id: number): Promise<AxiosResponse<PostBase | null>> => {
   const query = `${baseUrl}/${id}`;
-  try {
-    const post = await axios.get(query);
-    return post;
-  } catch (e) {
-    throw new Error(`Getting post failed ${e}`);
-  }
+  const post = await axios.get(query);
+  return post;
 };
 
-export default { newPost, getPosts, getPostById };
+const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
+  const query = `${baseUrl}/${id}`;
+  const post = axios.delete(query);
+  return post;
+};
+
+export default {
+  newPost, getPosts, getPostById, deletePost
+};

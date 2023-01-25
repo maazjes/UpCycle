@@ -17,3 +17,7 @@ export interface PaginationBase {
   totalPages: number;
   currentPage: number;
 }
+
+export interface ErrorResponse {
+  error: string;
+}

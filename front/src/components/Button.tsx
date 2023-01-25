@@ -22,7 +22,7 @@ interface Props extends PressableProps {
 const Button = ({ text, handleSubmit, ...props }: Props): JSX.Element => (
   <View style={{ display: 'flex' }}>
     <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={handleSubmit}>
-      <Text fontWeight="bold">{text}</Text>
+      <Text>{text}</Text>
     </Pressable>
   </View>
 );

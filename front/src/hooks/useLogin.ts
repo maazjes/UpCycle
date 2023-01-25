@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-native';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
-import { addUser } from '../../reducers/userReducer';
+import { addUser } from '../reducers/userReducer';
 import useAuthStorage from './useAuthStorage';
 import loginService from '../services/login';
 

@@ -4,6 +4,7 @@ export interface PostBase {
   title: string;
   price: string;
   description: string;
+  user: User;
 }
 
 export interface Category {
@@ -13,14 +14,17 @@ export interface Category {
 }
 
 export interface User {
+  id: number;
+  name: string;
   username: string;
   token: string;
 }
 
-export interface State {
-  user: User;
-}
-
 export interface ErrorResponse {
   error: string;
+}
+
+export interface NotificationState {
+  message: string;
+  error: boolean;
 }

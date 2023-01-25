@@ -4,16 +4,16 @@ import theme from '../styles/theme';
 
 const styles = StyleSheet.create({
   text: {
-    color: theme.colors.textPrimary,
+    color: theme.textColors.textPrimary,
     fontSize: theme.fontSizes.body,
     fontFamily: theme.fonts.main,
     fontWeight: theme.fontWeights.normal
   },
   colorTextSecondary: {
-    color: theme.colors.textSecondary
+    color: theme.textColors.textSecondary
   },
   colorPrimary: {
-    color: theme.colors.primary
+    color: theme.textColors.primary
   },
   fontSizeSubheading: {
     fontSize: theme.fontSizes.subheading
@@ -24,13 +24,13 @@ const styles = StyleSheet.create({
 });
 
 const Text = ({
-  color = 'primary',
+  color = '',
   fontSize = 'body',
   fontWeight = 'normal',
   style = {},
   ...props
 }: {
-  color?: 'textSecondary' | 'primary';
+  color?: 'textSecondary' | 'primary' | '';
   fontSize?: 'subheading' | 'body';
   fontWeight?: 'bold' | 'normal';
   style?: TextStyle;

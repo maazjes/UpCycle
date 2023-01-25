@@ -51,7 +51,7 @@ const NewPostForm = (): JSX.Element => {
     category: string;
     description: string;
   }): Promise<void> => {
-    await postService.newPost(values);
+    await postService.newPost({ ...values, price: `${values.price}€` });
   };
 
   if (!categories) {
@@ -67,21 +67,24 @@ const NewPostForm = (): JSX.Element => {
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit }): JSX.Element => (
-        <View style={styles.loginForm}>
-          <FormikTextInput name="title" placeholder="Title" />
-          <FormikTextInput name="price" placeholder="Price" />
-          <FormikTextInput multiline style={{ height: 100 }} name="description" placeholder="Description" />
-          <FormikImageInput name="imageUri" />
-          <FormikPicker items={categories} name="category" />
-          <Button
-            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Submit"
-          />
-        </View>
-      )}
-    </Formik>
+    <View>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {({ handleSubmit }): JSX.Element => (
+          <View style={styles.loginForm}>
+            <FormikTextInput name="title" placeholder="Title" />
+            <FormikTextInput name="price" placeholder="Price" />
+            <FormikTextInput multiline style={{ height: 100 }} name="description" placeholder="Description" />
+            <FormikImageInput name="imageUri" />
+            <FormikPicker items={categories} name="category" />
+            <Button
+              handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Submit"
+            />
+          </View>
+        )}
+      </Formik>
+
+    </View>
   );
 };
 
