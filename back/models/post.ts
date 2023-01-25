@@ -12,6 +12,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare price: string;
 
+  declare description: string;
+
   declare userId: number;
 
   declare categoryId: number;
@@ -33,6 +35,10 @@ Post.init(
       allowNull: false
     },
     price: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+    description: {
       type: DataTypes.TEXT,
       allowNull: false
     },

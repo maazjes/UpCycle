@@ -9,6 +9,8 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare username: string;
 
   declare name: string;
+
+  declare passwordHash: string;
 }
 
 User.init(
@@ -24,6 +26,10 @@ User.init(
       allowNull: false
     },
     name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    passwordHash: {
       type: DataTypes.STRING,
       allowNull: false
     }

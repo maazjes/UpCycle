@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import express from 'express';
+import bcrypt from 'bcrypt';
 import { SECRET } from '../util/config';
 import { User } from '../models';
 import { Request, Response } from '../types';
@@ -16,8 +17,11 @@ router.post('/', async (
       username
     }
   });
-  const passwordCorrect = password === 'salainen';
-  if (!(user && passwordCorrect)) {
+  const passwordCorrect = user === null
+    ? false
+    : await bcrypt.compare(password, user.passwordHash);
+
+  if (!user || !passwordCorrect) {
     res.status(401).json({
       error: 'invalid username or password'
     });

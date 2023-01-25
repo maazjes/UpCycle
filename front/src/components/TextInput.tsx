@@ -5,7 +5,7 @@ interface Props extends TextInputProps {
 }
 
 const TextInput = ({ style, error, ...props }: Props): JSX.Element => {
-  const textInputStyle = StyleSheet.flatten([style, error && { borderColor: 'red', marginBottom: 20 }]);
+  const textInputStyle = StyleSheet.flatten([style, error && { borderColor: 'red', marginBottom: 5 }]);
 
   return <NativeTextInput style={textInputStyle} {...props} />;
 };

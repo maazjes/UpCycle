@@ -32,8 +32,12 @@ interface PostsResponse extends PaginationBase {
   posts: Post[];
 }
 
-router.get('/', async (req: Request<{ page: string; size: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
-  const { page, size, user } = req.query;
+router.get('/', async (req: Request<{ page?: string; size?: string; username?: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
+  let where = {};
+  if (req.query.username) {
+    where = { user: { username: req.query.username } };
+  }
+  const { page, size } = req.query;
   const { limit, offset } = getPagination(Number(page), Number(size));
   const posts = await Post.findAndCountAll({
     attributes: { exclude: ['userId'] },
@@ -42,10 +46,24 @@ router.get('/', async (req: Request<{ page: string; size: string }, {}, {}>, res
       attributes: ['name']
     },
     limit,
-    offset
+    offset,
+    where
   });
   const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
   res.json(response);
+});
+
+router.get('/:id', async (req: Request<{}, {}, {}>, res: Response<Post>): Promise<void> => {
+  let where = {};
+  const { id } = req.params;
+  if (id) {
+    where = { id };
+  }
+  const post = await Post.findOne({ where });
+  if (post === null) {
+    return;
+  }
+  res.json(post);
 });
 
 interface MulterFile extends File {
@@ -53,7 +71,7 @@ interface MulterFile extends File {
 }
 
 interface AuthRequest extends Request<{}, {}, {
-  title: string; price: string; category: string; img: MulterFile; }> {
+  title: string; price: string; category: string; description: string; img: MulterFile; }> {
   decodedToken?: { id: string };
 }
 

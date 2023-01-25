@@ -7,7 +7,8 @@ interface LoginResponse {
   name: string;
   token: string;
 }
-const login = async (username: string, password: string): Promise<AxiosResponse<LoginResponse>> => {
+const login = async (username: string, password: string):
+Promise<AxiosResponse<LoginResponse>> => {
   try {
     const response = await axios.post(`${baseUrl}`, { username, password });
     return response;

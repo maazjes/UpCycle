@@ -7,17 +7,20 @@ const newPost = async ({
   title,
   price,
   imageUri,
-  category
+  category,
+  description
 }: {
   imageUri: string;
   title: string;
   price: string;
   category: string;
+  description: string;
 }): Promise<Object> => {
   const formdata = new FormData();
   formdata.append('title', title);
   formdata.append('price', price);
   formdata.append('category', category);
+  formdata.append('description', description);
   const split = imageUri.split('.');
   const extension = split[split.length - 1];
   formdata.append(
@@ -31,13 +34,11 @@ const newPost = async ({
     )
   );
   try {
-    console.log(axios.defaults.headers.common.Authorization);
     const res = await axios.post(baseUrl, formdata, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
     });
-    console.log(res);
     return res;
   } catch (e) {
     throw new Error(`Adding the post failed ${e}`);
@@ -48,16 +49,28 @@ interface PostsResponse {
   totalItems: number;
   totalPages: number;
   currentPage: number;
-  posts: PostBase[];
+  posts: PostBase[] | [];
 }
 
-const getPosts = async (page: number, size: number): Promise<AxiosResponse<PostsResponse>> => {
+const getPosts = async (page?: number, size?: number):
+Promise<AxiosResponse<PostsResponse>> => {
+  const query = `${baseUrl}?page=${page}&size=${size}`;
   try {
-    const response = await axios.get(`${baseUrl}?page=${page}&size=${size}`);
+    const response = await axios.get(query);
     return response;
   } catch (e) {
     throw new Error(`Getting posts failed ${e}`);
   }
 };
 
-export default { newPost, getPosts };
+const getPostById = async (id: string): Promise<AxiosResponse<PostBase | null>> => {
+  const query = `${baseUrl}/${id}`;
+  try {
+    const post = await axios.get(query);
+    return post;
+  } catch (e) {
+    throw new Error(`Getting post failed ${e}`);
+  }
+};
+
+export default { newPost, getPosts, getPostById };

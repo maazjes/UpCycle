@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 2
   },
-  loginField: {
+  inputField: {
     height: 50,
     borderWidth: 1,
     borderColor: '#d5dbd7',
@@ -24,21 +24,21 @@ interface Props extends TextInputProps {
   name: string;
 }
 
-const FormikTextInput = ({ name, ...props }: Props): JSX.Element => {
+const FormikTextInput = ({ name, style, ...props }: Props): JSX.Element => {
   const [field, meta, helpers] = useField(name);
-  const showError = meta.touched;
-  const { error } = meta;
+  const { error, touched } = meta;
+  const showError = (touched && error !== undefined);
   return (
     <>
       <TextInput
-        style={styles.loginField}
+        style={StyleSheet.flatten([styles.inputField, style])}
         onChangeText={(value: string): void => helpers.setValue(value)}
         onBlur={(): void => helpers.setTouched(true)}
         value={field.value}
         error={showError}
         {...props}
       />
-      {showError && error && <Text style={styles.errorText}>{error}</Text>}
+      {showError && <Text style={styles.errorText}>{error}</Text>}
     </>
   );
 };

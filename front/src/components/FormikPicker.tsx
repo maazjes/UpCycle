@@ -11,13 +11,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 2
   },
-  loginField: {
-    height: 50,
-    borderWidth: 1,
-    borderColor: '#d5dbd7',
-    marginBottom: 10,
-    borderRadius: 4,
-    paddingLeft: 15,
+  inputField: {
     display: 'none'
   }
 });
@@ -57,7 +51,7 @@ const FormikPicker = ({ name, items, ...props }: Props): JSX.Element => {
         )}
       </Picker>
       <TextInput
-        style={styles.loginField}
+        style={styles.inputField}
         onChangeText={(value: string): void => helpers.setValue(value)}
         onBlur={(): void => helpers.setTouched(true)}
         value={field.value}

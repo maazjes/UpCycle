@@ -6,6 +6,8 @@ import AppBar from './components/AppBar';
 import NewPostForm from './views/NewPostForm';
 import Main from './views/Main';
 import LoginForm from './views/LoginForm';
+import RegistrationForm from './views/RegistrationForm';
+import SinglePost from './views/SinglePost';
 
 export default (): JSX.Element => (
   <View>
@@ -16,6 +18,8 @@ export default (): JSX.Element => (
       <Route path="/new-post" element={<NewPostForm />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/login" element={<LoginForm />} />
+      <Route path="/register" element={<RegistrationForm />} />
+      <Route path="/:postId" element={<SinglePost />} />
     </Routes>
   </View>
 );

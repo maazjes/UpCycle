@@ -13,10 +13,12 @@ const Main = (): JSX.Element => {
     };
     getResponse();
   }, []);
-  if (posts === null) {
+  if (!posts) {
     return <Text>loading</Text>;
   }
-  return <GridView posts={posts} />;
+  return (
+    <GridView posts={posts} />
+  );
 };
 
 export default Main;

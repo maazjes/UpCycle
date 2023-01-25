@@ -27,8 +27,13 @@ const validationSchema = yup.object().shape({
   price: yup
     .string()
     .min(1, 'Minimum length of price is 1')
-    .max(50, 'Maximum length of price is 4')
-    .required('Price is required')
+    .max(4, 'Maximum length of price is 4')
+    .required('Price is required'),
+  description: yup
+    .string()
+    .min(10, 'Minimum length of description is 10')
+    .max(100, 'Maximum length of description is 100')
+    .required('Description is required')
 });
 
 const NewPostForm = (): JSX.Element => {
@@ -44,15 +49,12 @@ const NewPostForm = (): JSX.Element => {
     title: string;
     price: string;
     category: string;
+    description: string;
   }): Promise<void> => {
     await postService.newPost(values);
   };
 
-  if (categories === null) {
-    return <Text>loading</Text>;
-  }
-
-  if (categories[0].name === 'null') {
+  if (!categories) {
     return <Text>loading</Text>;
   }
 
@@ -60,6 +62,7 @@ const NewPostForm = (): JSX.Element => {
     title: '',
     price: '',
     imageUri: '',
+    description: '',
     category: categories[0].name
   };
 
@@ -69,6 +72,7 @@ const NewPostForm = (): JSX.Element => {
         <View style={styles.loginForm}>
           <FormikTextInput name="title" placeholder="Title" />
           <FormikTextInput name="price" placeholder="Price" />
+          <FormikTextInput multiline style={{ height: 100 }} name="description" placeholder="Description" />
           <FormikImageInput name="imageUri" />
           <FormikPicker items={categories} name="category" />
           <Button

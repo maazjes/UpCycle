@@ -7,6 +7,7 @@ const styles = StyleSheet.create({
     paddingLeft: 20 / 2,
     backgroundColor: '#24292e',
     paddingBottom: 20,
+    marginBottom: 20,
     flexDirection: 'row'
   },
   link: {

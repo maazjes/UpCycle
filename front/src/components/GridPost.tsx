@@ -1,4 +1,6 @@
-import { StyleSheet, Image, View } from 'react-native';
+import {
+  StyleSheet, Image, View, ImageStyle, ViewStyle
+} from 'react-native';
 import Text from './Text';
 
 const styles = StyleSheet.create({
@@ -16,16 +18,25 @@ const styles = StyleSheet.create({
   }
 });
 
-const GridPost = ({ title, price, imageUrl }: {
+const GridPost = ({
+  title, price, imageUrl, description = '', imageStyle = {}, containerStyle = {}
+}: {
   title: string;
   price: string;
   imageUrl: string;
+  description?: string;
+  imageStyle?: ImageStyle;
+  containerStyle?: ViewStyle;
 }): JSX.Element => (
-  <View>
-    <Image style={styles.gridPostImage} source={{ uri: imageUrl }} />
+  <View style={containerStyle}>
+    <Image
+      style={StyleSheet.flatten([styles.gridPostImage, imageStyle])}
+      source={{ uri: imageUrl }}
+    />
     <View style={styles.gridPostText}>
       <Text>{title}</Text>
       <Text>{price}</Text>
+      <Text>{description}</Text>
     </View>
   </View>
 );
