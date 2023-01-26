@@ -21,7 +21,7 @@ interface Props extends TextInputProps {
 }
 
 const FormikImageInput = ({ name, ...props }: Props): JSX.Element => {
-  const [field, meta, helpers] = useField(name);
+  const [field, meta, helpers] = useField<string>(name);
   const showError = meta.touched;
   const { error } = meta;
 

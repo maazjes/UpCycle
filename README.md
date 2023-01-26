@@ -7,5 +7,5 @@ Added a functioning form to add a new post to backend and started typing the pro
 Added custom types for the backend and continues typing it. Started making the frontpage on the frontend. // 6 hours
 Changed image upload to s3 to newer library. Started making the front page and made a login page for the frontend. Added more types to frontend and backend. // 8 hours
 Extended post fields, added registration and custom passwords for users, made a single page for unique posts, created a hook for using asyncstorage and login. // 8 hours
-
-total: 49 hours
+Added redux for token managing, created public and private profile page with a possibility to delete your own posts, added custom types for redux, added a single post page. // 10 hours
+total: 59 hours

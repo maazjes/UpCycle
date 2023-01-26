@@ -1,4 +1,5 @@
-import store from '../util/configureStore';
+// eslint-disable-next-line import/no-cycle
+import store from '../util/store';
 
 export type RootState = ReturnType<typeof store.getState>;
 

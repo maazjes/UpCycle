@@ -27,7 +27,7 @@ interface Props extends TextInputProps {
 const FormikPicker = ({ name, items, ...props }: Props): JSX.Element => {
   // @ts-ignore
   const [selectedCategory, setSelectedCategory] = useState(items[0].name);
-  const [field, meta, helpers] = useField(name);
+  const [field, meta, helpers] = useField<string>(name);
   const showError = meta.touched;
   const { error } = meta;
 

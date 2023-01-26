@@ -25,13 +25,11 @@ const newPost = async ({
   const extension = split[split.length - 1];
   formdata.append(
     'img',
-    JSON.parse(
-      JSON.stringify({
-        uri: imageUri,
-        name: `image.${extension}`,
-        type: `image/${extension}`
-      })
-    )
+    JSON.stringify({
+      uri: imageUri,
+      name: 'image',
+      type: `image/${extension}`
+    })
   );
   const res = await axios.post(baseUrl, formdata, {
     headers: {
@@ -54,19 +52,19 @@ Promise<AxiosResponse<PostsResponse>> => {
   if (userId) {
     query += `&userId=${userId}`;
   }
-  const response = await axios.get(query);
+  const response = await axios.get<PostsResponse>(query);
   return response;
 };
 
 const getPostById = async (id: number): Promise<AxiosResponse<PostBase | null>> => {
   const query = `${baseUrl}/${id}`;
-  const post = await axios.get(query);
+  const post = await axios.get<PostBase | null>(query);
   return post;
 };
 
 const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
   const query = `${baseUrl}/${id}`;
-  const post = axios.delete(query);
+  const post = axios.delete<PostBase>(query);
   return post;
 };
 

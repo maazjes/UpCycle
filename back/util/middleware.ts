@@ -1,15 +1,15 @@
-import { NextFunction } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { SECRET } from './config';
-import { Request, Response } from '../types';
+import { DecodedToken } from '../types';
 
-interface TokenExtractorRequest extends Request<{}, { authorization?: string }, {}> {
-  decodedToken?: string | JwtPayload;
+interface TokenExtractorRequest extends Request {
+  decodedToken?: DecodedToken;
 }
 
 const tokenExtractor = async (
   req: TokenExtractorRequest,
-  res: Response<{ error?: string }>,
+  res: Response,
   next: NextFunction
 ): Promise<void> => {
   const authorization = req.get('authorization');
@@ -20,7 +20,7 @@ const tokenExtractor = async (
   const token = authorization?.substring(7);
   if (token) {
     const decodedToken = jwt.verify(token, SECRET);
-    req.decodedToken = decodedToken;
+    req.decodedToken = decodedToken as DecodedToken;
   }
   next();
 };

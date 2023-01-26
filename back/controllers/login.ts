@@ -3,13 +3,24 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import { SECRET } from '../util/config';
 import { User } from '../models';
-import { Request, Response } from '../types';
+import { ErrorResponse } from '../types';
 
 const router = express.Router();
 
-router.post('/', async (
-  req: Request<{}, {}, { username: string; password: string }>,
-  res: Response<{ error: string } | { token: string; username: string; name: string }>
+interface LoginResponse {
+  token: string;
+  username: string;
+  name: string;
+}
+
+interface LoginBody {
+  username: string;
+  password: string;
+}
+
+router.post<{}, LoginResponse | ErrorResponse, LoginBody>('/', async (
+  req,
+  res
 ): Promise<void> => {
   const { username, password } = req.body;
   const user = await User.findOne({

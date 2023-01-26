@@ -1,21 +1,22 @@
 import { useNavigate } from 'react-router-native';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from './redux';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from './useAuthStorage';
 import loginService from '../services/login';
+import { User } from '../types';
 
-const useLogin = (): Function => {
+const useLogin = (): typeof logIn => {
   const authStorage = useAuthStorage();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const logIn = async ({ username, password }:
-  { username: string; password: string }): Promise<{ token: string }> => {
+  { username: string; password: string }): Promise<User> => {
     const response = await loginService.login(username, password);
     const body = response.data;
     await authStorage.setUser(body);
     axios.defaults.headers.common.Authorization = `bearer ${body.token}`;
-    dispatch(addUser({ username: body.username, token: body.token }));
+    dispatch(addUser(body));
     navigate('/');
     return response.data;
   };

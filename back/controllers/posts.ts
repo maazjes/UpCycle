@@ -1,6 +1,7 @@
-import express from 'express';
+import express, { Response, Request, Express } from 'express';
 import {
-  Request, Response, PaginationBase, ErrorResponse
+  PaginationBase,
+  DecodedToken, NewPostBody
 } from '../types';
 import upload from '../util/multer';
 import { Post, User, Category } from '../models';
@@ -34,7 +35,7 @@ interface PostsResponse extends PaginationBase {
   posts: Post[];
 }
 
-router.get('/', async (req: Request<{ page?: string; size?: string; userId?: string }, {}, {}>, res: Response<PostsResponse>): Promise<void> => {
+router.get<{}, PostsResponse, {}, { userId: number; page: number; size: number }>('/', async (req, res): Promise<void> => {
   const { userId } = req.query;
   const where = userId ? { userId } : {};
   const { page, size } = req.query;
@@ -57,7 +58,7 @@ router.get('/', async (req: Request<{ page?: string; size?: string; userId?: str
   res.json(response);
 });
 
-router.get('/:id', async (req: Request<{}, {}, {}>, res: Response<Post>): Promise<void> => {
+router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const where = id ? { id } : {};
   const post = await Post.findOne({
@@ -78,7 +79,7 @@ router.get('/:id', async (req: Request<{}, {}, {}>, res: Response<Post>): Promis
   res.json(post);
 });
 
-router.delete('/:id', async (req: Request<{}, {}, {}>, res: Response<Post | ErrorResponse>): Promise<void> => {
+router.delete<{ id: string }, { error: string } | Post>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const where = id ? { id } : {};
   const post = await Post.findOne({ where });
@@ -90,16 +91,21 @@ router.delete('/:id', async (req: Request<{}, {}, {}>, res: Response<Post | Erro
   res.json(post);
 });
 
-interface MulterFile extends File {
-  location: string;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+interface MulterFile extends Express.Multer.File {
+  location?: string;
 }
 
-interface AuthRequest extends Request<{}, {}, {
-  title: string; price: string; category: string; description: string; img: MulterFile; }> {
-  decodedToken?: { id: string };
+interface AuthRequest extends Request<{}, {}, NewPostBody> {
+  decodedToken?: DecodedToken;
+  file?: MulterFile;
 }
 
-router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<Post | ErrorResponse>): Promise<void> => {
+router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<Post | { error: string }>): Promise<void> => {
+  if (!req.decodedToken?.id) {
+    res.status(401).json({ error: 'invalid token' });
+    return;
+  }
   const user = await User.findByPk(req.decodedToken?.id);
   const category = await Category.findOne({ where: { name: req.body.category } });
   if (!user) {
@@ -110,12 +116,14 @@ router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, 
     res.status(400).json({ error: 'invalid category' });
     return;
   }
+  if (!req.file?.location) {
+    return;
+  }
   const post = await Post.create({
     ...req.body,
     userId: user.id,
     categoryId: category.id,
-    // @ts-ignore
-    imageUrl: req.file?.location
+    imageUrl: req.file.location
   });
   res.json(post);
 });

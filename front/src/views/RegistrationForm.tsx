@@ -4,6 +4,7 @@ import * as yup from 'yup';
 import { useNavigate } from 'react-router-native';
 import useLogin from '../hooks/useLogin';
 import usersService from '../services/users';
+import useNotification from '../hooks/useNotification';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 
@@ -35,6 +36,7 @@ const validationSchema = yup.object().shape({
 });
 
 const RegistrationForm = (): JSX.Element => {
+  const notification = useNotification();
   const navigate = useNavigate();
   const login = useLogin();
 
@@ -55,8 +57,12 @@ const RegistrationForm = (): JSX.Element => {
     if (!response) {
       return;
     }
-    await login({ username, password });
-    navigate('/');
+    try {
+      await login({ username, password });
+      navigate('/');
+    } catch (e) {
+      notification(`login failed ${e}`, true);
+    }
   };
 
   return (

@@ -9,10 +9,12 @@ import Main from './views/Main';
 import LoginForm from './views/LoginForm';
 import RegistrationForm from './views/RegistrationForm';
 import SinglePost from './views/SinglePost';
+import Notification from './components/Notification';
 
 export default (): JSX.Element => (
   <View>
     <AppBar />
+    <Notification />
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="*" element={<Navigate to="/" replace />} />
