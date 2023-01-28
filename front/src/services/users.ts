@@ -1,7 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import api from '../util/axiosInstance';
 import { User } from '../types';
-
-const baseUrl = 'http://192.168.0.104:8080/api/users';
 
 interface RegistrationResponse {
   username: string;
@@ -9,17 +8,17 @@ interface RegistrationResponse {
 }
 const register = async (username: string, name: string, password: string):
 Promise<AxiosResponse<RegistrationResponse>> => {
-  const response = await axios.post(`${baseUrl}`, { username, name, password });
+  const response = await api.post('users', { username, name, password });
   return response;
 };
 
 const getUsers = async (): Promise<AxiosResponse<User[]>> => {
-  const users = await axios.get(baseUrl);
+  const users = await api.get('users');
   return users;
 };
 
 const getUserById = async (id: number): Promise<AxiosResponse<User>> => {
-  const user = await axios.get(`${baseUrl}/${id}`);
+  const user = await api.get(`users/${id}`);
   return user;
 };
 

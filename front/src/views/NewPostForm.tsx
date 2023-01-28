@@ -9,6 +9,8 @@ import categoriesService from '../services/categories';
 import FormikTextInput from '../components/FormikTextInput';
 import FormikImageInput from '../components/FormikImageInput';
 import FormikPicker from '../components/FormikPicker';
+import useNotification from '../hooks/useNotification';
+import useError from '../hooks/useError';
 import Button from '../components/Button';
 import { Category } from '../types';
 
@@ -38,6 +40,8 @@ const validationSchema = yup.object().shape({
 
 const NewPostForm = (): JSX.Element => {
   const [categories, setCategories] = useState<Category[] | null>(null);
+  const notification = useNotification();
+  const error = useError();
   useEffect((): void => {
     categoriesService.getCategories().then((result): void => {
       setCategories(result.data);
@@ -51,7 +55,12 @@ const NewPostForm = (): JSX.Element => {
     category: string;
     description: string;
   }): Promise<void> => {
-    await postService.newPost({ ...values, price: `${values.price}€` });
+    try {
+      await postService.newPost({ ...values, price: `${values.price}€` });
+      notification('Post created successfully', false);
+    } catch (e) {
+      error(e);
+    }
   };
 
   if (!categories) {

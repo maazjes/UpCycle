@@ -3,8 +3,8 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-native';
 import useLogin from '../hooks/useLogin';
+import useError from '../hooks/useError';
 import usersService from '../services/users';
-import useNotification from '../hooks/useNotification';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 
@@ -36,9 +36,9 @@ const validationSchema = yup.object().shape({
 });
 
 const RegistrationForm = (): JSX.Element => {
-  const notification = useNotification();
   const navigate = useNavigate();
   const login = useLogin();
+  const error = useError();
 
   const initialValues = {
     username: '',
@@ -53,15 +53,12 @@ const RegistrationForm = (): JSX.Element => {
     password: string;
     passwordConfirmation: string;
   }): Promise<void> => {
-    const response = await usersService.register(username, name, password);
-    if (!response) {
-      return;
-    }
     try {
+      await usersService.register(username, name, password);
       await login({ username, password });
       navigate('/');
     } catch (e) {
-      notification(`login failed ${e}`, true);
+      error(e);
     }
   };
 

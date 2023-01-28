@@ -9,7 +9,7 @@ const styles = StyleSheet.create({
   },
   success: {
     color: 'green',
-    background: 'lightgrey',
+    backgroundColor: 'lightgrey',
     borderStyle: 'solid',
     borderRadius: 5,
     padding: 10,

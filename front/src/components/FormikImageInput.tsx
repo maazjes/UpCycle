@@ -32,7 +32,6 @@ const FormikImageInput = ({ name, ...props }: Props): JSX.Element => {
       aspect: [1, 1],
       quality: 1
     });
-
     if (!result.canceled) {
       helpers.setValue(result.assets[0].uri);
     }

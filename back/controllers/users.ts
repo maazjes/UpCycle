@@ -25,7 +25,7 @@ router.get <{ id: string }, User>('/:id', async (req, res): Promise<void> => {
     where
   });
   if (!user) {
-    return;
+    throw new Error('user not found');
   }
   res.json(user);
 });

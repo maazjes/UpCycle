@@ -28,15 +28,15 @@ router.post<{}, LoginResponse | ErrorResponse, LoginBody>('/', async (
       username
     }
   });
+  if (!user) {
+    throw new Error('invalid username');
+  }
   const passwordCorrect = user === null
     ? false
     : await bcrypt.compare(password, user.passwordHash);
 
-  if (!user || !passwordCorrect) {
-    res.status(401).json({
-      error: 'invalid username or password'
-    });
-    return;
+  if (!passwordCorrect) {
+    throw new Error('invalid password');
   }
   const userForToken = {
     username: user.username,

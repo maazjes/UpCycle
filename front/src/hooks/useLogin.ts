@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-native';
-import axios from 'axios';
+import api from '../util/axiosInstance';
 import { useAppDispatch } from './redux';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from './useAuthStorage';
@@ -15,7 +15,7 @@ const useLogin = (): typeof logIn => {
     const response = await loginService.login(username, password);
     const body = response.data;
     await authStorage.setUser(body);
-    axios.defaults.headers.common.Authorization = `bearer ${body.token}`;
+    api.defaults.headers.common.Authorization = `bearer ${body.token}`;
     dispatch(addUser(body));
     navigate('/');
     return response.data;

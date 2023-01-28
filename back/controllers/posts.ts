@@ -1,4 +1,4 @@
-import express, { Response, Request, Express } from 'express';
+import express, { Response, Request } from 'express';
 import {
   PaginationBase,
   DecodedToken, NewPostBody
@@ -74,7 +74,7 @@ router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
     where
   });
   if (!post) {
-    return;
+    throw new Error('post not found');
   }
   res.json(post);
 });
@@ -84,8 +84,7 @@ router.delete<{ id: string }, { error: string } | Post>('/:id', async (req, res)
   const where = id ? { id } : {};
   const post = await Post.findOne({ where });
   if (!post) {
-    res.status(404).json({ error: 'post not found' });
-    return;
+    throw new Error('post not found');
   }
   await post.destroy();
   res.json(post);
@@ -102,22 +101,21 @@ interface AuthRequest extends Request<{}, {}, NewPostBody> {
 }
 
 router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<Post | { error: string }>): Promise<void> => {
+  console.log(req.body);
   if (!req.decodedToken?.id) {
-    res.status(401).json({ error: 'invalid token' });
-    return;
+    throw new Error('invalid token');
   }
   const user = await User.findByPk(req.decodedToken?.id);
   const category = await Category.findOne({ where: { name: req.body.category } });
   if (!user) {
-    res.status(401).json({ error: 'invalid token' });
-    return;
+    throw new Error('user not found');
   }
   if (!category) {
-    res.status(400).json({ error: 'invalid category' });
-    return;
+    throw new Error('category not found');
   }
+  console.log(req.file);
   if (!req.file?.location) {
-    return;
+    throw new Error('image missing from request');
   }
   const post = await Post.create({
     ...req.body,

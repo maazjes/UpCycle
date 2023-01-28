@@ -1,7 +1,6 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
+import api from '../util/axiosInstance';
 import { PostBase } from '../types';
-
-const baseUrl = 'http://192.168.0.104:8080/api/posts';
 
 const newPost = async ({
   title,
@@ -16,22 +15,20 @@ const newPost = async ({
   category: string;
   description: string;
 }): Promise<Object> => {
+  const split = imageUri.split('.');
+  const extension = split[split.length - 1];
+  const img = {
+    uri: imageUri,
+    name: 'image',
+    type: `image/${extension}`
+  } as unknown as Blob;
   const formdata = new FormData();
   formdata.append('title', title);
   formdata.append('price', price);
   formdata.append('category', category);
   formdata.append('description', description);
-  const split = imageUri.split('.');
-  const extension = split[split.length - 1];
-  formdata.append(
-    'img',
-    JSON.stringify({
-      uri: imageUri,
-      name: 'image',
-      type: `image/${extension}`
-    })
-  );
-  const res = await axios.post(baseUrl, formdata, {
+  formdata.append('img', img);
+  const res = await api.postForm<PostBase>('posts', formdata, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
@@ -48,23 +45,23 @@ interface PostsResponse {
 
 const getPosts = async ({ page, size, userId }: { page: number; size: number; userId?: number }):
 Promise<AxiosResponse<PostsResponse>> => {
-  let query = `${baseUrl}?page=${page}&size=${size}`;
+  let query = `posts?page=${page}&size=${size}`;
   if (userId) {
     query += `&userId=${userId}`;
   }
-  const response = await axios.get<PostsResponse>(query);
+  const response = await api.get<PostsResponse>(query);
   return response;
 };
 
 const getPostById = async (id: number): Promise<AxiosResponse<PostBase | null>> => {
-  const query = `${baseUrl}/${id}`;
-  const post = await axios.get<PostBase | null>(query);
+  const query = `posts/${id}`;
+  const post = await api.get<PostBase | null>(query);
   return post;
 };
 
 const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
-  const query = `${baseUrl}/${id}`;
-  const post = axios.delete<PostBase>(query);
+  const query = `posts/${id}`;
+  const post = api.delete<PostBase>(query);
   return post;
 };
 

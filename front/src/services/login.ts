@@ -1,11 +1,10 @@
-import axios, { AxiosResponse } from 'axios';
+import { AxiosResponse } from 'axios';
 import { User } from '../types';
-
-const baseUrl = 'http://192.168.0.104:8080/api/login';
+import api from '../util/axiosInstance';
 
 const login = async (username: string, password: string):
 Promise<AxiosResponse<User>> => {
-  const response = await axios.post(`${baseUrl}`, { username, password });
+  const response = await api.post('login', { username, password });
   return response;
 };
 

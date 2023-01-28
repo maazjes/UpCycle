@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 import { useNavigate } from 'react-router-native';
 import { Button, Menu as PaperMenu } from 'react-native-paper';
-import axios from 'axios';
+import api from '../util/axiosInstance';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { User } from '../types';
 import { addUser } from '../reducers/userReducer';
@@ -21,10 +21,11 @@ const Menu = (): JSX.Element => {
 
   const logout = async (): Promise<void> => {
     await authStorage.removeUser();
-    axios.defaults.headers.common.Authorization = undefined;
+    api.defaults.headers.common.Authorization = undefined;
     dispatch(addUser({
       username: '', token: '', name: '', id: -1
     }));
+    navigate('/');
   };
 
   useEffect((): void => {
@@ -32,7 +33,7 @@ const Menu = (): JSX.Element => {
       const user = await authStorage.getUser();
       if (user) {
         dispatch(addUser(user));
-        axios.defaults.headers.common.Authorization = `bearer ${user.token}`;
+        api.defaults.headers.common.Authorization = `bearer ${user.token}`;
       }
     };
     getToken();

@@ -3,9 +3,9 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-native';
 import useLogin from '../hooks/useLogin';
+import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
-import useNotification from '../hooks/useNotification';
 
 const styles = StyleSheet.create({
   loginForm: {
@@ -27,9 +27,9 @@ const validationSchema = yup.object().shape({
 });
 
 const LoginForm = (): JSX.Element => {
-  const notification = useNotification();
   const navigate = useNavigate();
   const login = useLogin();
+  const error = useError();
 
   const initialValues = {
     username: '',
@@ -46,7 +46,7 @@ const LoginForm = (): JSX.Element => {
       await login({ username, password });
       navigate('/');
     } catch (e) {
-      notification(`login failed ${e}`, true);
+      error(e);
     }
   };
 

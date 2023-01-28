@@ -29,7 +29,11 @@ const PrivateProfile = (): JSX.Element => {
     visible[postId] = false;
     setVisible({ ...visible, postId: false });
   };
-  const deletePost = async (id: number): Promise<void> => {
+  const onDelete = async (id: number): Promise<void> => {
+    const deletePost = async (): Promise<void> => {
+      await postsService.deletePost(id);
+    };
+
     Alert.alert('Delete post', 'Are you sure you want to delete this post?', [
       {
         text: 'Cancel',
@@ -38,7 +42,7 @@ const PrivateProfile = (): JSX.Element => {
       },
       {
         text: 'Delete',
-        onPress: async (): Promise<void> => { await postsService.deletePost(id); }
+        onPress: deletePost
       }
     ]);
   };
@@ -80,7 +84,7 @@ const PrivateProfile = (): JSX.Element => {
                   </Button>
                 )}
               >
-                <Menu.Item onPress={(): Promise<void> => deletePost(post.id)} title="Delete post" />
+                <Menu.Item onPress={(): Promise<void> => onDelete(post.id)} title="Delete post" />
               </Menu>
             </DataTable.Cell>
           </DataTable.Row>

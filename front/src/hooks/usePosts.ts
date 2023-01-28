@@ -7,7 +7,6 @@ const usePosts = (params: { page: number; size: number; userId?: number }):
   const [posts, setPosts] = useState<PostBase[] | null>(null);
   const getPosts = async (): Promise<void> => {
     const response = await postsService.getPosts(params);
-    console.log(response);
     if (response.data.posts) {
       setPosts(response.data.posts);
     }
