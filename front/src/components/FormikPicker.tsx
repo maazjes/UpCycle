@@ -32,7 +32,6 @@ const FormikPicker = ({ name, items }: Props): JSX.Element => {
           setSelectedItem(itemValue);
         }}
       >
-        <Picker.Item key="category" label="category" value="" />
         {items.map(
           (item): JSX.Element => (
             <Picker.Item

@@ -112,8 +112,9 @@ interface AuthRequest extends Request<{}, {}, NewPostBody> {
 router.post(
   '/',
   tokenExtractor,
-  upload.single('img'),
+  upload.array('images', 5),
   async (req: AuthRequest, res: Response<Post>): Promise<void> => {
+    console.log(req.files);
     if (!req.decodedToken?.id) {
       throw new Error('invalid token');
     }

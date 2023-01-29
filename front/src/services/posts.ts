@@ -1,33 +1,36 @@
 import { AxiosResponse } from 'axios';
 import api from '../util/axiosInstance';
-import { PostBase } from '../types';
+import { PostBase, TypedImage, NewPostProps } from '../types';
+
+const formatImages = (images: TypedImage[]): Blob[] => {
+  const formattedImages = [] as Blob[];
+  images.forEach((image): void => {
+    const split = image.uri.split('.');
+    const extension = split[split.length - 1];
+    const formattedImage = {
+      uri: image.uri,
+      name: 'image',
+      type: `image/${extension}`
+    } as unknown as Blob;
+    formattedImages.push(formattedImage);
+  });
+  return formattedImages;
+};
 
 const newPost = async ({
-  title,
-  price,
-  imageUri,
-  category,
-  description
-}: {
-  imageUri: string;
-  title: string;
-  price: string;
-  category: string;
-  description: string;
-}): Promise<Object> => {
-  const split = imageUri.split('.');
-  const extension = split[split.length - 1];
-  const img = {
-    uri: imageUri,
-    name: 'image',
-    type: `image/${extension}`
-  } as unknown as Blob;
+  title, price, images, category, description, location, condition
+}: NewPostProps): Promise<AxiosResponse<PostBase>> => {
+  const formattedImages = formatImages(images);
   const formdata = new FormData();
   formdata.append('title', title);
   formdata.append('price', price);
   formdata.append('category', category);
   formdata.append('description', description);
-  formdata.append('img', img);
+  formdata.append('location', JSON.stringify(location));
+  formdata.append('condition', condition);
+  formattedImages.forEach((image): void => {
+    formdata.append('images', image);
+  });
   const res = await api.postForm<PostBase>('posts', formdata, {
     headers: {
       'Content-Type': 'multipart/form-data'

@@ -1,10 +1,9 @@
 import {
-  View, StyleSheet, GestureResponderEvent
+  View, StyleSheet, GestureResponderEvent, ScrollView
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { ImagePickerAsset } from 'expo-image-picker';
 import postService from '../services/posts';
 import categoriesService from '../services/categories';
 import FormikTextInput from '../components/FormikTextInput';
@@ -14,7 +13,7 @@ import PostCodeInput from '../components/PostCodeInput';
 import useNotification from '../hooks/useNotification';
 import useError from '../hooks/useError';
 import Button from '../components/Button';
-import { Category } from '../types';
+import { Category, TypedImage, NewPostProps } from '../types';
 
 const styles = StyleSheet.create({
   loginForm: {
@@ -60,14 +59,7 @@ const NewPostForm = (): JSX.Element => {
     });
   }, []);
 
-  const onSubmit = async (values: {
-    images: ImagePickerAsset[];
-    title: string;
-    price: string;
-    category: string;
-    description: string;
-  }): Promise<void> => {
-    console.log(values);
+  const onSubmit = async (values: NewPostProps): Promise<void> => {
     try {
       await postService.newPost({ ...values, price: `${values.price}€` });
       notification('Post created successfully.', false);
@@ -76,7 +68,7 @@ const NewPostForm = (): JSX.Element => {
     }
   };
 
-  const categoryNames = categories?.map((category): string => category.name);
+  const categoryNames = ['category'].concat(categories ? categories.map((category): string => category.name) : []);
 
   const initialValues = {
     title: '',
@@ -84,29 +76,30 @@ const NewPostForm = (): JSX.Element => {
     images: [],
     description: '',
     location: { city: '', postcode: '' },
-    category: ''
+    category: '',
+    condition: ''
   };
 
-  return (
-    <View>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-        {({ handleSubmit }): JSX.Element => (
-          <View style={styles.loginForm}>
-            <FormikTextInput name="title" placeholder="Title" />
-            <FormikTextInput name="price" placeholder="Price" />
-            <PostCodeInput name="location" />
-            <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
-            <FormikImageInput name="images" />
-            {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
-            <Button
-              handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-              text="Submit"
-            />
-          </View>
-        )}
-      </Formik>
+  const conditions = ['new', 'slightly used', 'used'];
 
-    </View>
+  return (
+    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ handleSubmit }): JSX.Element => (
+        <View style={styles.loginForm}>
+          <FormikTextInput name="title" placeholder="Title" />
+          <FormikTextInput name="price" placeholder="Price" />
+          <PostCodeInput name="location" />
+          <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
+          <FormikImageInput name="images" />
+          <FormikPicker items={conditions} name="condition" />
+          {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
+          <Button
+            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            text="Submit"
+          />
+        </View>
+      )}
+    </Formik>
   );
 };
 

@@ -9,4 +9,5 @@ Changed image upload to s3 to newer library. Started making the front page and m
 Extended post fields, added registration and custom passwords for users, made a single page for unique posts, created a hook for using asyncstorage and login. // 8 hours
 Added redux for token managing, created public and private profile page with a possibility to delete your own posts, added custom types for redux, added a single post page. // 10 hours
 Fixed more typescript stuff. Added error handling to backend and frontend. // 6 hours
-total: 65 hours
+started making masonry list for the front page, added new post fields to db and expanded new post form. // 12 hours
+total: 77 hours

@@ -1,10 +1,20 @@
 export interface PostBase {
   id: number;
-  imageUrl: string;
+  images: TypedImage[];
   title: string;
   price: string;
   description: string;
+  category: string;
+  location: Location;
+  condition: Condition;
   user: User;
+}
+
+type Condition = 'new' | 'slightly used' | 'used';
+
+export interface Location {
+  city: string;
+  postcode: string;
 }
 
 export interface Category {
@@ -32,5 +42,8 @@ export interface NotificationState {
 export interface TypedImage {
   width: number;
   height: number;
-  url: string;
+  uri: string;
+  tempId?: string;
 }
+
+export type NewPostProps = Omit<PostBase, 'user' | 'id'>;
