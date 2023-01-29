@@ -28,3 +28,9 @@ export interface NotificationState {
   message: string;
   error: boolean;
 }
+
+export interface TypedImage {
+  width: number;
+  height: number;
+  url: string;
+}

@@ -4,7 +4,9 @@ import {
   DecodedToken, NewPostBody
 } from '../types';
 import upload from '../util/multer';
-import { Post, User, Category } from '../models';
+import {
+  Post, User, Category, Location
+} from '../models';
 import { tokenExtractor } from '../util/middleware';
 
 const router = express.Router();
@@ -35,7 +37,14 @@ interface PostsResponse extends PaginationBase {
   posts: Post[];
 }
 
-router.get<{}, PostsResponse, {}, { userId: number; page: number; size: number }>('/', async (req, res): Promise<void> => {
+interface GetPostsQuery {
+  page: number;
+  size: number;
+  userId?: number;
+  masonry?: number;
+}
+
+router.get<{}, PostsResponse, {}, GetPostsQuery>('/', async (req, res): Promise<void> => {
   const { userId } = req.query;
   const where = userId ? { userId } : {};
   const { page, size } = req.query;
@@ -79,7 +88,7 @@ router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
   res.json(post);
 });
 
-router.delete<{ id: string }, { error: string } | Post>('/:id', async (req, res): Promise<void> => {
+router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const where = id ? { id } : {};
   const post = await Post.findOne({ where });
@@ -100,30 +109,39 @@ interface AuthRequest extends Request<{}, {}, NewPostBody> {
   file?: MulterFile;
 }
 
-router.post('/', tokenExtractor, upload.single('img'), async (req: AuthRequest, res: Response<Post | { error: string }>): Promise<void> => {
-  console.log(req.body);
-  if (!req.decodedToken?.id) {
-    throw new Error('invalid token');
+router.post(
+  '/',
+  tokenExtractor,
+  upload.single('img'),
+  async (req: AuthRequest, res: Response<Post>): Promise<void> => {
+    if (!req.decodedToken?.id) {
+      throw new Error('invalid token');
+    }
+    const user = await User.findByPk(req.decodedToken?.id);
+    if (!user) {
+      throw new Error('user not found');
+    }
+    const category = await Category.findOne({ where: { name: req.body.category } });
+    if (!category) {
+      throw new Error('category not found');
+    }
+    const location = await Location.create(req.body.location);
+    if (!location) {
+      throw new Error('creating location failed');
+    }
+    if (!req.file?.location) {
+      throw new Error('image missing from request');
+    }
+    const post = await Post.create({
+      ...req.body,
+      userId: user.id,
+      categoryId: category.id,
+      locationId: location.id,
+      // @ts-ignore
+      imageUrl: req.file.location
+    });
+    res.json(post);
   }
-  const user = await User.findByPk(req.decodedToken?.id);
-  const category = await Category.findOne({ where: { name: req.body.category } });
-  if (!user) {
-    throw new Error('user not found');
-  }
-  if (!category) {
-    throw new Error('category not found');
-  }
-  console.log(req.file);
-  if (!req.file?.location) {
-    throw new Error('image missing from request');
-  }
-  const post = await Post.create({
-    ...req.body,
-    userId: user.id,
-    categoryId: category.id,
-    imageUrl: req.file.location
-  });
-  res.json(post);
-});
+);
 
 export default router;

@@ -1,7 +1,9 @@
 import {
-  StyleSheet, Image, View, ImageStyle, ViewStyle
+  StyleSheet, View, ImageStyle, ViewStyle
 } from 'react-native';
 import Text from './Text';
+import OriginalImage from './OriginalImage';
+import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
   gridPostInfo: {
@@ -14,25 +16,24 @@ const styles = StyleSheet.create({
   }
 });
 
-const GridPost = ({
-  title, price, imageUrl, description = '', imageStyle = {}, containerStyle = {}
-}: {
-  title: string;
-  price: string;
-  imageUrl: string;
-  description?: string;
+interface GridPostProps {
+  post: PostBase;
   imageStyle?: ImageStyle;
   containerStyle?: ViewStyle;
-}): JSX.Element => (
+}
+
+const GridPost = ({
+  post, imageStyle = {}, containerStyle = {}
+}: GridPostProps): JSX.Element => (
   <View style={containerStyle}>
-    <Image
-      style={StyleSheet.flatten([styles.gridPostImage, imageStyle])}
-      source={{ uri: imageUrl }}
+    <OriginalImage
+      style={imageStyle}
+      source={{ uri: post.imageUrl }}
     />
     <View style={styles.gridPostInfo}>
-      <Text>{title}</Text>
-      <Text>{price}</Text>
-      <Text>{description}</Text>
+      <Text>{post.title}</Text>
+      <Text>{post.price}</Text>
+      <Text>{post.description}</Text>
     </View>
   </View>
 );

@@ -1,8 +1,7 @@
-import { StyleSheet, TextInputProps } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useField } from 'formik';
-import TextInput from './TextInput';
 import Text from './Text';
 
 const styles = StyleSheet.create({
@@ -10,54 +9,40 @@ const styles = StyleSheet.create({
     color: 'red',
     marginBottom: 10,
     marginTop: 2
-  },
-  inputField: {
-    display: 'none'
   }
 });
 
-interface Item {
+interface Props {
   name: string;
-}
-interface Props extends TextInputProps {
-  name: string;
-  items: Item[];
+  items: string[];
 }
 
-const FormikPicker = ({ name, items, ...props }: Props): JSX.Element => {
-  // @ts-ignore
-  const [selectedCategory, setSelectedCategory] = useState(items[0].name);
-  const [field, meta, helpers] = useField<string>(name);
+const FormikPicker = ({ name, items }: Props): JSX.Element => {
+  const [selectedItem, setSelectedItem] = useState('category');
+  const [, meta, helpers] = useField<string>(name);
   const showError = meta.touched;
   const { error } = meta;
 
   return (
     <>
       <Picker
-        selectedValue={selectedCategory}
+        selectedValue={selectedItem}
         onValueChange={(itemValue): void => {
           helpers.setValue(itemValue);
-          setSelectedCategory(itemValue);
+          setSelectedItem(itemValue);
         }}
       >
+        <Picker.Item key="category" label="category" value="" />
         {items.map(
           (item): JSX.Element => (
             <Picker.Item
-              key={item.name}
-              label={item.name}
-              value={item.name}
+              key={item}
+              label={item}
+              value={item}
             />
           )
         )}
       </Picker>
-      <TextInput
-        style={styles.inputField}
-        onChangeText={(value: string): void => helpers.setValue(value)}
-        onBlur={(): void => helpers.setTouched(true)}
-        value={field.value}
-        error={showError}
-        {...props}
-      />
       {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </>
   );

@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { Text } from 'react-native';
-import GridView from '../components/GridView';
 import usePosts from '../hooks/usePosts';
+import MasonryList from '../components/MasonryList';
 
 const Main = (): JSX.Element => {
-  const [posts, getPosts] = usePosts({ page: 0, size: 5 });
+  const [posts, getPosts] = usePosts({ page: 0, size: 7 });
   useEffect((): void => {
     getPosts();
   }, []);
@@ -12,7 +12,7 @@ const Main = (): JSX.Element => {
     return <Text>loading</Text>;
   }
   return (
-    <GridView style={{ marginTop: 30 }} posts={posts} />
+    <Text>asd</Text>
   );
 };
 

@@ -8,7 +8,8 @@ import { PostBase } from '../types';
 const styles = StyleSheet.create({
   gridPostImage: {
     width: 150,
-    height: 150
+    height: 150,
+    flexBasis: 'auto'
   }
 });
 
@@ -25,9 +26,7 @@ const GridView = ({ posts, style = {} }:
       renderItem={({ item }): JSX.Element => (
         <Pressable onPress={(): void => navigate(`/posts/${item.id}`)}>
           <GridPost
-            title={item.title}
-            price={item.price}
-            imageUrl={item.imageUrl}
+            post={item}
             imageStyle={styles.gridPostImage}
           />
 

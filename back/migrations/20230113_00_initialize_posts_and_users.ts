@@ -9,10 +9,6 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true
       },
-      image_url: {
-        type: DataTypes.TEXT,
-        allowNull: false
-      },
       title: {
         type: DataTypes.TEXT,
         allowNull: false

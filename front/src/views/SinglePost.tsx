@@ -30,10 +30,7 @@ const SinglePost = (): JSX.Element => {
     <View>
       <UserBar style={styles.userBar} userId={post.user.id} username={post.user.username} />
       <GridPost
-        title={post.title}
-        price={post.price}
-        imageUrl={post.imageUrl}
-        description={post.description}
+        post={post}
         imageStyle={styles.image}
         containerStyle={styles.container}
       />

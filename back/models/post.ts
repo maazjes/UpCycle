@@ -6,13 +6,17 @@ import { sequelize } from '../util/db';
 class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare id: CreationOptional<number>;
 
-  declare imageUrl: string;
-
   declare title: string;
 
   declare price: string;
 
   declare description: string;
+
+  declare condition: string;
+
+  declare locationId: number;
+
+  declare imageId: number;
 
   declare userId: number;
 
@@ -26,10 +30,6 @@ Post.init(
       primaryKey: true,
       autoIncrement: true
     },
-    imageUrl: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
     title: {
       type: DataTypes.TEXT,
       allowNull: false
@@ -41,6 +41,23 @@ Post.init(
     description: {
       type: DataTypes.TEXT,
       allowNull: false
+    },
+    condition: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        isIn: [['new', 'slightly used', 'used']]
+      }
+    },
+    locationId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'locations', key: 'id' }
+    },
+    imageId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'images', key: 'id' }
     },
     userId: {
       type: DataTypes.INTEGER,

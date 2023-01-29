@@ -3,7 +3,6 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import { SECRET } from '../util/config';
 import { User } from '../models';
-import { ErrorResponse } from '../types';
 
 const router = express.Router();
 
@@ -18,7 +17,7 @@ interface LoginBody {
   password: string;
 }
 
-router.post<{}, LoginResponse | ErrorResponse, LoginBody>('/', async (
+router.post<{}, LoginResponse, LoginBody>('/', async (
   req,
   res
 ): Promise<void> => {

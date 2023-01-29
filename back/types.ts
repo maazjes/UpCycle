@@ -12,13 +12,22 @@ export interface PaginationBase {
   currentPage: number;
 }
 
-export interface ErrorResponse {
-  error: string;
-}
-
 export interface DecodedToken {
   username: string;
   id: number;
+}
+
+export interface Image {
+  url: string;
+  width: number;
+  height: number;
+}
+
+export type Condition = 'new' | 'slightly used' | 'used';
+
+export interface Location {
+  city: string;
+  postcode: number;
 }
 
 export interface NewPostBody {
@@ -26,4 +35,7 @@ export interface NewPostBody {
   description: string;
   price: string;
   category: string;
+  img: Image;
+  condition: Condition;
+  location: Location;
 }
