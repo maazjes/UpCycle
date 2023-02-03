@@ -33,7 +33,7 @@ const PublicProfile = (): JSX.Element => {
     <View style={styles.container}>
       <DataTable>
         <DataTable.Header>
-          <DataTable.Title><Text fontSize="subheading">Name</Text></DataTable.Title>
+          <DataTable.Title><Text fontSize="subheading">Title</Text></DataTable.Title>
           <DataTable.Title><Text fontSize="subheading">Price</Text></DataTable.Title>
         </DataTable.Header>
         {posts.map((post): JSX.Element => (

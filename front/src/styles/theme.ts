@@ -9,11 +9,11 @@ const theme = {
     secondary: '#ebe4e4'
   },
   fontSizes: {
-    body: 14,
+    body: 15,
     subheading: 17
   },
   fonts: {
-    main: 'System'
+    main: 'OpenSans_500Medium'
   },
   fontWeights: {
     normal: '400' as '400',

@@ -11,3 +11,4 @@ Added redux for token managing, created public and private profile page with a p
 Fixed more typescript stuff. Added error handling to backend and frontend. // 6 hours
 started making masonry list for the front page, added new post fields to db and expanded new post form. // 12 hours
 total: 77 hours
+you dont wanna know // 15 hours
