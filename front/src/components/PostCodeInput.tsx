@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useField } from 'formik';
 import * as postcodes from 'datasets-fi-postalcodes';
+import { useState } from 'react';
 import TextInput from './TextInput';
 
 const styles = StyleSheet.create({
@@ -29,45 +30,43 @@ interface Location {
   postcode: string;
 }
 
-interface LocationError {
-  city?: string;
-  postcode?: string;
-}
-
 const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
-  const [field, meta, helpers] = useField<Location>(name);
-  const error = meta.error as unknown as LocationError;
-  const showError = meta.touched && error !== undefined;
+  const [field, meta, helpers] = useField<string>(name);
+  const [location, setLocation] = useState<Location>({ city: '', postcode: '' });
+  const { error, touched } = meta;
+  const showError = touched && error !== undefined;
+  console.log(field.value);
 
-  const handleOnChange = (location: Location): void => {
-    const newLocation = { ...location };
-    if (location.postcode.length === 5) {
-      const cityByCode = postcodes[location.postcode];
+  const handleOnChange = ({ postcode }: Location): void => {
+    let cityToAdd = '';
+    let postcodeToAdd = '';
+    if (postcode.length === 5) {
+      const cityByCode = postcodes[postcode];
       if (cityByCode && typeof cityByCode === 'string') {
-        newLocation.city = cityByCode;
+        cityToAdd = cityByCode;
+        postcodeToAdd = postcode;
       }
-    } else {
-      newLocation.city = '';
     }
-    helpers.setValue(newLocation);
+    helpers.setValue(postcodeToAdd);
+    setLocation({ postcode, city: cityToAdd });
   };
 
-  const cityFieldStyle = StyleSheet.flatten([styles.cityInput, error?.city ? { color: 'red' } : {}]);
-  const cityFieldError = meta.touched && error?.city;
-  const cityFieldValue = field.value.city || cityFieldError;
+  const cityFieldStyle = StyleSheet.flatten([styles.cityInput, error ? { color: 'red' } : {}]);
+  const cityFieldError = touched ? error : undefined;
+  const cityFieldValue = location.city || cityFieldError;
 
   return (
     <View style={styles.view}>
       <TextInput
-        onChangeText={(postcode: string): void => handleOnChange({ ...field.value, postcode })}
+        onChangeText={(postcode: string): void => handleOnChange({ ...location, postcode })}
         onBlur={(): void => helpers.setTouched(true)}
-        value={field.value.postcode}
+        value={location.postcode}
         error={showError}
         placeholder="Postcode"
         style={styles.postcodeInput}
       />
       <TextInput
-        onChangeText={(city: string): void => handleOnChange({ ...field.value, city })}
+        onChangeText={(): null => null}
         value={cityFieldValue}
         error={false}
         editable={false}

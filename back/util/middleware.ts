@@ -42,12 +42,12 @@ const errorHandler = async (
     res.status(404).json({ error: 'User not found.' });
   } else if (msg === 'category not found') {
     res.status(400).json({ error: 'Invalid category. Please choose another one.' });
-  } else if (msg === 'image missing from request') {
+  } else if (msg === 'images missing from request' || msg === 'saving images failed' || msg === 'getting image dimensions failed') {
     res.status(500).json({ error: 'Image upload failed. Please try again.' });
   } else if (msg === 'invalid token') {
     res.status(401).json({ error: 'Authentication failed.' });
-  } else if (msg === 'creating location failed') {
-    res.status(400).json({ error: 'Invalid postcode or city. Please contact support.' });
+  } else {
+    res.status(500).json({ error: msg });
   }
   next();
 };

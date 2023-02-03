@@ -3,9 +3,10 @@ import Menu from './Menu';
 
 const styles = StyleSheet.create({
   container: {
-    paddingLeft: 20 / 2,
+    paddingLeft: 10,
     backgroundColor: '#24292e',
-    paddingBottom: 20,
+    paddingBottom: 15,
+    paddingTop: 28,
     flexDirection: 'row'
   },
   link: {

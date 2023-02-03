@@ -10,11 +10,11 @@ module.exports = {
         autoIncrement: true
       },
       title: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false
       },
       price: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false
       },
       created_at: {

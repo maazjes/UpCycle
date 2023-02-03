@@ -12,6 +12,7 @@
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.17.11",
     "@react-native-picker/picker": "2.4.8",
+    "@react-native-seoul/masonry-list": "^1.4.1",
     "@reduxjs/toolkit": "^1.9.1",
     "axios": "^1.2.3",
     "datasets-fi-postalcodes": "^1.0.257",
@@ -23,6 +24,7 @@
     "react": "18.1.0",
     "react-native": "0.70.5",
     "react-native-image-crop-picker": "^0.39.0",
+    "react-native-masonry-list": "^2.16.1",
     "react-native-paper": "^5.1.4",
     "react-redux": "^8.0.5",
     "react-router-native": "^6.6.2",

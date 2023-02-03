@@ -10,7 +10,9 @@ const formatImages = (images: TypedImage[]): Blob[] => {
     const formattedImage = {
       uri: image.uri,
       name: 'image',
-      type: `image/${extension}`
+      type: `image/${extension}`,
+      width: image.width,
+      height: image.height
     } as unknown as Blob;
     formattedImages.push(formattedImage);
   });
@@ -18,7 +20,7 @@ const formatImages = (images: TypedImage[]): Blob[] => {
 };
 
 const newPost = async ({
-  title, price, images, category, description, location, condition
+  title, price, images, category, description, postcode, condition
 }: NewPostProps): Promise<AxiosResponse<PostBase>> => {
   const formattedImages = formatImages(images);
   const formdata = new FormData();
@@ -26,7 +28,7 @@ const newPost = async ({
   formdata.append('price', price);
   formdata.append('category', category);
   formdata.append('description', description);
-  formdata.append('location', JSON.stringify(location));
+  formdata.append('postcode', postcode);
   formdata.append('condition', condition);
   formattedImages.forEach((image): void => {
     formdata.append('images', image);

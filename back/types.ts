@@ -25,17 +25,11 @@ export interface Image {
 
 export type Condition = 'new' | 'slightly used' | 'used';
 
-export interface Location {
-  city: string;
-  postcode: number;
-}
-
 export interface NewPostBody {
   title: string;
   description: string;
   price: string;
   category: string;
-  img: Image;
   condition: Condition;
-  location: Location;
+  postcode: string;
 }

@@ -2,7 +2,7 @@ import {
   StyleSheet, FlatList, StyleProp, ViewStyle, Pressable
 } from 'react-native';
 import { useNavigate } from 'react-router-native';
-import GridPost from './GridPost';
+import GridPost from './PostCard';
 import { PostBase } from '../types';
 
 const styles = StyleSheet.create({

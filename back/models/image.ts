@@ -11,6 +11,8 @@ class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>
   declare width: number;
 
   declare height: number;
+
+  declare postId: number;
 }
 
 Image.init(
@@ -35,6 +37,11 @@ Image.init(
     height: {
       type: DataTypes.INTEGER,
       allowNull: false
+    },
+    postId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: { model: 'posts', key: 'id' }
     }
   },
   {

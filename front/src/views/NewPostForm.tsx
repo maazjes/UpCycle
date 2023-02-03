@@ -13,11 +13,13 @@ import PostCodeInput from '../components/PostCodeInput';
 import useNotification from '../hooks/useNotification';
 import useError from '../hooks/useError';
 import Button from '../components/Button';
-import { Category, TypedImage, NewPostProps } from '../types';
+import {
+  Category, NewPostProps, Condition
+} from '../types';
 
 const styles = StyleSheet.create({
   loginForm: {
-    margin: 12
+    margin: 20
   },
   descriptionField: {
     height: 100,
@@ -41,12 +43,12 @@ const validationSchema = yup.object().shape({
     .min(10, 'Minimum length of description is 10')
     .max(100, 'Maximum length of description is 100')
     .required('Description is required'),
-  location: yup
-    .object()
-    .shape({
-      postcode: yup.string().required(),
-      city: yup.string().required('Invalid postnumber')
-    })
+  postcode: yup
+    .string()
+    .min(5)
+    .max(5)
+    .required('Must be a valid postcode')
+
 });
 
 const NewPostForm = (): JSX.Element => {
@@ -68,16 +70,16 @@ const NewPostForm = (): JSX.Element => {
     }
   };
 
-  const categoryNames = ['category'].concat(categories ? categories.map((category): string => category.name) : []);
+  const categoryNames = categories ? categories.map((category): string => category.name) : [];
 
   const initialValues = {
     title: '',
     price: '',
     images: [],
     description: '',
-    location: { city: '', postcode: '' },
-    category: '',
-    condition: ''
+    postcode: '',
+    category: 'clothes',
+    condition: Condition.new
   };
 
   const conditions = ['new', 'slightly used', 'used'];
@@ -85,10 +87,12 @@ const NewPostForm = (): JSX.Element => {
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
-        <View style={styles.loginForm}>
-          <FormikTextInput name="title" placeholder="Title" />
-          <FormikTextInput name="price" placeholder="Price" />
-          <PostCodeInput name="location" />
+        <ScrollView showsVerticalScrollIndicator={false} style={styles.loginForm}>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            <FormikTextInput style={{ width: '70.5%', marginRight: '1.5%' }} name="title" placeholder="Title" />
+            <FormikTextInput style={{ width: '26.5%', marginLeft: '1.5%' }} name="price" placeholder="Price (€)" />
+          </View>
+          <PostCodeInput name="postcode" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
           <FormikImageInput name="images" />
           <FormikPicker items={conditions} name="condition" />
@@ -97,7 +101,8 @@ const NewPostForm = (): JSX.Element => {
             handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Submit"
           />
-        </View>
+          <View style={{ height: 110 }} />
+        </ScrollView>
       )}
     </Formik>
   );

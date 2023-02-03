@@ -5,12 +5,16 @@ export interface PostBase {
   price: string;
   description: string;
   category: string;
-  location: Location;
+  postcode: string;
   condition: Condition;
   user: User;
 }
 
-type Condition = 'new' | 'slightly used' | 'used';
+export enum Condition {
+  new = 'new',
+  slightlyUsed = 'slightly used',
+  used = 'used'
+}
 
 export interface Location {
   city: string;
@@ -42,7 +46,7 @@ export interface NotificationState {
 export interface TypedImage {
   width: number;
   height: number;
-  uri: string;
+  url: string;
   tempId?: string;
 }
 

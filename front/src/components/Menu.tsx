@@ -1,14 +1,14 @@
 import * as React from 'react';
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useNavigate } from 'react-router-native';
-import { Button, Menu as PaperMenu } from 'react-native-paper';
+import { Menu as PaperMenu } from 'react-native-paper';
+import { Entypo } from '@expo/vector-icons';
 import api from '../util/axiosInstance';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import { User } from '../types';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from '../hooks/useAuthStorage';
-import Text from './Text';
 
 const Menu = (): JSX.Element => {
   const currentUser = useAppSelector((state): User => state.user);
@@ -42,7 +42,6 @@ const Menu = (): JSX.Element => {
   return (
     <View
       style={{
-        paddingTop: 50,
         flexDirection: 'row',
         justifyContent: 'center'
       }}
@@ -50,7 +49,7 @@ const Menu = (): JSX.Element => {
       <PaperMenu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Button onPress={openMenu}><Text color="textSecondary">Show menu</Text></Button>}
+        anchor={<Pressable onPress={openMenu}><Entypo style={{ marginLeft: 10 }} name="menu" size={35} color="white" /></Pressable>}
       >
         { currentUser.token !== '' ? (
           <>

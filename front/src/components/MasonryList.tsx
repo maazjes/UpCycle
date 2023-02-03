@@ -1,56 +1,91 @@
 import {
-  View,
   StyleSheet,
   ScrollView,
-  RefreshControl
+  View,
+  Dimensions
 } from 'react-native';
-import GridPost from './GridPost';
+import { useEffect, useState } from 'react';
+import PostCard from './PostCard';
 import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    flexDirection: 'row'
+    paddingTop: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly'
   },
   column: {
-    flex: 1
   },
   gridPostImage: {
-    borderRadius: 15,
-    margin: 5
   }
 });
 
 interface MasonryListProps {
-  posts: Array<PostBase>[];
-  refreshing?: boolean;
-  onRefresh?: () => void;
+  posts: Array<PostBase>;
 }
 
+const { width } = Dimensions.get('window');
+
 const MasonryList = ({
-  posts,
-  refreshing = false,
-  onRefresh = (): void => {}
-}: MasonryListProps): JSX.Element => (
-  <ScrollView
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }
-    style={styles.container}
-    contentContainerStyle={{ paddingBottom: 200 }}
-  >
-    {Array.from(Array(posts.length)).map(
-      (i: number): JSX.Element => (
-        <View style={styles.column}>
-          {posts[i].map((post): JSX.Element => (
-            <View key={post.id} style={styles.column}>
-              <GridPost imageStyle={styles.gridPostImage} containerStyle={{ width: '100%' }} post={post} />
-            </View>
-          ))}
+  posts
+}: MasonryListProps): JSX.Element => {
+  const COLUMN_WIDTH = width / 2;
+  const IMAGE_SPACING = COLUMN_WIDTH * 0.01;
+  const COL_WIDTH = COLUMN_WIDTH - (IMAGE_SPACING / 2);
+
+  const [columns, setColumns] = useState<null | JSX.Element[][]>(null);
+  const createMasonryLists = (newPosts: PostBase[], amount: number): void => {
+    const postLists = Array(amount).fill(-1).map((): [number, JSX.Element[]] => [0, []]);
+    newPosts.forEach((post): void => {
+      const imageWidth = COL_WIDTH;
+      const widthReductionFactor = COL_WIDTH / post.images[0].width;
+      const imageHeight = post.images[0].height * widthReductionFactor;
+      const postCard = (
+        <PostCard
+          post={post}
+          imageStyle={[styles.gridPostImage, { aspectRatio: imageWidth / imageHeight }]}
+          containerStyle={{ marginVertical: 5 }}
+        />
+      );
+
+      const sorted = postLists.sort((a, b): number => a[0] - b[0]);
+      if (post.images) {
+        sorted[0] = [sorted[0][0] + post.images[0].height, sorted[0][1].concat(postCard)];
+      }
+    });
+    const finalPostLists = postLists.map((postList): JSX.Element[] => postList[1]);
+    setColumns(finalPostLists);
+  };
+
+  useEffect((): void => {
+    createMasonryLists(posts, 2);
+  }, []);
+
+  if (!columns) {
+    return <View />;
+  }
+
+  return (
+    <ScrollView
+      removeClippedSubviews
+    >
+      <View style={styles.container}>
+        <View
+          style={{ width: '50%', paddingLeft: 12, paddingRight: 5 }}
+        >
+          {columns[0]}
+
         </View>
-      )
-    )}
-  </ScrollView>
-);
+        <View
+          style={{ width: '50%', paddingLeft: 6, paddingRight: 12 }}
+        >
+          {columns[1]}
+
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
 
 export default MasonryList;

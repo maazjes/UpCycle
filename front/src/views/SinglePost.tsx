@@ -1,16 +1,13 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { useParams } from 'react-router-native';
 import Text from '../components/Text';
-import GridPost from '../components/GridPost';
 import usePost from '../hooks/usePost';
 import UserBar from '../components/UserBar';
+import SinglePostCard from '../components/SinglePostCard';
 
 const screenWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
-  userBar: {
-    padding: 10
-  },
   image: {
     width: screenWidth,
     height: screenWidth
@@ -28,8 +25,8 @@ const SinglePost = (): JSX.Element => {
   }
   return (
     <View>
-      <UserBar style={styles.userBar} userId={post.user.id} username={post.user.username} />
-      <GridPost
+      <UserBar user={post.user} />
+      <SinglePostCard
         post={post}
         imageStyle={styles.image}
         containerStyle={styles.container}

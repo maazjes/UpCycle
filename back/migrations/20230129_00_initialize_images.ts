@@ -24,16 +24,15 @@ module.exports = {
       height: {
         type: DataTypes.INTEGER,
         allowNull: false
+      },
+      post_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: { model: 'posts', key: 'id' }
       }
-    });
-    await queryInterface.addColumn('posts', 'image_id', {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: { model: 'images', key: 'id' }
     });
   },
   down: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
-    await queryInterface.removeColumn('posts', 'image_id');
     await queryInterface.dropTable('images');
   }
 };

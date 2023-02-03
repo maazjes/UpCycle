@@ -2,6 +2,7 @@ import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
 import { sequelize } from '../util/db';
+import { Image } from '../types';
 
 class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare id: CreationOptional<number>;
@@ -14,13 +15,13 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare condition: string;
 
-  declare locationId: number;
-
-  declare imageId: number;
+  declare postcode: string;
 
   declare userId: number;
 
   declare categoryId: number;
+
+  declare images?: Image[];
 }
 
 Post.init(
@@ -31,15 +32,15 @@ Post.init(
       autoIncrement: true
     },
     title: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false
     },
     price: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: false
     },
     condition: {
@@ -49,15 +50,12 @@ Post.init(
         isIn: [['new', 'slightly used', 'used']]
       }
     },
-    locationId: {
-      type: DataTypes.INTEGER,
+    postcode: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: { model: 'locations', key: 'id' }
-    },
-    imageId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: { model: 'images', key: 'id' }
+      validate: {
+        len: [5, 5]
+      }
     },
     userId: {
       type: DataTypes.INTEGER,

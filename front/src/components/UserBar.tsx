@@ -1,49 +1,49 @@
 import {
-  View, Pressable, StyleSheet, ViewProps, Image
+  View, Pressable, StyleSheet, ViewProps
 } from 'react-native';
 import { useNavigate } from 'react-router-native';
 import theme from '../styles/theme';
 import Text from './Text';
+import ProfileImage from './ProfileImage';
+import Button from './Button';
+import { User } from '../types';
 
 const styles = StyleSheet.create({
   userBar: {
     backgroundColor: theme.backgroundColors.secondary,
     flexDirection: 'row',
-    alignItems: 'center'
-  },
-  userBarItem: {
-    margin: 10
-  },
-  profileImage: {
-    width: 25,
-    height: 25,
-    borderRadius: 25,
-    marginRight: 5,
-    marginLeft: 10
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingLeft: 17,
+    paddingRight: 20
   }
 });
 
 interface UserBarProps extends ViewProps {
-  userId: number;
-  username: string;
+  user: User;
 }
 
 const UserBar = ({
-  userId, username, style, ...props
+  user, style
 }: UserBarProps): JSX.Element => {
   const navigate = useNavigate();
   const onUsernamePress = (): void => {
-    navigate(`/users/${userId}`);
+    navigate(`/users/${user.id}`);
   };
   return (
     <View style={StyleSheet.flatten([styles.userBar, style])}>
-      <Image style={styles.profileImage} source={{ uri: 'https://randomi.fi/src/f2bf22133a85d0dffe280ca43f3b17e5.jpg' }} />
-      <Pressable
-        onPress={onUsernamePress}
-        {...props}
-      >
-        <Text style={styles.userBarItem} fontSize="subheading">{username}</Text>
-      </Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <ProfileImage userId={user.id} />
+        <Pressable
+          style={{ marginLeft: 10 }}
+          onPress={onUsernamePress}
+        >
+          <Text style={{ marginBottom: -1 }} fontSize="subheading">{user.username}</Text>
+          <Text style={{ marginTop: -1 }}>This is the location</Text>
+        </Pressable>
+      </View>
+      <Button style={{ paddingHorizontal: 10, height: 32 }} text="Message" />
     </View>
   );
 };

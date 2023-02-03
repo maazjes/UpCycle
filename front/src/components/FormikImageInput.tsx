@@ -79,10 +79,10 @@ const FormikImageInput = ({ name }: { name: string }): JSX.Element => {
           {field.value.map((image): JSX.Element => {
             const aspectRatio = image.width / image.height;
             return (
-              <View style={styles.previewImageContainer}>
+              <View key={image.tempId} style={styles.previewImageContainer}>
                 <Image
-                  key={image.tempId}
-                  style={[styles.previewImage, { aspectRatio, height: 80, width: aspectRatio * 80 }]}
+                  style={[styles.previewImage,
+                    { aspectRatio, height: 80, width: aspectRatio * 80 }]}
                   source={{ uri: image.uri }}
                 />
                 <TouchableOpacity
