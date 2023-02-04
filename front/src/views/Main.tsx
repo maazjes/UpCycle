@@ -4,18 +4,19 @@ import {
 } from 'react-native';
 import MasonryList from '../components/MasonryList';
 import usePosts from '../hooks/usePosts';
+import GridView from '../components/GridView';
 
 const Main = (): JSX.Element => {
-  const [posts, getPosts] = usePosts({ page: 0, size: 7 });
+  const [posts, getPosts] = usePosts();
   useEffect((): void => {
-    getPosts();
+    getPosts({ page: 0, size: 7 });
   }, []);
   if (!posts) {
     return <Text>loading</Text>;
   }
   return (
     <SafeAreaView style={{ backgroundColor: '#F2F2F2' }}>
-      <MasonryList posts={posts} />
+      <GridView posts={posts} />
     </SafeAreaView>
   );
 };

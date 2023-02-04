@@ -1,12 +1,10 @@
 import {
-  StyleSheet, View, ImageStyle, ViewStyle, Image, Dimensions
+  StyleSheet, View, ImageStyle, ViewStyle, Image, Dimensions, ScrollView
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-import Carousel from 'react-native-snap-carousel';
+import Carousel from './Carousel';
 import Text from './Text';
-import { TypedImage } from '../types';
-
-import { PostBase } from '../types';
+import { TypedImage, PostBase } from '../types';
 
 const { width } = Dimensions.get('window');
 
@@ -37,17 +35,9 @@ const SinglePostCard = ({
   console.log(post);
 
   return (
-    <View style={[styles.container, containerStyle]}>
+    <ScrollView contentContainerStyle={[{ paddingBottom: 500 }, containerStyle]}>
       <Carousel
-        ref={(c) => { this._carousel = c; }}
-        data={post.images}
-        renderItem={{item} => {return <Image source={{uri: item.url}} style={{width: item.width, height: item.height}} />}}
-        sliderWidth={width}
-        itemWidth={width}
-      />
-      <Image
-        style={imageStyle}
-        source={{ uri: post.images[0].url }}
+        images={post.images}
       />
       <View style={styles.infoBox}>
         <View style={styles.titleAndPrice}>
@@ -57,7 +47,7 @@ const SinglePostCard = ({
         </View>
         <FontAwesome style={{ alignSelf: 'flex-start', margin: 10 }} name="bookmark" size={27} color="black" />
       </View>
-    </View>
+    </ScrollView>
   );
 };
 export default SinglePostCard;

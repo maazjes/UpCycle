@@ -46,8 +46,36 @@ export interface NotificationState {
 export interface TypedImage {
   width: number;
   height: number;
-  url: string;
-  tempId?: string;
+  uri: string;
+  id: string;
 }
 
-export type NewPostProps = Omit<PostBase, 'user' | 'id'>;
+export interface PostsResponse {
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  posts: PostBase[] | [];
+}
+
+export type GetPostsParams = {
+  page?: number;
+  size?: number;
+  userId?: number;
+  postId?: number;
+};
+
+export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'images'> & { images: TypedImage[] };
+
+export type UpdatePostProps = Partial<NewPostProps>;
+
+export interface InitialPostValues {
+  title: string;
+  price: string;
+  images: TypedImage[];
+  description: string;
+  postcode: string;
+  category: string;
+  condition: Condition;
+}
+
+export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;

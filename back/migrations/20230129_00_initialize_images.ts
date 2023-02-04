@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true
       },
-      url: {
+      uri: {
         type: DataTypes.STRING,
         unique: true,
         allowNull: false,

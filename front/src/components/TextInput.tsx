@@ -10,6 +10,7 @@ const styles = StyleSheet.create({
     paddingLeft: 15
   }
 });
+
 interface Props extends TextInputProps {
   error: boolean;
 }

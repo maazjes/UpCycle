@@ -2,59 +2,79 @@ import {
   Dimensions,
   FlatList,
   Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StyleSheet,
-  Text,
   View
 } from 'react-native';
+import {
+  useCallback, useRef, useState
+} from 'react';
+import { TypedImage } from '../types';
 
-const { width } = Dimensions.get('window');
-
-const SPACING = 5;
-const ITEM_LENGTH = width;
-const BORDER_RADIUS = 20;
+const { width: windowWidth } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  container: {},
-  itemContent: {
-    marginHorizontal: SPACING * 3,
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderRadius: BORDER_RADIUS + SPACING * 2
+  container: {
+    alignItems: 'center'
   },
-  itemText: {
-    fontSize: 24,
-    position: 'absolute',
-    bottom: SPACING * 2,
-    right: SPACING * 2,
-    color: 'white',
-    fontWeight: '600'
+  flatListContainer: {
+    alignItems: 'center'
   },
-  itemImage: {
-    width: '100%',
-    borderRadius: BORDER_RADIUS,
-    resizeMode: 'cover'
+  dot: {
+    height: 10,
+    width: 10,
+    backgroundColor: '#bbb',
+    borderRadius: 25,
+    marginTop: 5,
+    marginHorizontal: 3
+  },
+  dots: {
+    flexDirection: 'row'
+  },
+  singleImage: {
+    width: windowWidth,
+    height: windowWidth
   }
 });
 
-const Carousel: FC<ImageCarouselProps> = ({ data }) => {
-  console.log(data);
+const Carousel = ({ images }: { images: TypedImage[] }): JSX.Element => {
+  const [index, setIndex] = useState(0);
+  const indexRef = useRef(index);
+  indexRef.current = index;
+  const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>): void => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const slideIndex = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(slideIndex);
+    const distance = Math.abs(roundIndex - slideIndex);
+    const isNoMansLand = distance > 0.4;
+    if (roundIndex !== indexRef.current && !isNoMansLand) {
+      setIndex(roundIndex);
+    }
+  }, []);
+
+  const dots = images.length > 1 ? images.map((_, i): JSX.Element => (
+    i === index
+      ? <View style={[styles.dot, { backgroundColor: '#000000' }]} />
+      : <View style={styles.dot} />)) : null;
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
-        renderItem={({ item, index }) => (
-          <View style={{ width: ITEM_LENGTH, height: item.height }}>
-            <View style={styles.itemContent}>
-              <Image source={{ uri: item.url, width: item.width, height: item.height }} style={styles.itemImage} />
-            </View>
-          </View>
-        )}
+        contentContainerStyle={styles.flatListContainer}
+        data={images}
+        renderItem={({ item }): JSX.Element => (
+          <Image style={styles.singleImage} source={{ uri: item.uri }} />)}
+        pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
+        onScroll={onScroll}
+        keyExtractor={(item): string => item.uri}
       />
+      <View style={styles.dots}>
+        {dots}
+      </View>
     </View>
   );
 };
-
 export default Carousel;

@@ -1,6 +1,9 @@
 import { AxiosResponse } from 'axios';
 import api from '../util/axiosInstance';
-import { PostBase, TypedImage, NewPostProps } from '../types';
+import { addQuery } from '../util/helpers';
+import {
+  PostBase, TypedImage, NewPostProps, PostsResponse, UpdatePostProps, GetPostsParams
+} from '../types';
 
 const formatImages = (images: TypedImage[]): Blob[] => {
   const formattedImages = [] as Blob[];
@@ -10,52 +13,49 @@ const formatImages = (images: TypedImage[]): Blob[] => {
     const formattedImage = {
       uri: image.uri,
       name: 'image',
-      type: `image/${extension}`,
-      width: image.width,
-      height: image.height
+      type: `image/${extension}`
     } as unknown as Blob;
     formattedImages.push(formattedImage);
   });
   return formattedImages;
 };
 
-const newPost = async ({
-  title, price, images, category, description, postcode, condition
-}: NewPostProps): Promise<AxiosResponse<PostBase>> => {
-  const formattedImages = formatImages(images);
+type CreateFormDataProps = Omit<UpdatePostProps, 'id'>;
+
+const createFormData = ({ images, ...props }: CreateFormDataProps): FormData => {
+  const propKeys = Object.keys(props) as Array<keyof Omit<CreateFormDataProps, 'images'>>;
   const formdata = new FormData();
-  formdata.append('title', title);
-  formdata.append('price', price);
-  formdata.append('category', category);
-  formdata.append('description', description);
-  formdata.append('postcode', postcode);
-  formdata.append('condition', condition);
-  formattedImages.forEach((image): void => {
-    formdata.append('images', image);
+  if (images) {
+    const formattedImages = formatImages(images);
+    formattedImages.forEach((image): void => {
+      formdata.append('images', image);
+    });
+  }
+  propKeys.forEach((key): void => {
+    const value = props[key];
+    if (value) {
+      formdata.append(key, value);
+    }
   });
-  const res = await api.postForm<PostBase>('posts', formdata, {
+  return formdata;
+};
+
+const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase>> => {
+  const formdata = createFormData(newPost);
+  const post = await api.postForm<PostBase>('posts', formdata, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   });
-  return res;
+  return post;
 };
 
-interface PostsResponse {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-  posts: PostBase[] | [];
-}
-
-const getPosts = async ({ page, size, userId }: { page: number; size: number; userId?: number }):
+const getPosts = async (params: GetPostsParams | undefined):
 Promise<AxiosResponse<PostsResponse>> => {
-  let query = `posts?page=${page}&size=${size}`;
-  if (userId) {
-    query += `&userId=${userId}`;
-  }
-  const response = await api.get<PostsResponse>(query);
-  return response;
+  let query = 'posts';
+  query = params ? addQuery(query, params) : query;
+  const posts = await api.get<PostsResponse>(query);
+  return posts;
 };
 
 const getPostById = async (id: number): Promise<AxiosResponse<PostBase | null>> => {
@@ -70,6 +70,14 @@ const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
   return post;
 };
 
+const updatePost = async (postId: number, newPost: UpdatePostProps):
+Promise<AxiosResponse<PostBase>> => {
+  const formData = createFormData(newPost);
+  const query = `posts/${postId}`;
+  const post = await api.putForm(query, formData);
+  return post;
+};
+
 export default {
-  newPost, getPosts, getPostById, deletePost
+  createPost, getPosts, getPostById, deletePost, updatePost
 };

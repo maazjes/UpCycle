@@ -2,19 +2,16 @@ import {
   View, StyleSheet, GestureResponderEvent, ScrollView
 } from 'react-native';
 import { useEffect, useState } from 'react';
-import { Formik } from 'formik';
+import { Formik, FormikConfig } from 'formik';
 import * as yup from 'yup';
-import postService from '../services/posts';
 import categoriesService from '../services/categories';
-import FormikTextInput from '../components/FormikTextInput';
-import FormikImageInput from '../components/FormikImageInput';
-import FormikPicker from '../components/FormikPicker';
-import PostCodeInput from '../components/PostCodeInput';
-import useNotification from '../hooks/useNotification';
-import useError from '../hooks/useError';
-import Button from '../components/Button';
+import FormikTextInput from './FormikTextInput';
+import FormikImageInput from './FormikImageInput';
+import FormikPicker from './FormikPicker';
+import PostCodeInput from './PostCodeInput';
+import Button from './Button';
 import {
-  Category, NewPostProps, Condition
+  Category, Condition, InitialPostValues
 } from '../types';
 
 const styles = StyleSheet.create({
@@ -48,39 +45,23 @@ const validationSchema = yup.object().shape({
     .min(5)
     .max(5)
     .required('Must be a valid postcode')
-
 });
 
-const NewPostForm = (): JSX.Element => {
+interface PostFormProps {
+  initialValues: InitialPostValues;
+  onSubmit: FormikConfig<InitialPostValues>['onSubmit'];
+}
+
+const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
   const [categories, setCategories] = useState<Category[] | null>(null);
-  const notification = useNotification();
-  const error = useError();
+
   useEffect((): void => {
     categoriesService.getCategories().then((result): void => {
       setCategories(result.data);
     });
   }, []);
 
-  const onSubmit = async (values: NewPostProps): Promise<void> => {
-    try {
-      await postService.newPost({ ...values, price: `${values.price}€` });
-      notification('Post created successfully.', false);
-    } catch (e) {
-      error(e);
-    }
-  };
-
   const categoryNames = categories ? categories.map((category): string => category.name) : [];
-
-  const initialValues = {
-    title: '',
-    price: '',
-    images: [],
-    description: '',
-    postcode: '',
-    category: 'clothes',
-    condition: Condition.new
-  };
 
   const conditions = ['new', 'slightly used', 'used'];
 
@@ -88,10 +69,8 @@ const NewPostForm = (): JSX.Element => {
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
         <ScrollView showsVerticalScrollIndicator={false} style={styles.loginForm}>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-            <FormikTextInput style={{ width: '70.5%', marginRight: '1.5%' }} name="title" placeholder="Title" />
-            <FormikTextInput style={{ width: '26.5%', marginLeft: '1.5%' }} name="price" placeholder="Price (€)" />
-          </View>
+          <FormikTextInput name="title" placeholder="Title" />
+          <FormikTextInput name="price" placeholder="Price (€)" />
           <PostCodeInput name="postcode" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
           <FormikImageInput name="images" />
@@ -108,4 +87,4 @@ const NewPostForm = (): JSX.Element => {
   );
 };
 
-export default NewPostForm;
+export default PostForm;

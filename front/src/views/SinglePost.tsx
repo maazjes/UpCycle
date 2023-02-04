@@ -1,7 +1,8 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { useParams } from 'react-router-native';
+import { useEffect } from 'react';
 import Text from '../components/Text';
-import usePost from '../hooks/usePost';
+import usePosts from '../hooks/usePosts';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
 
@@ -19,8 +20,11 @@ const styles = StyleSheet.create({
 
 const SinglePost = (): JSX.Element => {
   const { postId } = useParams();
-  const post = usePost(Number(postId));
-  if (!post) {
+  const [posts, getPosts] = usePosts();
+  useEffect((): void => {
+    getPosts();
+  }, []);
+  if (!posts) {
     return <Text>loading</Text>;
   }
   return (

@@ -4,7 +4,8 @@ import { Route, Routes, Navigate } from 'react-router-native';
 import PrivateProfile from './views/PrivateProfile';
 import PublicProfile from './views/PublicProfile';
 import AppBar from './components/AppBar';
-import NewPostForm from './views/NewPostForm';
+import CreatePost from './views/CreatePost';
+import EditPost from './views/EditPost';
 import Main from './views/Main';
 import LoginForm from './views/LoginForm';
 import RegistrationForm from './views/RegistrationForm';
@@ -18,7 +19,8 @@ export default (): JSX.Element => (
     <Routes>
       <Route path="/" element={<Main />} />
       <Route path="*" element={<Navigate to="/" replace />} />
-      <Route path="/new-post" element={<NewPostForm />} />
+      <Route path="/new-post" element={<CreatePost />} />
+      <Route path="/posts/edit/:postId" element={<EditPost />} />
       <Route path="/profile" element={<PrivateProfile />} />
       <Route path="/users/:userId" element={<PublicProfile />} />
       <Route path="/login" element={<LoginForm />} />

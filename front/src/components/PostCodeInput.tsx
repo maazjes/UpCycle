@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 import { useField } from 'formik';
 import * as postcodes from 'datasets-fi-postalcodes';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TextInput from './TextInput';
 
 const styles = StyleSheet.create({
@@ -32,10 +32,7 @@ interface Location {
 
 const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
   const [field, meta, helpers] = useField<string>(name);
-  const [location, setLocation] = useState<Location>({ city: '', postcode: '' });
-  const { error, touched } = meta;
-  const showError = touched && error !== undefined;
-  console.log(field.value);
+  const [location, setLocation] = useState<Location>({ city: '', postcode: field.value });
 
   const handleOnChange = ({ postcode }: Location): void => {
     let cityToAdd = '';
@@ -50,6 +47,15 @@ const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
     helpers.setValue(postcodeToAdd);
     setLocation({ postcode, city: cityToAdd });
   };
+
+  useEffect((): void => {
+    if (field.value) {
+      handleOnChange(location);
+    }
+  }, []);
+
+  const { error, touched } = meta;
+  const showError = touched && error !== undefined;
 
   const cityFieldStyle = StyleSheet.flatten([styles.cityInput, error ? { color: 'red' } : {}]);
   const cityFieldError = touched ? error : undefined;

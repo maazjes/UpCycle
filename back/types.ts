@@ -17,10 +17,11 @@ export interface DecodedToken {
   id: number;
 }
 
-export interface Image {
-  url: string;
+export interface TypedImage {
+  uri: string;
   width: number;
   height: number;
+  id: number;
 }
 
 export type Condition = 'new' | 'slightly used' | 'used';
@@ -32,4 +33,8 @@ export interface NewPostBody {
   category: string;
   condition: Condition;
   postcode: string;
+}
+
+export interface MulterFile extends Express.Multer.File {
+  location?: string;
 }

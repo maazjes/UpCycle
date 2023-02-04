@@ -2,7 +2,7 @@ import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
 import { sequelize } from '../util/db';
-import { Image } from '../types';
+import Image from './image';
 
 class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare id: CreationOptional<number>;

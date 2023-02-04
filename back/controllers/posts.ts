@@ -1,14 +1,14 @@
 import express, { Response, Request } from 'express';
-import probe, { ProbeResult } from 'probe-image-size';
 import {
   PaginationBase,
-  DecodedToken, NewPostBody
+  DecodedToken, NewPostBody, MulterFile
 } from '../types';
 import upload from '../util/multer';
 import {
   Post, User, Category, Image
 } from '../models';
 import { tokenExtractor } from '../util/middleware';
+import { saveImages } from '../util/helpers';
 
 const router = express.Router();
 
@@ -34,18 +34,6 @@ const getPagingData = (data: { count: number; rows: Post[] }, page: number, limi
   };
 };
 
-const createMasonryLists = (posts: Post[], amount: number): Post[][] => {
-  const postLists = Array(amount).fill(-1).map((): [number, Post[]] => [0, []]);
-  posts.forEach((post): void => {
-    const sorted = postLists.sort((a, b): number => a[0] - b[0]);
-    if (post.images) {
-      sorted[0] = [sorted[0][0] + post.images[0].height, sorted[0][1].concat(post)];
-    }
-  });
-  const finalPostLists = postLists.map((postList): Post[] => postList[1]);
-  return finalPostLists;
-};
-
 interface PostsResponse extends PaginationBase {
   posts: Post[] | Post[][];
 }
@@ -54,17 +42,16 @@ interface GetPostsQuery {
   page: string;
   size: string;
   userId?: string;
-  masonry?: string;
   postId?: string;
 }
 
 router.get<{}, PostsResponse, {}, GetPostsQuery>('/', async (req, res): Promise<void> => {
   let where = {};
   const {
-    userId, postId, masonry, page, size
+    userId, postId, page, size
   } = req.query;
   where = userId ? { ...where, userId } : where;
-  where = postId ? { ...where, postId } : where;
+  where = postId ? { ...where, id: postId } : where;
   const { limit, offset } = getPagination(Number(page), Number(size));
   const posts = await Post.findAndCountAll({
     attributes: { exclude: ['userId'] },
@@ -78,17 +65,13 @@ router.get<{}, PostsResponse, {}, GetPostsQuery>('/', async (req, res): Promise<
     },
     {
       model: Image,
-      attributes: ['url', 'height', 'width']
+      attributes: ['uri', 'height', 'width', 'id']
     }],
     limit,
     offset,
     where
   });
   const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
-  if (masonry) {
-    // @ts-ignore
-    response.posts = createMasonryLists(response.posts, Number(masonry));
-  }
   res.json(response);
 });
 
@@ -107,7 +90,7 @@ router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
     },
     {
       model: Image,
-      attributes: ['url', 'height', 'width']
+      attributes: ['uri', 'height', 'width', 'id']
     }],
     where
   });
@@ -120,9 +103,18 @@ router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
 router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const where = id ? { id } : {};
-  const post = await Post.findOne({ where });
+  const post = await Post.findOne({
+    include: {
+      model: Image
+    },
+    where
+  });
   if (!post) {
     throw new Error('post not found');
+  }
+  if (post.images) {
+    const imagePromises = post.images.map((image): Promise<void> => image.destroy());
+    await Promise.all(imagePromises);
   }
   await post.destroy();
   res.json(post);
@@ -131,11 +123,7 @@ router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res)
 type MulterFiles = { [fieldname: string]: MulterFile[];
 } | MulterFile[] | undefined;
 
-interface MulterFile extends Express.Multer.File {
-  location?: string;
-}
-
-interface AuthRequest extends Request<{}, {}, NewPostBody> {
+interface AuthRequest extends Request<{ id?: string }, {}, NewPostBody> {
   decodedToken?: DecodedToken;
   files?: MulterFiles;
 }
@@ -145,10 +133,6 @@ router.post(
   tokenExtractor,
   upload.array('images', 5),
   async (req: AuthRequest, res: Response<Post>): Promise<void> => {
-    console.log(req.body);
-    if (!req.decodedToken?.id) {
-      throw new Error('invalid token');
-    }
     const user = await User.findByPk(req.decodedToken?.id);
     if (!user) {
       throw new Error('user not found');
@@ -165,24 +149,42 @@ router.post(
       userId: user.id,
       categoryId: category.id
     });
-    const dimensionPromises = req.files.filter(
-      (file): file is typeof file & { location: string } => file.location !== undefined
-    ).map((file): Promise<ProbeResult> => probe(file.location));
-    const dimensions = await Promise.all(dimensionPromises);
-    if (!dimensions) {
-      throw new Error('getting image dimensions failed');
-    }
-    const imagePromises = dimensions.map((image): Promise<Image> => Image.create({
-      url: image.url,
-      width: image.width,
-      height: image.height,
-      postId: post.id
-    }));
-    const images = await Promise.all(imagePromises);
-    if (!images) {
-      throw new Error('saving images failed');
-    }
+    await saveImages(post.id, req.files);
     res.json(post);
+  }
+);
+
+router.put(
+  '/:id',
+  tokenExtractor,
+  upload.array('images', 5),
+  async (req: AuthRequest, res: Response<Post>): Promise<void> => {
+    const user = await User.findByPk(req.decodedToken?.id);
+    if (!user) {
+      throw new Error('user not found');
+    }
+    const currentPost = await Post.findOne({ where: { id: req.params.id } });
+    if (!currentPost) {
+      throw new Error('invalid post id');
+    }
+    if (req.body.category) {
+      const category = await Category.findOne({ where: { name: req.body.category } });
+      if (!category) {
+        throw new Error('category not found');
+      }
+      currentPost.categoryId = category.id;
+    }
+    if (!req.files || !Array.isArray(req.files)) {
+      throw new Error('images missing from request');
+    }
+    await saveImages(currentPost.id, req.files);
+    (Object.keys(req.body)
+      .filter((key): boolean => key !== 'category') as Array<keyof Omit<NewPostBody, 'category'>>)
+      .forEach((key): void => {
+        currentPost[key] = req.body[key];
+      });
+    const updatedPost = await currentPost.save();
+    res.json(updatedPost);
   }
 );
 

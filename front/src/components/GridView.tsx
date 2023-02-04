@@ -1,40 +1,23 @@
 import {
-  StyleSheet, FlatList, StyleProp, ViewStyle, Pressable
+  FlatList, StyleProp, ViewStyle
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
-import GridPost from './PostCard';
+import PostCard from './PostCard';
 import { PostBase } from '../types';
 
-const styles = StyleSheet.create({
-  gridPostImage: {
-    width: 150,
-    height: 150,
-    flexBasis: 'auto'
-  }
-});
-
 const GridView = ({ posts, style = {} }:
-{ posts: PostBase[]; style?: StyleProp<ViewStyle> }): JSX.Element => {
-  const navigate = useNavigate();
-
-  return (
-    <FlatList
-      columnWrapperStyle={{ justifyContent: 'space-evenly' }}
-      numColumns={2}
-      keyExtractor={(item): string => String(item.id)}
-      data={posts}
-      renderItem={({ item }): JSX.Element => (
-        <Pressable onPress={(): void => navigate(`/posts/${item.id}`)}>
-          <GridPost
-            post={item}
-            imageStyle={styles.gridPostImage}
-          />
-
-        </Pressable>
-      )}
-      style={style}
-    />
-  );
-};
+{ posts: PostBase[]; style?: StyleProp<ViewStyle> }): JSX.Element => (
+  <FlatList
+    columnWrapperStyle={{ justifyContent: 'space-evenly' }}
+    numColumns={2}
+    keyExtractor={(item): string => String(item.id)}
+    data={posts}
+    renderItem={({ item }): JSX.Element => (
+      <PostCard
+        post={item}
+      />
+    )}
+    style={style}
+  />
+);
 
 export default GridView;

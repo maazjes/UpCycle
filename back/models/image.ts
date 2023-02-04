@@ -6,7 +6,7 @@ import { sequelize } from '../util/db';
 class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>> {
   declare id: CreationOptional<number>;
 
-  declare url: string;
+  declare uri: string;
 
   declare width: number;
 
@@ -22,7 +22,7 @@ Image.init(
       primaryKey: true,
       autoIncrement: true
     },
-    url: {
+    uri: {
       type: DataTypes.STRING,
       unique: true,
       allowNull: false,

@@ -18,6 +18,8 @@
     "@typescript-eslint/no-unsafe-return": "error",
     "@typescript-eslint/restrict-plus-operands": "error",
     "@typescript-eslint/restrict-template-expressions": "error",
+    "import/prefer-default-export": "off",
+    "no-param-reassign": 0,
     "@typescript-eslint/explicit-function-return-type": [
       "error",
       {

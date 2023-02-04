@@ -18,10 +18,11 @@ const tokenExtractor = async (
     return;
   }
   const token = authorization?.substring(7);
-  if (token) {
-    const decodedToken = jwt.verify(token, SECRET);
-    req.decodedToken = decodedToken as DecodedToken;
+  const decodedToken = jwt.verify(token, SECRET);
+  if (!decodedToken) {
+    throw new Error('invalid token');
   }
+  req.decodedToken = decodedToken as DecodedToken;
   next();
 };
 
@@ -46,6 +47,8 @@ const errorHandler = async (
     res.status(500).json({ error: 'Image upload failed. Please try again.' });
   } else if (msg === 'invalid token') {
     res.status(401).json({ error: 'Authentication failed.' });
+  } else if (msg === 'invalid post id') {
+    res.status(401).json({ error: 'post not found' });
   } else {
     res.status(500).json({ error: msg });
   }

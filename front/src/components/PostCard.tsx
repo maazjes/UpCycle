@@ -41,8 +41,8 @@ const PostCard = ({
     <Pressable onPress={onPostCardPress}>
       <View style={[styles.container, containerStyle]}>
         <Image
-          style={imageStyle}
-          source={{ uri: post.images[0].url }}
+          style={{ aspectRatio: 1, width: '100%', height: 200 }}
+          source={{ uri: post.images[0]?.uri }}
         />
         <View style={styles.infoBox}>
           <View style={styles.titleAndPrice}>

@@ -1,14 +1,17 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   View, StyleSheet, Alert
 } from 'react-native';
+import { useNavigate } from 'react-router-native';
 import { DataTable, Menu, Button } from 'react-native-paper';
 import { useAppSelector } from '../hooks/redux';
-import { User } from '../types';
+import { PostBase, User } from '../types';
 import Text from '../components/Text';
 import postsService from '../services/posts';
 import usePosts from '../hooks/usePosts';
+import useError from '../hooks/useError';
+import useNotification from '../hooks/useNotification';
 
 const styles = StyleSheet.create({
   container: {
@@ -19,8 +22,13 @@ const styles = StyleSheet.create({
 
 const PrivateProfile = (): JSX.Element => {
   const currentUser = useAppSelector((state): User => state.user);
-  const [posts, getPosts] = usePosts({ page: 0, size: 5, userId: currentUser.id });
+  const [, getPosts] = usePosts();
+  const [visiblePosts, setVisiblePosts] = useState<PostBase[] | null>(null);
   const [visible, setVisible] = React.useState<{ [x: string]: boolean }>({});
+  const error = useError();
+  const notification = useNotification();
+  const navigate = useNavigate();
+
   const openMenu = (postId: number): void => {
     visible[postId] = true;
     setVisible({ ...visible, postId: true });
@@ -29,9 +37,35 @@ const PrivateProfile = (): JSX.Element => {
     visible[postId] = false;
     setVisible({ ...visible, postId: false });
   };
-  const onDelete = async (id: number): Promise<void> => {
+
+  useEffect((): void => {
+    const getAndSetPosts = async (): Promise<void> => {
+      const freshPosts = await getPosts({ page: 0, size: 5, userId: currentUser.id });
+      setVisiblePosts(freshPosts);
+    };
+    getAndSetPosts();
+  }, []);
+
+  if (!visiblePosts) {
+    return <Text>loading</Text>;
+  }
+
+  if (visiblePosts.length === 0) {
+    return <Text>no posts to show</Text>;
+  }
+
+  const onPostDelete = async (id: number): Promise<void> => {
     const deletePost = async (): Promise<void> => {
-      await postsService.deletePost(id);
+      try {
+        await postsService.deletePost(id);
+        notification('Post deleted successfully', false);
+        const newPosts = visiblePosts.filter((post): boolean => post.id !== id);
+        if (newPosts) {
+          setVisiblePosts(newPosts);
+        }
+      } catch (e) {
+        error(e);
+      }
     };
 
     Alert.alert('Delete post', 'Are you sure you want to delete this post?', [
@@ -47,16 +81,10 @@ const PrivateProfile = (): JSX.Element => {
     ]);
   };
 
-  useEffect((): void => {
-    getPosts();
-  }, []);
+  const onPostEdit = (id: number): void => {
+    navigate(`/posts/edit/${id}`);
+  };
 
-  if (!posts) {
-    return <Text>loading</Text>;
-  }
-  if (posts.length === 0) {
-    return <Text>no posts to show</Text>;
-  }
   return (
     <View style={styles.container}>
       <DataTable>
@@ -65,7 +93,7 @@ const PrivateProfile = (): JSX.Element => {
           <DataTable.Title><Text fontSize="subheading">Price</Text></DataTable.Title>
           <DataTable.Title>{}</DataTable.Title>
         </DataTable.Header>
-        {posts.map((post): JSX.Element => (
+        {visiblePosts.map((post): JSX.Element => (
           <DataTable.Row key={String(post.id)}>
             <DataTable.Cell><Text>{post.title}</Text></DataTable.Cell>
             <DataTable.Cell><Text>{post.price}</Text></DataTable.Cell>
@@ -84,7 +112,8 @@ const PrivateProfile = (): JSX.Element => {
                   </Button>
                 )}
               >
-                <Menu.Item onPress={(): Promise<void> => onDelete(post.id)} title="Delete post" />
+                <Menu.Item onPress={(): void => onPostEdit(post.id)} title="Edit" />
+                <Menu.Item onPress={(): Promise<void> => onPostDelete(post.id)} title="Delete" />
               </Menu>
             </DataTable.Cell>
           </DataTable.Row>

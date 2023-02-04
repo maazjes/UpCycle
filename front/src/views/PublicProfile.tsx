@@ -17,10 +17,10 @@ const styles = StyleSheet.create({
 
 const PublicProfile = (): JSX.Element => {
   const { userId } = useParams();
-  const [posts, getPosts] = usePosts({ page: 0, size: 5, userId: Number(userId) ?? undefined });
+  const [posts, getPosts] = usePosts();
 
   useEffect((): void => {
-    getPosts();
+    getPosts({ page: 0, size: 5, userId: Number(userId) ?? undefined });
   }, []);
 
   if (!posts) {
