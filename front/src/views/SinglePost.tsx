@@ -1,7 +1,7 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { useParams } from 'react-router-native';
 import { useEffect } from 'react';
-import Text from '../components/Text';
+import Loading from '../components/Loading';
 import usePosts from '../hooks/usePosts';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
@@ -22,11 +22,14 @@ const SinglePost = (): JSX.Element => {
   const { postId } = useParams();
   const [posts, getPosts] = usePosts();
   useEffect((): void => {
-    getPosts();
+    if (postId) {
+      getPosts({ postId: Number(postId) });
+    }
   }, []);
-  if (!posts) {
-    return <Text>loading</Text>;
+  if (!posts || !posts[0]) {
+    return <Loading />;
   }
+  const post = posts[0];
   return (
     <View>
       <UserBar user={post.user} />

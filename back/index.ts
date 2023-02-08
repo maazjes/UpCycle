@@ -8,6 +8,7 @@ import usersRouter from './controllers/users';
 import loginRouter from './controllers/login';
 import categoriesRouter from './controllers/categories';
 import imagesRouter from './controllers/images';
+import favoritesRouter from './controllers/favorites';
 import { errorHandler } from './util/middleware';
 
 const app = express();
@@ -19,6 +20,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/categories', categoriesRouter);
 app.use('/api/images', imagesRouter);
+app.use('/api/favorites', favoritesRouter);
 app.use(errorHandler);
 
 const start = async (): Promise<void> => {

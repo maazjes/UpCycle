@@ -8,6 +8,7 @@ import { DataTable, Menu, Button } from 'react-native-paper';
 import { useAppSelector } from '../hooks/redux';
 import { PostBase, User } from '../types';
 import Text from '../components/Text';
+import Loading from '../components/Loading';
 import postsService from '../services/posts';
 import usePosts from '../hooks/usePosts';
 import useError from '../hooks/useError';
@@ -40,14 +41,16 @@ const PrivateProfile = (): JSX.Element => {
 
   useEffect((): void => {
     const getAndSetPosts = async (): Promise<void> => {
-      const freshPosts = await getPosts({ page: 0, size: 5, userId: currentUser.id });
-      setVisiblePosts(freshPosts);
+      if (currentUser) {
+        const freshPosts = await getPosts({ userId: currentUser.id });
+        setVisiblePosts(freshPosts);
+      }
     };
     getAndSetPosts();
   }, []);
 
   if (!visiblePosts) {
-    return <Text>loading</Text>;
+    return <Loading />;
   }
 
   if (visiblePosts.length === 0) {

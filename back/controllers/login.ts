@@ -10,6 +10,7 @@ interface LoginResponse {
   token: string;
   username: string;
   name: string;
+  id: number;
 }
 
 interface LoginBody {
@@ -42,7 +43,9 @@ router.post<{}, LoginResponse, LoginBody>('/', async (
     id: user.id
   };
   const token = jwt.sign(userForToken, SECRET);
-  res.status(200).json({ token, username: user.username, name: user.name });
+  res.status(200).json({
+    id: user.id, token, username: user.username, name: user.name
+  });
 });
 
 export default router;

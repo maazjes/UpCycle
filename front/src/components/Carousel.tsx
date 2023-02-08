@@ -53,10 +53,10 @@ const Carousel = ({ images }: { images: TypedImage[] }): JSX.Element => {
     }
   }, []);
 
-  const dots = images.length > 1 ? images.map((_, i): JSX.Element => (
+  const dots = images.length > 1 ? images.map((image, i): JSX.Element => (
     i === index
-      ? <View style={[styles.dot, { backgroundColor: '#000000' }]} />
-      : <View style={styles.dot} />)) : null;
+      ? <View key={image.uri} style={[styles.dot, { backgroundColor: '#000000' }]} />
+      : <View key={image.uri} style={styles.dot} />)) : null;
 
   return (
     <View style={styles.container}>
@@ -69,7 +69,7 @@ const Carousel = ({ images }: { images: TypedImage[] }): JSX.Element => {
         horizontal
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
-        keyExtractor={(item): string => item.uri}
+        keyExtractor={(item): string => item.id}
       />
       <View style={styles.dots}>
         {dots}

@@ -9,13 +9,12 @@ interface TokenExtractorRequest extends Request {
 
 const tokenExtractor = async (
   req: TokenExtractorRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): Promise<void> => {
   const authorization = req.get('authorization');
   if (!(authorization && authorization.toLowerCase().startsWith('bearer '))) {
-    res.status(401).json({ error: 'token missing' });
-    return;
+    return next();
   }
   const token = authorization?.substring(7);
   const decodedToken = jwt.verify(token, SECRET);
@@ -23,7 +22,7 @@ const tokenExtractor = async (
     throw new Error('invalid token');
   }
   req.decodedToken = decodedToken as DecodedToken;
-  next();
+  return next();
 };
 
 const errorHandler = async (
@@ -55,5 +54,4 @@ const errorHandler = async (
   next();
 };
 
-// eslint-disable-next-line import/prefer-default-export
 export { tokenExtractor, errorHandler };

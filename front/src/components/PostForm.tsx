@@ -11,7 +11,7 @@ import FormikPicker from './FormikPicker';
 import PostCodeInput from './PostCodeInput';
 import Button from './Button';
 import {
-  Category, Condition, InitialPostValues
+  Category, InitialPostValues
 } from '../types';
 
 const styles = StyleSheet.create({
@@ -68,7 +68,11 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
-        <ScrollView showsVerticalScrollIndicator={false} style={styles.loginForm}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 50 }}
+          showsVerticalScrollIndicator={false}
+          style={styles.loginForm}
+        >
           <FormikTextInput name="title" placeholder="Title" />
           <FormikTextInput name="price" placeholder="Price (€)" />
           <PostCodeInput name="postcode" />

@@ -1,11 +1,11 @@
-import express, { Response, Request } from 'express';
+import express from 'express';
 import {
   PaginationBase,
-  DecodedToken, NewPostBody, MulterFile
+  NewPostBody
 } from '../types';
 import upload from '../util/multer';
 import {
-  Post, User, Category, Image
+  Post, User, Category, Image, Favorite
 } from '../models';
 import { tokenExtractor } from '../util/middleware';
 import { saveImages } from '../util/helpers';
@@ -35,17 +35,17 @@ const getPagingData = (data: { count: number; rows: Post[] }, page: number, limi
 };
 
 interface PostsResponse extends PaginationBase {
-  posts: Post[] | Post[][];
+  posts: Post[];
 }
 
-interface GetPostsQuery {
+type GetPostsQuery = {
   page: string;
   size: string;
   userId?: string;
   postId?: string;
-}
+};
 
-router.get<{}, PostsResponse, {}, GetPostsQuery>('/', async (req, res): Promise<void> => {
+router.get<{}, PostsResponse, GetPostsQuery>('/', tokenExtractor, async (req, res): Promise<void> => {
   let where = {};
   const {
     userId, postId, page, size
@@ -65,19 +65,37 @@ router.get<{}, PostsResponse, {}, GetPostsQuery>('/', async (req, res): Promise<
     },
     {
       model: Image,
-      attributes: ['uri', 'height', 'width', 'id']
+      attributes: { exclude: ['postId'] }
     }],
     limit,
     offset,
     where
   });
   const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
+  if (req.decodedToken && postId) {
+    const user = await User.findByPk(req.decodedToken?.id);
+    if (!user) {
+      throw new Error('user not found');
+    }
+    console.log("asd")
+    console.log(user.id)
+    console.log(postId)
+    const found = await Favorite.findOne({ where: { postId: Number(postId), userId: user.id } });
+    console.log(found);
+    if (found) {
+      console.log("found id", found.id)
+      response.posts[0].setDataValue('favoriteId', found.id);
+    }
+  }
   res.json(response);
 });
 
-router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
+router.get<{ id: string }, Post>('/:id', tokenExtractor, async (req, res): Promise<void> => {
+  const user = await User.findByPk(req.decodedToken?.id);
+  if (!user) {
+    throw new Error('user not found');
+  }
   const { id } = req.params;
-  const where = id ? { id } : {};
   const post = await Post.findOne({
     attributes: { exclude: ['userId', 'categoryId'] },
     include: [{
@@ -92,7 +110,9 @@ router.get<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
       model: Image,
       attributes: ['uri', 'height', 'width', 'id']
     }],
-    where
+    where: {
+      id
+    }
   });
   if (!post) {
     throw new Error('post not found');
@@ -120,19 +140,11 @@ router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res)
   res.json(post);
 });
 
-type MulterFiles = { [fieldname: string]: MulterFile[];
-} | MulterFile[] | undefined;
-
-interface AuthRequest extends Request<{ id?: string }, {}, NewPostBody> {
-  decodedToken?: DecodedToken;
-  files?: MulterFiles;
-}
-
-router.post(
+router.post<{}, Post, NewPostBody>(
   '/',
   tokenExtractor,
   upload.array('images', 5),
-  async (req: AuthRequest, res: Response<Post>): Promise<void> => {
+  async (req, res): Promise<void> => {
     const user = await User.findByPk(req.decodedToken?.id);
     if (!user) {
       throw new Error('user not found');
@@ -154,11 +166,11 @@ router.post(
   }
 );
 
-router.put(
+router.put<{ id: string }, Post, NewPostBody>(
   '/:id',
   tokenExtractor,
   upload.array('images', 5),
-  async (req: AuthRequest, res: Response<Post>): Promise<void> => {
+  async (req, res): Promise<void> => {
     const user = await User.findByPk(req.decodedToken?.id);
     if (!user) {
       throw new Error('user not found');

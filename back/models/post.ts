@@ -22,6 +22,8 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare categoryId: number;
 
   declare images?: Image[];
+
+  declare favoriteId?: number;
 }
 
 Post.init(

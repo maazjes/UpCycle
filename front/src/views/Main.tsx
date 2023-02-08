@@ -1,8 +1,5 @@
 import { useEffect } from 'react';
-import {
-  Text, SafeAreaView
-} from 'react-native';
-import MasonryList from '../components/MasonryList';
+import Loading from '../components/Loading';
 import usePosts from '../hooks/usePosts';
 import GridView from '../components/GridView';
 
@@ -12,12 +9,10 @@ const Main = (): JSX.Element => {
     getPosts({ page: 0, size: 7 });
   }, []);
   if (!posts) {
-    return <Text>loading</Text>;
+    return <Loading />;
   }
   return (
-    <SafeAreaView style={{ backgroundColor: '#F2F2F2' }}>
-      <GridView posts={posts} />
-    </SafeAreaView>
+    <GridView posts={posts} />
   );
 };
 

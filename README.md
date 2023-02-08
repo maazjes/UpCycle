@@ -10,5 +10,6 @@ Extended post fields, added registration and custom passwords for users, made a 
 Added redux for token managing, created public and private profile page with a possibility to delete your own posts, added custom types for redux, added a single post page. // 10 hours
 Fixed more typescript stuff. Added error handling to backend and frontend. // 6 hours
 started making masonry list for the front page, added new post fields to db and expanded new post form. // 12 hours
-total: 77 hours
 you dont wanna know // 15 hours
+update posts etc... // 12 hours
+total: 104 hours

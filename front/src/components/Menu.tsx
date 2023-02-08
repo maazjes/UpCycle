@@ -6,12 +6,12 @@ import { Menu as PaperMenu } from 'react-native-paper';
 import { Entypo } from '@expo/vector-icons';
 import api from '../util/axiosInstance';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
-import { User } from '../types';
+import { TokenUser } from '../types';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from '../hooks/useAuthStorage';
 
 const Menu = (): JSX.Element => {
-  const currentUser = useAppSelector((state): User => state.user);
+  const currentUser = useAppSelector((state): TokenUser => state.user);
   const [visible, setVisible] = React.useState(false);
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
@@ -56,6 +56,7 @@ const Menu = (): JSX.Element => {
             <PaperMenu.Item onPress={(): void => navigate('/profile')} title="Your profile" />
             <PaperMenu.Item onPress={(): void => navigate('/new-post')} title="New Post" />
             <PaperMenu.Item onPress={(): void => navigate('/')} title="Front page" />
+            <PaperMenu.Item onPress={(): void => navigate(`/favorites/${currentUser.id}`)} title="Favorites" />
             <PaperMenu.Item onPress={logout} title="Logout" />
           </>
         ) : (

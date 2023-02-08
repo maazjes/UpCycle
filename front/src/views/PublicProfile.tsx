@@ -5,13 +5,14 @@ import {
 } from 'react-native';
 import { DataTable } from 'react-native-paper';
 import { useParams } from 'react-router-native';
+import Loading from '../components/Loading';
 import Text from '../components/Text';
 import usePosts from '../hooks/usePosts';
+import UserBar from '../components/UserBar';
+import GridView from '../components/GridView';
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 20,
-    paddingTop: 20
   }
 });
 
@@ -20,29 +21,20 @@ const PublicProfile = (): JSX.Element => {
   const [posts, getPosts] = usePosts();
 
   useEffect((): void => {
-    getPosts({ page: 0, size: 5, userId: Number(userId) ?? undefined });
+    getPosts({ userId: Number(userId) });
   }, []);
 
   if (!posts) {
-    return <Text>loading</Text>;
+    return <Loading />;
   }
   if (posts.length === 0) {
     return <Text>no posts to show</Text>;
   }
+
   return (
     <View style={styles.container}>
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title><Text fontSize="subheading">Title</Text></DataTable.Title>
-          <DataTable.Title><Text fontSize="subheading">Price</Text></DataTable.Title>
-        </DataTable.Header>
-        {posts.map((post): JSX.Element => (
-          <DataTable.Row key={String(post.id)}>
-            <DataTable.Cell><Text>{post.title}</Text></DataTable.Cell>
-            <DataTable.Cell><Text>{post.price}</Text></DataTable.Cell>
-          </DataTable.Row>
-        ))}
-      </DataTable>
+      <UserBar user={posts[0].user} />
+      <GridView posts={posts} />
     </View>
   );
 };

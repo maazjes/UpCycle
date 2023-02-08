@@ -11,6 +11,7 @@ import LoginForm from './views/LoginForm';
 import RegistrationForm from './views/RegistrationForm';
 import SinglePost from './views/SinglePost';
 import Notification from './components/Notification';
+import Favorites from './views/Favorites';
 
 export default (): JSX.Element => (
   <View>
@@ -26,6 +27,7 @@ export default (): JSX.Element => (
       <Route path="/login" element={<LoginForm />} />
       <Route path="/register" element={<RegistrationForm />} />
       <Route path="/posts/:postId" element={<SinglePost />} />
+      <Route path="/favorites/:userId" element={<Favorites />} />
     </Routes>
   </View>
 );

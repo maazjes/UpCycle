@@ -4,14 +4,14 @@ import { useAppDispatch } from './redux';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from './useAuthStorage';
 import loginService from '../services/login';
-import { User } from '../types';
+import { TokenUser } from '../types';
 
 const useLogin = (): typeof logIn => {
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const logIn = async ({ username, password }:
-  { username: string; password: string }): Promise<User> => {
+  { username: string; password: string }): Promise<TokenUser> => {
     const response = await loginService.login(username, password);
     const body = response.data;
     await authStorage.setUser(body);

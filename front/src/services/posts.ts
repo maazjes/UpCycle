@@ -1,6 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '../util/axiosInstance';
-import { addQuery } from '../util/helpers';
+import { addParams } from '../util/helpers';
 import {
   PostBase, TypedImage, NewPostProps, PostsResponse, UpdatePostProps, GetPostsParams
 } from '../types';
@@ -20,7 +20,7 @@ const formatImages = (images: TypedImage[]): Blob[] => {
   return formattedImages;
 };
 
-type CreateFormDataProps = Omit<UpdatePostProps, 'id'>;
+type CreateFormDataProps = Omit<UpdatePostProps, 'id' | 'favoriteId'>;
 
 const createFormData = ({ images, ...props }: CreateFormDataProps): FormData => {
   const propKeys = Object.keys(props) as Array<keyof Omit<CreateFormDataProps, 'images'>>;
@@ -50,10 +50,11 @@ const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase
   return post;
 };
 
-const getPosts = async (params: GetPostsParams | undefined):
+const getPosts = async (params?: GetPostsParams):
 Promise<AxiosResponse<PostsResponse>> => {
   let query = 'posts';
-  query = params ? addQuery(query, params) : query;
+  query = params ? addParams(query, params) : query;
+  console.log('query', query);
   const posts = await api.get<PostsResponse>(query);
   return posts;
 };

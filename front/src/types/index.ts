@@ -8,6 +8,7 @@ export interface PostBase {
   postcode: string;
   condition: Condition;
   user: User;
+  favoriteId?: number;
 }
 
 export enum Condition {
@@ -27,11 +28,19 @@ export interface Category {
   subcategory?: number;
 }
 
-export interface User {
+export interface TokenUser {
   id: number;
   name: string;
   username: string;
   token: string;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  username: string;
+  posts?: PostBase[];
+  favorites?: PostBase[];
 }
 
 export interface ErrorResponse {
@@ -62,6 +71,10 @@ export type GetPostsParams = {
   size?: number;
   userId?: number;
   postId?: number;
+};
+
+export type GetUsersParams = {
+  userId?: number;
 };
 
 export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'images'> & { images: TypedImage[] };

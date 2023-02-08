@@ -34,7 +34,3 @@ export interface NewPostBody {
   condition: Condition;
   postcode: string;
 }
-
-export interface MulterFile extends Express.Multer.File {
-  location?: string;
-}

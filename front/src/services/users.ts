@@ -1,6 +1,7 @@
 import { AxiosResponse } from 'axios';
 import api from '../util/axiosInstance';
-import { User } from '../types';
+import { User, GetUsersParams } from '../types';
+import { addParams } from '../util/helpers';
 
 interface RegistrationResponse {
   username: string;
@@ -12,8 +13,9 @@ Promise<AxiosResponse<RegistrationResponse>> => {
   return response;
 };
 
-const getUsers = async (): Promise<AxiosResponse<User[]>> => {
-  const users = await api.get('users');
+const getUsers = async (params: GetUsersParams): Promise<AxiosResponse<User[]>> => {
+  const query = addParams('users', params);
+  const users = await api.get(query);
   return users;
 };
 

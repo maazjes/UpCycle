@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-native';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
+import Loading from '../components/Loading';
 import PostForm from '../components/PostForm';
-import Text from '../components/Text';
 import {
   NewPostProps, TypedImage, InitialPostValues, PostBase, Optional
 } from '../types';
@@ -37,7 +37,9 @@ const EditPost = (): JSX.Element => {
   }, []);
 
   if (!postId || !currentValues) {
-    return <Text>loading</Text>;
+    return (
+      <Loading />
+    );
   }
 
   const onSubmit = async (values: NewPostProps): Promise<void> => {

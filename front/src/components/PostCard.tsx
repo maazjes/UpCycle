@@ -13,13 +13,12 @@ const styles = StyleSheet.create({
   infoBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingTop: 5,
+    padding: 10,
     justifyContent: 'space-between'
   },
   container: {
-    padding: 10,
-    backgroundColor: '#FFFF'
+    backgroundColor: '#FFFF',
+    margin: 5
   }
 });
 
