@@ -1,5 +1,5 @@
 import {
-  StyleSheet, View, ImageStyle, ViewStyle, Image, Pressable
+  StyleSheet, View, ViewStyle, Image, Pressable
 } from 'react-native';
 import { useNavigate } from 'react-router-native';
 import Text from './Text';
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   infoBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    paddingVertical: 10,
     justifyContent: 'space-between'
   },
   container: {
@@ -24,12 +24,11 @@ const styles = StyleSheet.create({
 
 interface GridPostProps {
   post: PostBase;
-  imageStyle?: ImageStyle;
   containerStyle?: ViewStyle;
 }
 
 const PostCard = ({
-  post, imageStyle = {}, containerStyle = {}
+  post, containerStyle = {}
 }: GridPostProps): JSX.Element => {
   const navigate = useNavigate();
   const onPostCardPress = (): void => {
@@ -48,7 +47,11 @@ const PostCard = ({
             <Text>{post.title}</Text>
             <Text fontWeight="bold" color="blue">{post.price}</Text>
           </View>
-          <ProfileImage userId={post.user.id} />
+          <ProfileImage
+            size={30}
+            uri={post.user.photoUrl}
+            userId={post.user.id}
+          />
         </View>
       </View>
     </Pressable>

@@ -28,18 +28,19 @@ const UserBar = ({
   user, style
 }: UserBarProps): JSX.Element => {
   const navigate = useNavigate();
+  console.log(user);
   const onUsernamePress = (): void => {
     navigate(`/users/${user.id}`);
   };
   return (
     <View style={StyleSheet.flatten([styles.userBar, style])}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <ProfileImage userId={user.id} />
+        <ProfileImage size={32} uri={user.photoUrl} userId={user.id} />
         <Pressable
           style={{ marginLeft: 10 }}
           onPress={onUsernamePress}
         >
-          <Text style={{ marginBottom: -1 }} fontSize="subheading">{user.username}</Text>
+          <Text style={{ marginBottom: -1 }} fontSize="subheading">{user.displayName}</Text>
           <Text style={{ marginTop: -1 }}>This is the location</Text>
         </Pressable>
       </View>

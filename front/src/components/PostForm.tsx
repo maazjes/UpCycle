@@ -77,7 +77,7 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
           <FormikTextInput name="price" placeholder="Price (€)" />
           <PostCodeInput name="postcode" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
-          <FormikImageInput name="images" />
+          <FormikImageInput name="images" amount={3} />
           <FormikPicker items={conditions} name="condition" />
           {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
           <Button

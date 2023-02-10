@@ -1,22 +1,28 @@
 {
+  "type": "module",
   "name": "backend",
   "version": "1.0.0",
   "description": "Backend for the second hand app",
-  "main": "index.ts",
+  "exports": "./index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev index.ts",
-    "migration:down": "ts-node util/rollback.ts"
+    "devtest": "nodemon --exec node --loader ts-node/esm index.ts",
+    "migration:down": "node --loader ts-node/esm util/rollback.ts"
+  },
+  "engines": {
+    "node": ">=14.16"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.252.0",
-    "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-async-errors": "^3.1.1",
+    "firebase-admin": "^11.5.0",
+    "got": "^12.5.3",
     "jsonwebtoken": "^9.0.0",
     "multer": "^1.4.5-lts.1",
     "multer-md5": "^1.0.2",
@@ -45,7 +51,9 @@
     "eslint": "^8.31.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
+    "nodemon": "^2.0.20",
     "sequelize-typescript-migration-engine": "^0.0.6",
+    "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.4"
   }

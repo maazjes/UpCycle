@@ -30,15 +30,16 @@ export interface Category {
 
 export interface TokenUser {
   id: number;
-  name: string;
-  username: string;
+  email: string;
   token: string;
 }
 
 export interface User {
   id: number;
-  name: string;
-  username: string;
+  displayName: string;
+  email: string;
+  photoUrl: string;
+  bio: string;
   posts?: PostBase[];
   favorites?: PostBase[];
 }
@@ -74,10 +75,10 @@ export type GetPostsParams = {
 };
 
 export type GetUsersParams = {
-  userId?: number;
+  userId?: string;
 };
 
-export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'images'> & { images: TypedImage[] };
+export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'favoriteId'>;
 
 export type UpdatePostProps = Partial<NewPostProps>;
 

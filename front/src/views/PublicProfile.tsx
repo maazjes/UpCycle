@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import {
   View, StyleSheet
 } from 'react-native';
-import { DataTable } from 'react-native-paper';
 import { useParams } from 'react-router-native';
 import Loading from '../components/Loading';
 import Text from '../components/Text';

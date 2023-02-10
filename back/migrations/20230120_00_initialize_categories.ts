@@ -1,8 +1,8 @@
-// eslint-disable-next-line import/no-import-module-exports
-import { QueryInterface, DataTypes } from 'sequelize';
+// @ts-ignore
+const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
+  up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
     await queryInterface.createTable('categories', {
       id: {
         type: DataTypes.INTEGER,
@@ -26,7 +26,7 @@ module.exports = {
       references: { model: 'categories', key: 'id' }
     });
   },
-  down: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
+  down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
     await queryInterface.removeColumn('posts', 'category_id');
     await queryInterface.dropTable('categories');
   }

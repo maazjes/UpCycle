@@ -67,7 +67,7 @@ const SinglePostCard = ({
     : <AntDesign style={styles.favorite} name="hearto" size={28} color="#fa2f3a" />;
 
   return (
-    <ScrollView contentContainerStyle={[{ paddingBottom: 500 }, containerStyle]}>
+    <ScrollView contentContainerStyle={containerStyle}>
       <Carousel
         images={post.images}
       />

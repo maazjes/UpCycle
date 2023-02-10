@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize';
 import { Umzug, SequelizeStorage } from 'umzug';
-import { DATABASE_URL } from './config';
+import { DATABASE_URL } from './config.js';
 
 const sequelize = new Sequelize(DATABASE_URL, { dialect: 'postgres' });
 

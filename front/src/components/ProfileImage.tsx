@@ -2,17 +2,19 @@ import {
   StyleSheet, Image, ImageStyle, Pressable
 } from 'react-native';
 import { useNavigate } from 'react-router-native';
+import { AntDesign } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
   profileImage: {
-    width: 28,
-    height: 28,
-    borderRadius: 25
+    borderRadius: 25,
+    backgroundColor: 'blue',
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });
 
-const ProfileImage = ({ userId, imageStyle = {} }: {
-  userId: number; imageStyle?: ImageStyle; }): JSX.Element => {
+const ProfileImage = ({ userId, uri, size = 30 }: {
+  userId: number; uri: string; size?: number; }): JSX.Element => {
   const navigate = useNavigate();
   const onProfileImagePress = (): void => {
     navigate(`/users/${userId}`);
@@ -20,11 +22,14 @@ const ProfileImage = ({ userId, imageStyle = {} }: {
   return (
     <Pressable
       onPress={onProfileImagePress}
+      style={[styles.profileImage, { width: size, height: size }]}
     >
-      <Image
-        style={[styles.profileImage, imageStyle]}
-        source={{ uri: 'https://randomi.fi/src/f2bf22133a85d0dffe280ca43f3b17e5.jpg' }}
-      />
+      {uri ? (
+        <Image
+          style={[styles.profileImage, { width: size, height: size }]}
+          source={{ uri }}
+        />
+      ) : <AntDesign style={{ marginTop: 3 }} name="user" size={size - 3} color="white" />}
     </Pressable>
   );
 };

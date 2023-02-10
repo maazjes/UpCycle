@@ -9,10 +9,19 @@ import {
 } from '@expo-google-fonts/open-sans';
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
+import BottomNav from './src/components/BottomNav';
 import store from './src/util/store';
 import Main from './src/Main';
 import AuthStorage from './src/util/authStorage';
 import AuthStorageContext from './src/contexts/AuthStorageContext';
+
+const MusicRoute = () => <Text>Music</Text>;
+
+const AlbumsRoute = () => <Text>Albums</Text>;
+
+const RecentsRoute = () => <Text>Recents</Text>;
+
+const NotificationsRoute = () => <Text>Notifications</Text>;
 
 const authStorage = new AuthStorage();
 

@@ -12,7 +12,8 @@
     "alwaysStrict": true,
     "esModuleInterop": true,
     "declaration": true,
-    "target": "ES6"
+    "target": "ES6",
+    "typeRoots": ["node_modules/yup"]
   },
   "extends": "expo/tsconfig.base"
 }

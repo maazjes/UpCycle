@@ -2,7 +2,7 @@ import multer from 'multer';
 import multerS3 from 'multer-s3';
 import { S3Client } from '@aws-sdk/client-s3';
 import { Request } from 'express';
-import { AWS_S3_ACCESS_KEY_ID, AWS_S3_SECRET_ACCESS_KEY } from './config';
+import { AWS_S3_ACCESS_KEY_ID, AWS_S3_SECRET_ACCESS_KEY } from './config.js';
 
 const s3 = new S3Client({
   credentials: {

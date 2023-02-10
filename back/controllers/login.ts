@@ -1,50 +1,41 @@
-import jwt from 'jsonwebtoken';
 import express from 'express';
-import bcrypt from 'bcrypt';
-import { SECRET } from '../util/config';
-import { User } from '../models';
+import got from 'got';
+import { FIREBASE_API_KEY } from '../util/config.js';
+import { FirebaseLoginRes } from '../types.js';
 
 const router = express.Router();
 
-interface LoginResponse {
-  token: string;
-  username: string;
-  name: string;
-  id: number;
+interface LoginBody {
+  email: string;
+  password: string;
 }
 
-interface LoginBody {
-  username: string;
-  password: string;
+export interface LoginResponse {
+  id: string;
+  token: string;
+  email: string;
 }
 
 router.post<{}, LoginResponse, LoginBody>('/', async (
   req,
   res
 ): Promise<void> => {
-  const { username, password } = req.body;
-  const user = await User.findOne({
-    where: {
-      username
+  const { email, password } = req.body;
+  const user = await got.post(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+    {
+      json: {
+        email,
+        password,
+        returnSecureToken: true
+      }
     }
-  });
-  if (!user) {
+  ).json<FirebaseLoginRes>();
+  if (!user.registered) {
     throw new Error('invalid username');
   }
-  const passwordCorrect = user === null
-    ? false
-    : await bcrypt.compare(password, user.passwordHash);
-
-  if (!passwordCorrect) {
-    throw new Error('invalid password');
-  }
-  const userForToken = {
-    username: user.username,
-    id: user.id
-  };
-  const token = jwt.sign(userForToken, SECRET);
   res.status(200).json({
-    id: user.id, token, username: user.username, name: user.name
+    id: user.localId, token: user.idToken, email: user.email
   });
 });
 

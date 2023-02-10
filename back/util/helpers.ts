@@ -1,5 +1,5 @@
 import probe, { ProbeResult } from 'probe-image-size';
-import { Image } from '../models';
+import { Image } from '../models/index.js';
 
 export const saveImages = async (
   postId: number,

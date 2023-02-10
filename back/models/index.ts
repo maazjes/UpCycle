@@ -1,8 +1,8 @@
-import User from './user';
-import Post from './post';
-import Category from './category';
-import Image from './image';
-import Favorite from './favorite';
+import User from './user.js';
+import Post from './post.js';
+import Category from './category.js';
+import Image from './image.js';
+import Favorite from './favorite.js';
 
 User.hasMany(Post);
 Post.belongsTo(User);

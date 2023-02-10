@@ -2,18 +2,18 @@ import express from 'express';
 import {
   PaginationBase,
   NewPostBody
-} from '../types';
-import upload from '../util/multer';
+} from '../types.js';
+import upload from '../util/multer.js';
 import {
   Post, User, Category, Image, Favorite
-} from '../models';
-import { tokenExtractor } from '../util/middleware';
-import { saveImages } from '../util/helpers';
+} from '../models/index.js';
+import { userExtractor } from '../util/middleware.js';
+import { saveImages } from '../util/helpers.js';
 
 const router = express.Router();
 
 const getPagination = (page: number, size: number): { limit: number; offset: number } => {
-  const limit = size ? +size : 3;
+  const limit = size || 3;
   const offset = page ? page * limit : 0;
 
   return { limit, offset };
@@ -45,7 +45,7 @@ type GetPostsQuery = {
   postId?: string;
 };
 
-router.get<{}, PostsResponse, GetPostsQuery>('/', tokenExtractor, async (req, res): Promise<void> => {
+router.get<{}, PostsResponse, GetPostsQuery>('/', userExtractor, async (req, res): Promise<void> => {
   let where = {};
   const {
     userId, postId, page, size
@@ -56,8 +56,7 @@ router.get<{}, PostsResponse, GetPostsQuery>('/', tokenExtractor, async (req, re
   const posts = await Post.findAndCountAll({
     attributes: { exclude: ['userId'] },
     include: [{
-      model: User,
-      attributes: ['id', 'username']
+      model: User
     },
     {
       model: Category,
@@ -71,36 +70,28 @@ router.get<{}, PostsResponse, GetPostsQuery>('/', tokenExtractor, async (req, re
     offset,
     where
   });
+
   const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
-  if (req.decodedToken && postId) {
-    const user = await User.findByPk(req.decodedToken?.id);
+
+  if (req.user && postId) {
+    const user = await User.findByPk(req.user.id);
     if (!user) {
       throw new Error('user not found');
     }
-    console.log("asd")
-    console.log(user.id)
-    console.log(postId)
     const found = await Favorite.findOne({ where: { postId: Number(postId), userId: user.id } });
-    console.log(found);
     if (found) {
-      console.log("found id", found.id)
       response.posts[0].setDataValue('favoriteId', found.id);
     }
   }
   res.json(response);
 });
 
-router.get<{ id: string }, Post>('/:id', tokenExtractor, async (req, res): Promise<void> => {
-  const user = await User.findByPk(req.decodedToken?.id);
-  if (!user) {
-    throw new Error('user not found');
-  }
+router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promise<void> => {
   const { id } = req.params;
   const post = await Post.findOne({
     attributes: { exclude: ['userId', 'categoryId'] },
     include: [{
-      model: User,
-      attributes: ['id', 'username']
+      model: User
     },
     {
       model: Category,
@@ -120,7 +111,7 @@ router.get<{ id: string }, Post>('/:id', tokenExtractor, async (req, res): Promi
   res.json(post);
 });
 
-router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res): Promise<void> => {
+router.delete<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const where = id ? { id } : {};
   const post = await Post.findOne({
@@ -142,12 +133,11 @@ router.delete<{ id: string }, { error: number } | Post>('/:id', async (req, res)
 
 router.post<{}, Post, NewPostBody>(
   '/',
-  tokenExtractor,
+  userExtractor,
   upload.array('images', 5),
   async (req, res): Promise<void> => {
-    const user = await User.findByPk(req.decodedToken?.id);
-    if (!user) {
-      throw new Error('user not found');
+    if (!req.user) {
+      throw new Error('invalid token');
     }
     const category = await Category.findOne({ where: { name: req.body.category } });
     if (!category) {
@@ -158,7 +148,7 @@ router.post<{}, Post, NewPostBody>(
     }
     const post = await Post.create({
       ...req.body,
-      userId: user.id,
+      userId: req.user.id,
       categoryId: category.id
     });
     await saveImages(post.id, req.files);
@@ -168,12 +158,11 @@ router.post<{}, Post, NewPostBody>(
 
 router.put<{ id: string }, Post, NewPostBody>(
   '/:id',
-  tokenExtractor,
+  userExtractor,
   upload.array('images', 5),
   async (req, res): Promise<void> => {
-    const user = await User.findByPk(req.decodedToken?.id);
-    if (!user) {
-      throw new Error('user not found');
+    if (!req.user) {
+      throw new Error('invalid token');
     }
     const currentPost = await Post.findOne({ where: { id: req.params.id } });
     if (!currentPost) {

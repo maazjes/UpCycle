@@ -14,11 +14,11 @@ const styles = StyleSheet.create({
 });
 
 const validationSchema = yup.object().shape({
-  username: yup
+  email: yup
     .string()
-    .min(3, 'Minimum length of username is 1')
-    .max(30, 'Maximum length of username is 30')
-    .required('username is required'),
+    .min(3, 'Minimum length of email is 1')
+    .max(30, 'Maximum length of email is 30')
+    .required('email is required'),
   password: yup
     .string()
     .min(1, 'Minimum length of password is 1')
@@ -26,24 +26,24 @@ const validationSchema = yup.object().shape({
     .required('password is required')
 });
 
-const LoginForm = (): JSX.Element => {
+const Login = (): JSX.Element => {
   const navigate = useNavigate();
   const login = useLogin();
   const error = useError();
 
   const initialValues = {
-    username: '',
+    email: '',
     password: '',
     passwordConfirmation: ''
   };
 
-  const onSubmit = async ({ username, password }: {
-    username: string;
+  const onSubmit = async ({ email, password }: {
+    email: string;
     password: string;
     passwordConfirmation: string;
   }): Promise<void> => {
     try {
-      await login({ username, password });
+      await login({ email, password });
       navigate('/');
     } catch (e) {
       error(e);
@@ -54,7 +54,7 @@ const LoginForm = (): JSX.Element => {
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
         <View style={styles.loginForm}>
-          <FormikTextInput name="username" placeholder="Username" />
+          <FormikTextInput name="email" placeholder="email" />
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <Button
             handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
@@ -66,4 +66,4 @@ const LoginForm = (): JSX.Element => {
   );
 };
 
-export default LoginForm;
+export default Login;

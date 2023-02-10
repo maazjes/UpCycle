@@ -1,7 +1,7 @@
 import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
-import { sequelize } from '../util/db';
+import { sequelize } from '../util/db.js';
 
 class Favorite extends Model<
 InferAttributes<Favorite>, InferCreationAttributes<Favorite>
@@ -10,7 +10,7 @@ InferAttributes<Favorite>, InferCreationAttributes<Favorite>
 
   declare postId: number;
 
-  declare userId: number;
+  declare userId: string;
 }
 
 Favorite.init(
@@ -26,7 +26,7 @@ Favorite.init(
       references: { model: 'posts', key: 'id' }
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
     }

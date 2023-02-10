@@ -23,7 +23,7 @@ const Menu = (): JSX.Element => {
     await authStorage.removeUser();
     api.defaults.headers.common.Authorization = undefined;
     dispatch(addUser({
-      username: '', token: '', name: '', id: -1
+      token: '', email: '', id: -1
     }));
     navigate('/');
   };

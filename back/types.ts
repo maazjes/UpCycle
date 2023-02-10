@@ -34,3 +34,20 @@ export interface NewPostBody {
   condition: Condition;
   postcode: string;
 }
+
+export interface UserBase {
+  id: string;
+  bio?: string;
+  photoUrl?: string;
+  email: string;
+  displayName: string;
+}
+
+export interface FirebaseLoginRes {
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered: boolean;
+}

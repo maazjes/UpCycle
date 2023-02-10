@@ -3,3 +3,6 @@ node_modules
 format.py
 raw.dat
 .vscode
+firebase.ts
+front/src/util/firebase.ts
+serviceAccount.json

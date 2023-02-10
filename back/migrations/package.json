@@ -1,0 +1,7 @@
+{
+    "type": "commonjs",
+    "dependencies": {
+        "sequelize": "^6.28.0",
+        "umzug": "^3.2.1"
+    }
+}

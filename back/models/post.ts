@@ -1,8 +1,8 @@
 import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
-import { sequelize } from '../util/db';
-import Image from './image';
+import { sequelize } from '../util/db.js';
+import Image from './image.js';
 
 class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
   declare id: CreationOptional<number>;
@@ -17,7 +17,7 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare postcode: string;
 
-  declare userId: number;
+  declare userId: string;
 
   declare categoryId: number;
 
@@ -60,7 +60,7 @@ Post.init(
       }
     },
     userId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
     },

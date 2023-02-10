@@ -10,9 +10,9 @@ const useLogin = (): typeof logIn => {
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const logIn = async ({ username, password }:
-  { username: string; password: string }): Promise<TokenUser> => {
-    const response = await loginService.login(username, password);
+  const logIn = async ({ email, password }:
+  { email: string; password: string }): Promise<TokenUser> => {
+    const response = await loginService.login({ email, password });
     const body = response.data;
     await authStorage.setUser(body);
     api.defaults.headers.common.Authorization = `bearer ${body.token}`;

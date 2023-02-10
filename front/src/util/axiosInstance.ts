@@ -10,7 +10,6 @@ api.interceptors.response.use(
   (response): AxiosResponse => response,
   (error: AxiosError<ErrorResponse>): Promise<never> | string => {
     if (error.response?.data.error) {
-      // eslint-disable-next-line no-param-reassign
       error.message = error.response.data.error;
     }
     return Promise.reject(error);

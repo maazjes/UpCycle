@@ -1,26 +1,42 @@
-import { View, StyleSheet, GestureResponderEvent } from 'react-native';
+import {
+  View, StyleSheet, GestureResponderEvent, Dimensions
+} from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-native';
+import usersService from '../services/users';
 import useLogin from '../hooks/useLogin';
 import useError from '../hooks/useError';
-import usersService from '../services/users';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
+import FormikImageInput from '../components/FormikImageInput';
+import { TypedImage } from '../types';
+
+const { width: screenWidth } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
-  RegistrationForm: {
+  SignupForm: {
     margin: 12
+  },
+  bioField: {
+    height: 100,
+    paddingTop: 13,
+    marginTop: 10
+  },
+  bioAndPhoto: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   }
 });
 
 const validationSchema = yup.object().shape({
-  username: yup
+  email: yup
     .string()
     .min(3, 'Minimum length of username is 1')
     .max(30, 'Maximum length of username is 30')
     .required('username is required'),
-  name: yup
+  displayName: yup
     .string()
     .min(5, 'Minimum length of name is 5')
     .max(10, 'Maximum length of name is 10')
@@ -35,27 +51,36 @@ const validationSchema = yup.object().shape({
     .required('password confirmation is required')
 });
 
-const RegistrationForm = (): JSX.Element => {
+const SignUp = (): JSX.Element => {
   const navigate = useNavigate();
   const login = useLogin();
   const error = useError();
 
   const initialValues = {
-    username: '',
-    name: '',
+    email: '',
+    displayName: '',
+    bio: '',
     password: '',
-    passwordConfirmation: ''
+    passwordConfirmation: '',
+    images: []
   };
 
-  const onSubmit = async ({ username, name, password }: {
-    username: string;
-    name: string;
+  const onSubmit = async ({
+    images, email, password, ...props
+  }: {
+    email: string;
+    displayName: string;
+    bio: string;
     password: string;
     passwordConfirmation: string;
+    images: TypedImage[];
   }): Promise<void> => {
+    const image = images[0];
     try {
-      await usersService.register(username, name, password);
-      await login({ username, password });
+      await usersService.createUser({
+        ...props, image, email, password
+      });
+      await login({ email, password });
       navigate('/');
     } catch (e) {
       error(e);
@@ -65,9 +90,15 @@ const RegistrationForm = (): JSX.Element => {
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
-        <View style={styles.RegistrationForm}>
-          <FormikTextInput name="username" placeholder="Username" />
-          <FormikTextInput name="name" placeholder="Name" />
+        <View style={styles.SignupForm}>
+          <View style={styles.bioAndPhoto}>
+            <FormikImageInput circle name="images" amount={1} />
+            <View style={{ flexDirection: 'column', width: screenWidth - 140 }}>
+              <FormikTextInput name="email" placeholder="Email" />
+              <FormikTextInput style={{ marginBottom: 0 }} name="displayName" placeholder="Display name" />
+            </View>
+          </View>
+          <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
           <Button
@@ -80,4 +111,4 @@ const RegistrationForm = (): JSX.Element => {
   );
 };
 
-export default RegistrationForm;
+export default SignUp;

@@ -1,35 +1,34 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes
 } from 'sequelize';
-import { sequelize } from '../util/db';
+import { sequelize } from '../util/db.js';
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare id: CreationOptional<number>;
+  declare id: string;
 
-  declare username: string;
+  declare displayName: string;
 
-  declare name: string;
+  declare photoUrl?: string;
 
-  declare passwordHash: string;
+  declare bio?: string;
 }
 
 User.init(
   {
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       primaryKey: true,
       autoIncrement: true
     },
-    username: {
+    bio: {
       type: DataTypes.STRING,
-      unique: true,
-      allowNull: false
+      allowNull: true
     },
-    name: {
+    photoUrl: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
-    passwordHash: {
+    displayName: {
       type: DataTypes.STRING,
       allowNull: false
     }
@@ -37,6 +36,7 @@ User.init(
   {
     sequelize,
     underscored: true,
+    timestamps: true,
     modelName: 'user'
   }
 );

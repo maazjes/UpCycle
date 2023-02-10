@@ -1,8 +1,8 @@
-// eslint-disable-next-line import/no-import-module-exports
-import { DataTypes, QueryInterface } from 'sequelize';
+// @ts-ignore
+const { DataTypes, QueryInterface } = require('sequelize');
 
 module.exports = {
-  up: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
+  up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
     await queryInterface.createTable('posts', {
       id: {
         type: DataTypes.INTEGER,
@@ -26,18 +26,20 @@ module.exports = {
     });
     await queryInterface.createTable('users', {
       id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      username: {
         type: DataTypes.STRING,
-        unique: true,
-        allowNull: false
+        primaryKey: true
       },
-      name: {
+      display_name: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      bio: {
+        type: DataTypes.STRING,
+        allowNull: true
+      },
+      photo_url: {
+        type: DataTypes.STRING,
+        allowNull: true
       },
       created_at: {
         type: DataTypes.DATE
@@ -47,12 +49,12 @@ module.exports = {
       }
     });
     await queryInterface.addColumn('posts', 'user_id', {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
     });
   },
-  down: async ({ context: queryInterface }: { context: QueryInterface }): Promise<void> => {
+  down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
     await queryInterface.removeColumn('posts', 'user_id');
     await queryInterface.dropTable('posts');
     await queryInterface.dropTable('users');

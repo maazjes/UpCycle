@@ -1,7 +1,7 @@
 import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
-import { sequelize } from '../util/db';
+import { sequelize } from '../util/db.js';
 
 class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>> {
   declare id: CreationOptional<number>;

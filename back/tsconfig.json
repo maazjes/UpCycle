@@ -14,10 +14,13 @@
     "declaration": true,
     "target": "ESNext",
     "outDir": "./build/",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "noEmit": false,
     "noEmitOnError": false,
+    "resolveJsonModule": true
   },
-  "files": ["custom.d.ts"]
+  "files": ["./@types/express/index.d.ts"],
+  "include": ["./"],
+  "exclude": ["node_modules"]
 }

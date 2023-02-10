@@ -1,13 +1,11 @@
 import {
-  StyleSheet, Image, View, Pressable, Dimensions
+  StyleSheet, Image, View, Pressable, ViewStyle
 } from 'react-native';
 import { useField } from 'formik';
 import * as ImagePicker from 'expo-image-picker';
-import { FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import Text from './Text';
 import { TypedImage } from '../types';
-
-const { width: windowWidth } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   errorText: {
@@ -26,8 +24,8 @@ const styles = StyleSheet.create({
     left: -1
   },
   imageBox: {
-    height: windowWidth / 4,
-    width: windowWidth / 4,
+    height: 100,
+    width: 100,
     backgroundColor: '#F2F2F2',
     alignItems: 'center',
     justifyContent: 'center'
@@ -35,72 +33,87 @@ const styles = StyleSheet.create({
   imageBoxes: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    marginVertical: 20
+    justifyContent: 'space-evenly'
   },
   addedImage: {
-    width: windowWidth / 4,
-    height: windowWidth / 4
+    width: 100,
+    height: 100
   }
 });
 
-const FormikImageInput = ({ name }: { name: string }): JSX.Element => {
+interface FormikImageInputProps {
+  name: string;
+  amount: number;
+  containerStyle?: ViewStyle;
+  circle?: boolean;
+}
+
+const FormikImageInput = ({
+  name, amount, circle = false, containerStyle = {}
+}: FormikImageInputProps): JSX.Element => {
   const [field, meta, helpers] = useField<TypedImage[]>(name);
   const showError = meta.touched;
   const { error } = meta;
 
-  const pickImage = async (): Promise<void> => {
+  const pickImage = async (): Promise<TypedImage | null> => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       aspect: [1, 1],
       allowsEditing: true,
       quality: 1
     });
+    if (result.canceled) {
+      return null;
+    }
+    const { width, height, uri } = result.assets[0];
+    const aspectRatio = width / height;
+    const image = {
+      width, height, uri, id: `${uri}${aspectRatio}${Math.random()}`
+    };
+    return image;
+  };
 
-    if (!result.canceled) {
-      const { width, height, uri } = result.assets[0];
-      const aspectRatio = width / height;
-      const image = {
-        width, height, uri, id: `${uri}${aspectRatio}`
-      };
+  const addImage = async (): Promise<void> => {
+    const image = await pickImage();
+    if (image) {
       helpers.setValue(field.value.concat(image));
     }
   };
 
-  const deletePreviewImage = (id: string): void => {
-    if (id) {
-      const filtered = field.value.filter((image): boolean => image.id !== id);
-      helpers.setValue(filtered);
+  const deleteAndAddImage = async (imageId: string): Promise<void> => {
+    let filtered = field.value.filter((image): boolean => image.id !== imageId);
+    const image = await pickImage();
+    if (image) {
+      filtered = filtered.concat(image);
     }
+    helpers.setValue(filtered);
   };
+
+  const addedImageStyle = circle ? [styles.addedImage, { borderRadius: 50 }] : styles.addedImage;
+  const imageBoxStyle = circle ? [styles.imageBox, { borderRadius: 50 }] : styles.imageBox;
 
   return (
     <>
-      <View style={styles.imageBoxes}>
-        {(Array(3).fill(0)).map((_, i): JSX.Element => {
+      <View style={[styles.imageBoxes, containerStyle]}>
+        {(Array(amount).fill(0)).map((_, i): JSX.Element => {
           const currentImage = field.value[i];
-          if (field.value[i]) {
+          if (currentImage) {
             return (
-              <View key={currentImage.id}>
+              <Pressable
+                key={currentImage.id}
+                onPress={(): Promise<void> => deleteAndAddImage(currentImage.id)}
+              >
                 <Image
-                  style={styles.addedImage}
+                  style={addedImageStyle}
                   source={{ uri: currentImage.uri }}
                 />
-                <Pressable
-                  onPress={
-                    (): void => deletePreviewImage(currentImage.id)
-                  }
-                  style={styles.deleteIcon}
-                >
-                  <FontAwesome style={styles.circleIcon} name="circle" size={30} color="white" />
-                  <FontAwesome name="times-circle" size={28} color="rgb(22,48,60,0)" />
-                </Pressable>
-              </View>
+
+              </Pressable>
             );
           }
           return (
             // eslint-disable-next-line react/no-array-index-key
-            <Pressable key={i * -1} onPress={pickImage} style={styles.imageBox}>
+            <Pressable key={i * -1} onPress={addImage} style={imageBoxStyle}>
               <MaterialIcons name="add-photo-alternate" size={30} color="black" />
             </Pressable>
           );

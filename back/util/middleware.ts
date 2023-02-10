@@ -1,14 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
-import jwt from 'jsonwebtoken';
-import { SECRET } from './config';
-import { DecodedToken } from '../types';
+import firebase from './firebase.js';
+import { User } from '../models/index.js';
 
-interface TokenExtractorRequest extends Request {
-  decodedToken?: DecodedToken;
-}
-
-const tokenExtractor = async (
-  req: TokenExtractorRequest,
+const userExtractor = async (
+  req: Request,
   _res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -17,11 +12,14 @@ const tokenExtractor = async (
     return next();
   }
   const token = authorization?.substring(7);
-  const decodedToken = jwt.verify(token, SECRET);
-  if (!decodedToken) {
+  console.log(token);
+  const decodedToken = await firebase.auth().verifyIdToken(token);
+  console.log(decodedToken);
+  const user = await User.findOne({ where: { id: decodedToken.uid } });
+  if (!decodedToken || !user) {
     throw new Error('invalid token');
   }
-  req.decodedToken = decodedToken as DecodedToken;
+  req.user = user;
   return next();
 };
 
@@ -54,4 +52,4 @@ const errorHandler = async (
   next();
 };
 
-export { tokenExtractor, errorHandler };
+export { userExtractor, errorHandler };

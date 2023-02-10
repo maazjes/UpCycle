@@ -12,4 +12,5 @@ Fixed more typescript stuff. Added error handling to backend and frontend. // 6 
 started making masonry list for the front page, added new post fields to db and expanded new post form. // 12 hours
 you dont wanna know // 15 hours
 update posts etc... // 12 hours
-total: 104 hours
+added favorites page and function for adding favorites and fixed bugs // 12 hours
+total: 116 hours hours

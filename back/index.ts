@@ -1,15 +1,14 @@
 import express from 'express';
 import cors from 'cors';
-// @ts-ignore
 import 'express-async-errors';
-import { connectToDatabase } from './util/db';
-import postsRouter from './controllers/posts';
-import usersRouter from './controllers/users';
-import loginRouter from './controllers/login';
-import categoriesRouter from './controllers/categories';
-import imagesRouter from './controllers/images';
-import favoritesRouter from './controllers/favorites';
-import { errorHandler } from './util/middleware';
+import { connectToDatabase } from './util/db.js';
+import postsRouter from './controllers/posts.js';
+import usersRouter from './controllers/users.js';
+import loginRouter from './controllers/login.js';
+import categoriesRouter from './controllers/categories.js';
+import imagesRouter from './controllers/images.js';
+import favoritesRouter from './controllers/favorites.js';
+import { errorHandler } from './util/middleware.js';
 
 const app = express();
 app.use(express.json());
