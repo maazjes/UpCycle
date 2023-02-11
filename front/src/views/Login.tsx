@@ -1,15 +1,25 @@
-import { View, StyleSheet, GestureResponderEvent } from 'react-native';
+import {
+  View, StyleSheet, GestureResponderEvent, Pressable
+} from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import useLogin from '../hooks/useLogin';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
+import Text from '../components/Text';
+import { RootStackParamList } from '../types';
 
 const styles = StyleSheet.create({
   loginForm: {
-    margin: 12
+    justifyContent: 'center',
+    margin: 12,
+    marginTop: 100
+  },
+  signUp: {
+    marginTop: 10,
+    alignItems: 'center'
   }
 });
 
@@ -26,11 +36,10 @@ const validationSchema = yup.object().shape({
     .required('password is required')
 });
 
-const Login = (): JSX.Element => {
-  const navigate = useNavigate();
+const Login = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'Login'>): JSX.Element => {
   const login = useLogin();
   const error = useError();
-
+  const { navigate } = navigation;
   const initialValues = {
     email: '',
     password: '',
@@ -44,25 +53,30 @@ const Login = (): JSX.Element => {
   }): Promise<void> => {
     try {
       await login({ email, password });
-      navigate('/');
+      navigate('Home');
     } catch (e) {
       error(e);
     }
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit }): JSX.Element => (
-        <View style={styles.loginForm}>
-          <FormikTextInput name="email" placeholder="email" />
-          <FormikTextInput secureTextEntry name="password" placeholder="Password" />
-          <Button
-            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Submit"
-          />
-        </View>
-      )}
-    </Formik>
+    <View>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {({ handleSubmit }): JSX.Element => (
+          <View style={styles.loginForm}>
+            <FormikTextInput name="email" placeholder="email" />
+            <FormikTextInput secureTextEntry name="password" placeholder="Password" />
+            <Button
+              handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Login"
+            />
+          </View>
+        )}
+      </Formik>
+      <View style={styles.signUp}>
+        <Pressable onPress={(): void => navigate('Sign up')}><Text fontWeight="bold" color="blue">Sign up</Text></Pressable>
+      </View>
+    </View>
   );
 };
 

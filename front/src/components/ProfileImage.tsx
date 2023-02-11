@@ -1,8 +1,9 @@
 import {
-  StyleSheet, Image, ImageStyle, Pressable
+  StyleSheet, Image, Pressable
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
 import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { UserStackNavigation } from '../types';
 
 const styles = StyleSheet.create({
   profileImage: {
@@ -14,10 +15,10 @@ const styles = StyleSheet.create({
 });
 
 const ProfileImage = ({ userId, uri, size = 30 }: {
-  userId: number; uri: string; size?: number; }): JSX.Element => {
-  const navigate = useNavigate();
+  userId: string; uri: string; size?: number; }): JSX.Element => {
+  const navigation = useNavigation<UserStackNavigation>();
   const onProfileImagePress = (): void => {
-    navigate(`/users/${userId}`);
+    navigation.navigate('PublicProfile', { userId });
   };
   return (
     <Pressable

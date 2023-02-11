@@ -13,4 +13,6 @@ started making masonry list for the front page, added new post fields to db and 
 you dont wanna know // 15 hours
 update posts etc... // 12 hours
 added favorites page and function for adding favorites and fixed bugs // 12 hours
-total: 116 hours hours
+Integrated firebase authentication, added profile photos to users. Also took a lot of time to change from CommonJS to ESM so I could use the GOT package
+in backend // 16 hours
+total: 132 hours hours

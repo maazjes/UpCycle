@@ -1,5 +1,5 @@
 import {
-  FlatList, StyleProp, ViewStyle, View
+  FlatList, StyleProp, ViewStyle
 } from 'react-native';
 import PostCard from './PostCard';
 import { PostBase } from '../types';

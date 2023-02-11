@@ -3,24 +3,26 @@ import { useEffect } from 'react';
 import {
   View, StyleSheet
 } from 'react-native';
-import { useParams } from 'react-router-native';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
 import usePosts from '../hooks/usePosts';
 import UserBar from '../components/UserBar';
 import GridView from '../components/GridView';
+import { UserStackScreen } from '../types';
 
 const styles = StyleSheet.create({
   container: {
   }
 });
 
-const PublicProfile = (): JSX.Element => {
-  const { userId } = useParams();
+const PublicProfile = ({ route }:
+UserStackScreen<'PublicProfile'>):
+JSX.Element => {
+  const { userId } = route.params;
   const [posts, getPosts] = usePosts();
 
   useEffect((): void => {
-    getPosts({ userId: Number(userId) });
+    getPosts({ userId });
   }, []);
 
   if (!posts) {

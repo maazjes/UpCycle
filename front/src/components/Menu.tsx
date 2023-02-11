@@ -1,21 +1,22 @@
 import * as React from 'react';
 import { useEffect } from 'react';
 import { Pressable, View } from 'react-native';
-import { useNavigate } from 'react-router-native';
 import { Menu as PaperMenu } from 'react-native-paper';
 import { Entypo } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import api from '../util/axiosInstance';
 import { useAppDispatch, useAppSelector } from '../hooks/redux';
+
 import { TokenUser } from '../types';
 import { addUser } from '../reducers/userReducer';
 import useAuthStorage from '../hooks/useAuthStorage';
 
 const Menu = (): JSX.Element => {
-  const currentUser = useAppSelector((state): TokenUser => state.user);
+  const currentUser = useAppSelector((state): TokenUser | null => state.user);
   const [visible, setVisible] = React.useState(false);
+  const { navigate } = useNavigation();
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
   const openMenu = (): void => setVisible(true);
   const closeMenu = (): void => setVisible(false);
 
@@ -25,7 +26,7 @@ const Menu = (): JSX.Element => {
     dispatch(addUser({
       token: '', email: '', id: -1
     }));
-    navigate('/');
+    navigate('home');
   };
 
   useEffect((): void => {
@@ -49,19 +50,12 @@ const Menu = (): JSX.Element => {
       <PaperMenu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Pressable onPress={openMenu}><Entypo style={{ marginLeft: 10 }} name="menu" size={35} color="white" /></Pressable>}
+        anchor={<Pressable onPress={openMenu}><Entypo name="menu" size={35} color="black" /></Pressable>}
       >
-        { currentUser.token !== '' ? (
-          <>
-            <PaperMenu.Item onPress={(): void => navigate('/profile')} title="Your profile" />
-            <PaperMenu.Item onPress={(): void => navigate('/new-post')} title="New Post" />
-            <PaperMenu.Item onPress={(): void => navigate('/')} title="Front page" />
-            <PaperMenu.Item onPress={(): void => navigate(`/favorites/${currentUser.id}`)} title="Favorites" />
-            <PaperMenu.Item onPress={logout} title="Logout" />
-          </>
+        { currentUser?.token !== '' ? (
+          <PaperMenu.Item onPress={logout} title="Logout" />
         ) : (
           <>
-            <PaperMenu.Item onPress={(): void => navigate('/')} title="Front page" />
             <PaperMenu.Item onPress={(): void => navigate('/login')} title="Login" />
             <PaperMenu.Item onPress={(): void => navigate('/register')} title="Register" />
           </>

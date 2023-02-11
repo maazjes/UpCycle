@@ -1,10 +1,10 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { useParams } from 'react-router-native';
 import { useEffect } from 'react';
 import Loading from '../components/Loading';
 import usePosts from '../hooks/usePosts';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
+import { UserStackScreen } from '../types';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -18,12 +18,13 @@ const styles = StyleSheet.create({
   }
 });
 
-const SinglePost = (): JSX.Element => {
-  const { postId } = useParams();
+const SinglePost = ({ route }:
+UserStackScreen<'StackSinglePost'>): JSX.Element => {
+  const { postId } = route.params;
   const [posts, getPosts] = usePosts();
   useEffect((): void => {
     if (postId) {
-      getPosts({ postId: Number(postId) });
+      getPosts({ postId });
     }
   }, []);
   if (!posts || !posts[0]) {

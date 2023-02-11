@@ -1,10 +1,10 @@
 import {
   StyleSheet, View, ViewStyle, Image, Pressable
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
+import { useNavigation } from '@react-navigation/native';
+import { PostBase, UserStackNavigation } from '../types';
 import Text from './Text';
 import ProfileImage from './ProfileImage';
-import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
   titleAndPrice: {
@@ -30,9 +30,9 @@ interface GridPostProps {
 const PostCard = ({
   post, containerStyle = {}
 }: GridPostProps): JSX.Element => {
-  const navigate = useNavigate();
+  const { navigate } = useNavigation<UserStackNavigation>();
   const onPostCardPress = (): void => {
-    navigate(`/posts/${post.id}`);
+    navigate('StackSinglePost', { postId: post.id });
   };
 
   return (

@@ -1,12 +1,12 @@
 import {
   View, Pressable, StyleSheet, ViewProps
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
+import { useNavigation } from '@react-navigation/native';
+import { UserStackNavigation, User } from '../types';
 import theme from '../styles/theme';
 import Text from './Text';
 import ProfileImage from './ProfileImage';
 import Button from './Button';
-import { User } from '../types';
 
 const styles = StyleSheet.create({
   userBar: {
@@ -27,10 +27,9 @@ interface UserBarProps extends ViewProps {
 const UserBar = ({
   user, style
 }: UserBarProps): JSX.Element => {
-  const navigate = useNavigate();
-  console.log(user);
+  const { navigate } = useNavigation<UserStackNavigation>();
   const onUsernamePress = (): void => {
-    navigate(`/users/${user.id}`);
+    navigate('PublicProfile', { userId: user.id });
   };
   return (
     <View style={StyleSheet.flatten([styles.userBar, style])}>

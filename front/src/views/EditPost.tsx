@@ -1,10 +1,10 @@
-import { useParams } from 'react-router-native';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
 import Loading from '../components/Loading';
 import PostForm from '../components/PostForm';
 import {
-  NewPostProps, TypedImage, InitialPostValues, PostBase, Optional
+  NewPostProps, TypedImage, InitialPostValues, PostBase, Optional,
+  UserStackScreen
 } from '../types';
 import postsService from '../services/posts';
 import imagesService from '../services/images';
@@ -14,10 +14,10 @@ import usePosts from '../hooks/usePosts';
 
 type PartialPostBase = Optional<PostBase, 'user' | 'id'>;
 
-const EditPost = (): JSX.Element => {
+const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
   const notification = useNotification();
   const error = useError();
-  const { postId } = useParams();
+  const { postId } = route.params;
   const [currentValues, setCurrentValues] = useState<null | InitialPostValues>(null);
   const [, getPosts] = usePosts();
 

@@ -1,11 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { TokenUser } from '../types';
 
+type SliceState = TokenUser | null;
+
 const userSlice = createSlice({
   name: 'token',
-  initialState: {
-    token: '', email: '', id: -1
-  },
+  initialState: null as SliceState,
   reducers: {
     addUser(_state, action: PayloadAction<TokenUser>): TokenUser {
       return action.payload;

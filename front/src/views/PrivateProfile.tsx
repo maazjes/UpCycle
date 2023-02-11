@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import {
   View, StyleSheet, Alert
 } from 'react-native';
-import { useNavigate } from 'react-router-native';
+import { useNavigation } from '@react-navigation/native';
 import { DataTable, Menu, Button } from 'react-native-paper';
+import {
+  UserStackNavigation, PostBase, TokenUser
+} from '../types';
 import { useAppSelector } from '../hooks/redux';
-import { PostBase, User } from '../types';
 import Text from '../components/Text';
 import Loading from '../components/Loading';
 import postsService from '../services/posts';
@@ -22,13 +24,13 @@ const styles = StyleSheet.create({
 });
 
 const PrivateProfile = (): JSX.Element => {
-  const currentUser = useAppSelector((state): User => state.user);
+  const currentUser = useAppSelector((state): TokenUser | null => state.user);
   const [, getPosts] = usePosts();
   const [visiblePosts, setVisiblePosts] = useState<PostBase[] | null>(null);
   const [visible, setVisible] = React.useState<{ [x: string]: boolean }>({});
   const error = useError();
   const notification = useNotification();
-  const navigate = useNavigate();
+  const { navigate } = useNavigation<UserStackNavigation>();
 
   const openMenu = (postId: number): void => {
     visible[postId] = true;
@@ -84,8 +86,8 @@ const PrivateProfile = (): JSX.Element => {
     ]);
   };
 
-  const onPostEdit = (id: number): void => {
-    navigate(`/posts/edit/${id}`);
+  const onPostEdit = (postId: number): void => {
+    navigate('EditPost', { postId });
   };
 
   return (

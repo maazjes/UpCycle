@@ -3,14 +3,14 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-native';
+import { useNavigation } from '@react-navigation/native';
+import { LoginStackNavigation, TypedImage } from '../types';
 import usersService from '../services/users';
 import useLogin from '../hooks/useLogin';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import FormikImageInput from '../components/FormikImageInput';
-import { TypedImage } from '../types';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -52,7 +52,7 @@ const validationSchema = yup.object().shape({
 });
 
 const SignUp = (): JSX.Element => {
-  const navigate = useNavigate();
+  const { navigate } = useNavigation<LoginStackNavigation>();
   const login = useLogin();
   const error = useError();
 
@@ -81,7 +81,7 @@ const SignUp = (): JSX.Element => {
         ...props, image, email, password
       });
       await login({ email, password });
-      navigate('/');
+      navigate('Home');
     } catch (e) {
       error(e);
     }
@@ -103,7 +103,7 @@ const SignUp = (): JSX.Element => {
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
           <Button
             handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Submit"
+            text="Sign up"
           />
         </View>
       )}

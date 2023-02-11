@@ -1,3 +1,7 @@
+import { CompositeNavigationProp } from '@react-navigation/native';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+
 export interface PostBase {
   id: number;
   images: TypedImage[];
@@ -29,13 +33,13 @@ export interface Category {
 }
 
 export interface TokenUser {
-  id: number;
+  id: string;
   email: string;
   token: string;
 }
 
 export interface User {
-  id: number;
+  id: string;
   displayName: string;
   email: string;
   photoUrl: string;
@@ -70,7 +74,7 @@ export interface PostsResponse {
 export type GetPostsParams = {
   page?: number;
   size?: number;
-  userId?: number;
+  userId?: string;
   postId?: number;
 };
 
@@ -93,3 +97,35 @@ export interface InitialPostValues {
 }
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
+export type LoginStackParams = {
+  'Login': undefined;
+  'SignUp': undefined;
+  'Home': undefined;
+};
+
+export type UserStackParams = {
+  'StackHome': undefined;
+  'StackSinglePost': { postId: number };
+  'StackFavorites': { userId: string };
+  'StackPrivateProfile': undefined;
+  'StackCreatePost': undefined;
+  'PublicProfile': { userId: string };
+  'EditPost': { postId: number };
+};
+
+export type UserTabsParams = {
+  'Home': undefined;
+  'Favorites': undefined;
+  'PrivateProfile': undefined;
+  'CreatePost': undefined;
+};
+
+export type UserStackNavigation =
+CompositeNavigationProp<NativeStackNavigationProp<UserStackParams>,
+BottomTabNavigationProp<UserTabsParams>>;
+
+export type LoginStackNavigation = NativeStackNavigationProp<LoginStackParams>;
+
+export type UserStackScreen<S extends keyof UserStackParams> =
+NativeStackScreenProps<UserStackParams, S>;
