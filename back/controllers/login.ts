@@ -2,6 +2,7 @@ import express from 'express';
 import got from 'got';
 import { FIREBASE_API_KEY } from '../util/config.js';
 import { FirebaseLoginRes } from '../types.js';
+import User from '../models/user.js';
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ export interface LoginResponse {
   id: string;
   token: string;
   email: string;
+  displayName: string;
 }
 
 router.post<{}, LoginResponse, LoginBody>('/', async (
@@ -34,8 +36,12 @@ router.post<{}, LoginResponse, LoginBody>('/', async (
   if (!user.registered) {
     throw new Error('invalid username');
   }
+  const dbUser = await User.findOne({ where: { id: user.localId } });
+  if (!dbUser) {
+    throw new Error('invalid username');
+  }
   res.status(200).json({
-    id: user.localId, token: user.idToken, email: user.email
+    id: user.localId, token: user.idToken, email: user.email, displayName: dbUser.displayName
   });
 });
 

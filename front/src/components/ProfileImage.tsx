@@ -7,27 +7,29 @@ import { UserStackNavigation } from '../types';
 
 const styles = StyleSheet.create({
   profileImage: {
-    borderRadius: 25,
     backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center'
   }
 });
 
-const ProfileImage = ({ userId, uri, size = 30 }: {
-  userId: string; uri: string; size?: number; }): JSX.Element => {
+const ProfileImage = ({
+  userId, displayName, uri, size = 30
+}: {
+  userId: string; displayName: string; uri: string; size?: number; }):
+JSX.Element => {
   const navigation = useNavigation<UserStackNavigation>();
   const onProfileImagePress = (): void => {
-    navigation.navigate('PublicProfile', { userId });
+    navigation.navigate('StackProfile', { userId, displayName });
   };
   return (
     <Pressable
       onPress={onProfileImagePress}
-      style={[styles.profileImage, { width: size, height: size }]}
+      style={[styles.profileImage, { borderRadius: size / 2, width: size, height: size }]}
     >
       {uri ? (
         <Image
-          style={[styles.profileImage, { width: size, height: size }]}
+          style={[styles.profileImage, { borderRadius: size / 2, width: size, height: size }]}
           source={{ uri }}
         />
       ) : <AntDesign style={{ marginTop: 3 }} name="user" size={size - 3} color="white" />}

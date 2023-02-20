@@ -69,7 +69,7 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 50 }}
+          contentContainerStyle={{ paddingBottom: 60 }}
           showsVerticalScrollIndicator={false}
           style={styles.loginForm}
         >
@@ -77,14 +77,13 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
           <FormikTextInput name="price" placeholder="Price (€)" />
           <PostCodeInput name="postcode" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
-          <FormikImageInput name="images" amount={3} />
+          <FormikImageInput name="images" containerStyle={{ marginVertical: 10 }} amount={3} />
           <FormikPicker items={conditions} name="condition" />
           {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
           <Button
             handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Submit"
           />
-          <View style={{ height: 110 }} />
         </ScrollView>
       )}
     </Formik>

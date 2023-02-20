@@ -37,11 +37,10 @@ const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
   return post;
 };
 
-const updatePost = async (postId: number, newPost: UpdatePostProps):
+const updatePost = async (id: number, newPost: UpdatePostProps):
 Promise<AxiosResponse<PostBase>> => {
   const formData = createFormData(newPost);
-  const query = `posts/${postId}`;
-  const post = await api.putForm(query, formData);
+  const post = await api.putForm<PostBase>(`posts/${id}`, formData);
   return post;
 };
 

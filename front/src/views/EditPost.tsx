@@ -42,32 +42,31 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
     );
   }
 
-  const onSubmit = async (values: NewPostProps): Promise<void> => {
+  const onSubmit = async ({ images, ...values }: NewPostProps): Promise<void> => {
     try {
       const valuesToAdd = { ...values, price: `${values.price}€` };
-      (Object.keys(valuesToAdd) as Array<keyof NewPostProps>)
-        .filter((key): boolean => key !== 'images')
+      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostProps, 'images'>>)
         .forEach(
           (key): boolean => (values[key] === currentValues[key]) && delete valuesToAdd[key]
         );
       const imageUris: string[] = [];
-      values.images.forEach((newImage): void => {
+      images.forEach((newImage): void => {
         currentValues.images.forEach((currentImage): void => {
           if (newImage.uri === currentImage.uri) {
             imageUris.push(newImage.uri);
           }
         });
       });
-      const imagesToAdd = ([...values.images])
+      const imagesToAdd = ([...images])
         .filter((image): boolean => !imageUris.includes(image.uri));
       const imagesToDelete = ([...currentValues.images])
         .filter((image): boolean => !imageUris.includes(image.uri));
       const imagePromises = imagesToDelete
         .map((image): Promise<AxiosResponse<TypedImage>> => imagesService.deleteImage(image.id));
       await Promise.all(imagePromises);
-      valuesToAdd.images = imagesToAdd;
-      await postsService.updatePost(Number(postId), valuesToAdd);
-      const newCurrentValues = { ...currentValues, ...valuesToAdd };
+      const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
+      await postsService.updatePost(Number(postId), finalValuesToAdd);
+      const newCurrentValues = { ...currentValues, ...finalValuesToAdd };
       setCurrentValues(newCurrentValues);
       notification('Post updated successfully.', false);
     } catch (e) {

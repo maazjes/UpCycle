@@ -36,6 +36,7 @@ export interface TokenUser {
   id: string;
   email: string;
   token: string;
+  displayName: string;
 }
 
 export interface User {
@@ -101,23 +102,22 @@ export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 export type LoginStackParams = {
   'Login': undefined;
   'SignUp': undefined;
-  'Home': undefined;
 };
 
 export type UserStackParams = {
   'StackHome': undefined;
-  'StackSinglePost': { postId: number };
   'StackFavorites': { userId: string };
-  'StackPrivateProfile': undefined;
   'StackCreatePost': undefined;
-  'PublicProfile': { userId: string };
+  'SinglePost': { postId: number };
+  'StackProfile': { userId?: string; displayName?: string };
   'EditPost': { postId: number };
+  'EditProfile': { userId: string; bio: string; email: string; displayName: string; photoUrl: string };
 };
 
 export type UserTabsParams = {
   'Home': undefined;
-  'Favorites': undefined;
-  'PrivateProfile': undefined;
+  'Favorites': { userId: string };
+  'Profile': undefined;
   'CreatePost': undefined;
 };
 

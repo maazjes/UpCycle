@@ -65,9 +65,7 @@ const PrivateProfile = (): JSX.Element => {
         await postsService.deletePost(id);
         notification('Post deleted successfully', false);
         const newPosts = visiblePosts.filter((post): boolean => post.id !== id);
-        if (newPosts) {
-          setVisiblePosts(newPosts);
-        }
+        setVisiblePosts(newPosts);
       } catch (e) {
         error(e);
       }

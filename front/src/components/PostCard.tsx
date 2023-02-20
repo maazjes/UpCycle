@@ -3,8 +3,6 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { PostBase, UserStackNavigation } from '../types';
-import Text from './Text';
-import ProfileImage from './ProfileImage';
 
 const styles = StyleSheet.create({
   titleAndPrice: {
@@ -32,7 +30,7 @@ const PostCard = ({
 }: GridPostProps): JSX.Element => {
   const { navigate } = useNavigation<UserStackNavigation>();
   const onPostCardPress = (): void => {
-    navigate('StackSinglePost', { postId: post.id });
+    navigate('SinglePost', { postId: post.id });
   };
 
   return (
@@ -42,17 +40,6 @@ const PostCard = ({
           style={{ aspectRatio: 1, width: '100%', height: 200 }}
           source={{ uri: post.images[0]?.uri }}
         />
-        <View style={styles.infoBox}>
-          <View style={styles.titleAndPrice}>
-            <Text>{post.title}</Text>
-            <Text fontWeight="bold" color="blue">{post.price}</Text>
-          </View>
-          <ProfileImage
-            size={30}
-            uri={post.user.photoUrl}
-            userId={post.user.id}
-          />
-        </View>
       </View>
     </Pressable>
   );

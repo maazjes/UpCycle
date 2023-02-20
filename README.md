@@ -18,7 +18,8 @@
 | Added favorites view and a function for adding favorites, fixed bugs. | 12 hours |
 | Integrated Firebase authentication, added profile photos to users. Also took a lot of time to change from CommonJS to ESM so I could use the GOT library in the backend. | 16 hours |
 | Changed react router native to react native navigation and added a bottom nav bar. | 10 hours |
+| Added a view for editing your profile. Migrated from using S3 to Firebase storage. | 8 hours |
 
-**Total: 142 hours**
+**Total: 150 hours**
 
 plus many more additional hours on stupid mistakes...

@@ -3,15 +3,17 @@ import useUsers from '../hooks/useUsers';
 import GridView from '../components/GridView';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
-import { UserStackScreen } from '../types';
+import { useAppSelector } from '../hooks/redux';
+import { TokenUser } from '../types';
 
-const Favorites = ({ route }: UserStackScreen<'StackFavorites'>):
-JSX.Element => {
+const Favorites = (): JSX.Element => {
+  const currentUser = useAppSelector((state): TokenUser | null => state.user);
   const [users, getUsers] = useUsers();
-  const { userId } = route.params;
   useEffect((): void => {
     const initializeFavorites = async (): Promise<void> => {
-      await getUsers({ userId });
+      if (currentUser) {
+        await getUsers({ userId: currentUser.id });
+      }
     };
     initializeFavorites();
   }, []);
@@ -20,7 +22,7 @@ JSX.Element => {
     return <Loading />;
   }
 
-  if (!users[0]?.favorites) {
+  if (!users[0]?.favorites || users[0].favorites?.length === 0) {
     return <Text>no favorites to show</Text>;
   }
 

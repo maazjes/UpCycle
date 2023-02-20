@@ -6,7 +6,6 @@ import { UserStackNavigation, User } from '../types';
 import theme from '../styles/theme';
 import Text from './Text';
 import ProfileImage from './ProfileImage';
-import Button from './Button';
 
 const styles = StyleSheet.create({
   userBar: {
@@ -15,35 +14,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 12,
-    paddingLeft: 17,
-    paddingRight: 20
+    paddingHorizontal: 20
   }
 });
 
 interface UserBarProps extends ViewProps {
   user: User;
+  itemRight: JSX.Element;
+  profileImageSize?: number;
 }
 
 const UserBar = ({
-  user, style
+  user, itemRight, style, profileImageSize = 32
 }: UserBarProps): JSX.Element => {
   const { navigate } = useNavigation<UserStackNavigation>();
   const onUsernamePress = (): void => {
-    navigate('PublicProfile', { userId: user.id });
+    navigate('StackProfile', { userId: user.id, displayName: user.displayName });
   };
   return (
     <View style={StyleSheet.flatten([styles.userBar, style])}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <ProfileImage size={32} uri={user.photoUrl} userId={user.id} />
+        <ProfileImage
+          size={profileImageSize}
+          uri={user.photoUrl}
+          userId={user.id}
+          displayName={user.displayName}
+        />
         <Pressable
-          style={{ marginLeft: 10 }}
+          style={{ marginLeft: profileImageSize / 4 }}
           onPress={onUsernamePress}
         >
           <Text style={{ marginBottom: -1 }} fontSize="subheading">{user.displayName}</Text>
           <Text style={{ marginTop: -1 }}>This is the location</Text>
         </Pressable>
       </View>
-      <Button style={{ paddingHorizontal: 10, height: 32 }} text="Message" />
+      {itemRight}
     </View>
   );
 };

@@ -127,6 +127,7 @@ router.delete<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
     const imagePromises = post.images.map((image): Promise<void> => image.destroy());
     await Promise.all(imagePromises);
   }
+  await Favorite.destroy({ where: { postId: post.id } });
   await post.destroy();
   res.json(post);
 });
@@ -156,7 +157,7 @@ router.post<{}, Post, NewPostBody>(
   }
 );
 
-router.put<{ id: string }, Post, NewPostBody>(
+router.put<{ id: string }, Post, Partial<NewPostBody>>(
   '/:id',
   userExtractor,
   upload.array('images', 5),
@@ -164,6 +165,13 @@ router.put<{ id: string }, Post, NewPostBody>(
     if (!req.user) {
       throw new Error('invalid token');
     }
+    const {
+      title,
+      description,
+      price,
+      condition,
+      postcode
+    } = req.body;
     const currentPost = await Post.findOne({ where: { id: req.params.id } });
     if (!currentPost) {
       throw new Error('invalid post id');
@@ -175,17 +183,13 @@ router.put<{ id: string }, Post, NewPostBody>(
       }
       currentPost.categoryId = category.id;
     }
-    if (!req.files || !Array.isArray(req.files)) {
-      throw new Error('images missing from request');
+    if (req.files && Array.isArray(req.files)) {
+      await saveImages(currentPost.id, req.files);
     }
-    await saveImages(currentPost.id, req.files);
-    (Object.keys(req.body)
-      .filter((key): boolean => key !== 'category') as Array<keyof Omit<NewPostBody, 'category'>>)
-      .forEach((key): void => {
-        currentPost[key] = req.body[key];
-      });
-    const updatedPost = await currentPost.save();
-    res.json(updatedPost);
+    const post = await currentPost.update({
+      title, description, price, condition, postcode
+    });
+    res.json(post);
   }
 );
 

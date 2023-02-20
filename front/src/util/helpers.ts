@@ -1,4 +1,5 @@
-import { TypedImage, UpdatePostProps } from '../types';
+import { isString } from 'formik';
+import { UpdatePostProps } from '../types';
 
 type IndexSignature = string | number | symbol;
 
@@ -14,7 +15,7 @@ export const addParams = (query: string, params: {
   return query;
 };
 
-export const formatImages = (images: TypedImage[]): Blob[] => {
+export const formatImages = (images: { uri: string }[]): Blob[] => {
   const formattedImages = [] as Blob[];
   images.forEach((image): void => {
     const split = image.uri.split('.');
@@ -29,12 +30,10 @@ export const formatImages = (images: TypedImage[]): Blob[] => {
   return formattedImages;
 };
 
-export const isString = (object: unknown): object is string => (typeof object === 'string');
-
 interface CreateUserFormDataProps {
   displayName?: string;
   email?: string;
-  image?: TypedImage;
+  image?: { uri: string };
   bio?: string;
 }
 
@@ -52,6 +51,7 @@ export const createFormData = (params: CreateFormDataProps): FormData => {
     }
     if (key === 'image' && params.image) {
       const formattedImages = formatImages([params.image]);
+      console.log(formattedImages[0]);
       formdata.append('image', formattedImages[0]);
     }
     const value = params[key];

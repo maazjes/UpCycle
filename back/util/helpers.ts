@@ -1,5 +1,7 @@
 import probe, { ProbeResult } from 'probe-image-size';
 import { Image } from '../models/index.js';
+import firebase from './firebase.js';
+import { FIREBASE_BUCKET_URL } from './config.js';
 
 export const saveImages = async (
   postId: number,
@@ -24,3 +26,29 @@ export const saveImages = async (
   }
   return images;
 };
+
+export const uploadImage = (file: Express.Multer.File):
+Promise<string> => new Promise((resolve, reject): void => {
+  const bucket = firebase.storage().bucket(FIREBASE_BUCKET_URL);
+  if (!file) {
+    reject(new Error('no files'));
+  }
+  const newFileName = `${file.originalname}_${Date.now()}`;
+  const fileUpload = bucket.file(newFileName);
+  const blobStream = fileUpload.createWriteStream({
+    metadata: {
+      contentType: file.mimetype
+    }
+  });
+  blobStream.on('error', (): void => {
+    reject(new Error('Something is wrong! Unable to upload at the moment.'));
+  });
+  blobStream.on('finish', (): void => {
+    const url = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${fileUpload.name}?alt=media`;
+    resolve(url);
+  });
+  blobStream.end(file.buffer);
+});
+
+export const uploadImages = (files: Express.Multer.File[]):
+Promise<string>[] => files.map((file): Promise<string> => uploadImage(file));

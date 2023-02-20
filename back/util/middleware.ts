@@ -12,9 +12,7 @@ const userExtractor = async (
     return next();
   }
   const token = authorization?.substring(7);
-  console.log(token);
   const decodedToken = await firebase.auth().verifyIdToken(token);
-  console.log(decodedToken);
   const user = await User.findOne({ where: { id: decodedToken.uid } });
   if (!decodedToken || !user) {
     throw new Error('invalid token');

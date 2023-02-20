@@ -7,7 +7,7 @@ const userSlice = createSlice({
   name: 'token',
   initialState: null as SliceState,
   reducers: {
-    addUser(_state, action: PayloadAction<TokenUser>): TokenUser {
+    addUser(_state, action: PayloadAction<TokenUser | null>): TokenUser | null {
       return action.payload;
     }
   }

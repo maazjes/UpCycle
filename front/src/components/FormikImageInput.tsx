@@ -100,7 +100,7 @@ const FormikImageInput = ({
           if (currentImage) {
             return (
               <Pressable
-                key={currentImage.id}
+                key={currentImage.id || currentImage.uri}
                 onPress={(): Promise<void> => deleteAndAddImage(currentImage.id)}
               >
                 <Image

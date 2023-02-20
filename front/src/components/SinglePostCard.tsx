@@ -1,5 +1,5 @@
 import {
-  StyleSheet, View, ImageStyle, ViewStyle, Image, Dimensions, ScrollView,
+  StyleSheet, View, ViewStyle, ScrollView,
   Pressable
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
@@ -8,9 +8,7 @@ import favoritesService from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
 import useError from '../hooks/useError';
-import { TypedImage, PostBase } from '../types';
-
-const { width } = Dimensions.get('window');
+import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
   titleAndPrice: {
@@ -31,12 +29,11 @@ const styles = StyleSheet.create({
 });
 interface GridPostProps {
   post: PostBase;
-  imageStyle?: ImageStyle;
   containerStyle?: ViewStyle;
 }
 
 const SinglePostCard = ({
-  post, imageStyle = {}, containerStyle = {}
+  post, containerStyle = {}
 }: GridPostProps): JSX.Element => {
   const error = useError();
   const [favoriteId, setFavoriteId] = useState<undefined | number>(post.favoriteId);
