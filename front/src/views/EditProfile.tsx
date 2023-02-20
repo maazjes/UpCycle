@@ -64,7 +64,6 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
         delete props[key];
       }
     });
-    console.log(image);
     try {
       await usersService.updateUser({ ...props, image });
     } catch (e) {

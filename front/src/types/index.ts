@@ -108,6 +108,7 @@ export type UserStackParams = {
   'StackHome': undefined;
   'StackFavorites': { userId: string };
   'StackCreatePost': undefined;
+  'StackChat': undefined;
   'SinglePost': { postId: number };
   'StackProfile': { userId?: string; displayName?: string };
   'EditPost': { postId: number };
@@ -119,6 +120,7 @@ export type UserTabsParams = {
   'Favorites': { userId: string };
   'Profile': undefined;
   'CreatePost': undefined;
+  'Chat': undefined;
 };
 
 export type UserStackNavigation =

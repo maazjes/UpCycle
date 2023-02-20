@@ -19,6 +19,7 @@ const UserTabs = (): JSX.Element => (
     <Tab.Screen name="Favorites" component={renderUserStack('StackFavorites')} />
     <Tab.Screen name="CreatePost" component={renderUserStack('StackCreatePost')} />
     <Tab.Screen name="Profile" component={renderUserStack('StackProfile')} />
+    <Tab.Screen name="Chat" component={renderUserStack('StackChat')} />
   </Tab.Navigator>
 );
 

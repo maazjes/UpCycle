@@ -1,38 +1,19 @@
 import express from 'express';
+import multer from 'multer';
 import {
   PaginationBase,
   NewPostBody
 } from '../types.js';
-import upload from '../util/multer.js';
 import {
   Post, User, Category, Image, Favorite
 } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
-import { saveImages } from '../util/helpers.js';
+import {
+  saveImages, uploadImages, getPagingData, getPagination
+} from '../util/helpers.js';
 
+const upload = multer();
 const router = express.Router();
-
-const getPagination = (page: number, size: number): { limit: number; offset: number } => {
-  const limit = size || 3;
-  const offset = page ? page * limit : 0;
-
-  return { limit, offset };
-};
-
-const getPagingData = (data: { count: number; rows: Post[] }, page: number, limit: number): {
-  totalItems: number;
-  posts: Post[];
-  totalPages: number;
-  currentPage: number;
-} => {
-  const { count: totalItems, rows: posts } = data;
-  const currentPage = page ? +page : 0;
-  const totalPages = Math.ceil(totalItems / limit);
-
-  return {
-    totalItems, posts, totalPages, currentPage
-  };
-};
 
 interface PostsResponse extends PaginationBase {
   posts: Post[];
@@ -70,9 +51,7 @@ router.get<{}, PostsResponse, GetPostsQuery>('/', userExtractor, async (req, res
     offset,
     where
   });
-
   const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
-
   if (req.user && postId) {
     const user = await User.findByPk(req.user.id);
     if (!user) {
@@ -111,25 +90,15 @@ router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promis
   res.json(post);
 });
 
-router.delete<{ id: string }, Post>('/:id', async (req, res): Promise<void> => {
+router.delete<{ id: string }, number>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
-  const where = id ? { id } : {};
-  const post = await Post.findOne({
-    include: {
-      model: Image
-    },
-    where
-  });
-  if (!post) {
-    throw new Error('post not found');
+  if (!id) {
+    throw new Error('id missing from params');
   }
-  if (post.images) {
-    const imagePromises = post.images.map((image): Promise<void> => image.destroy());
-    await Promise.all(imagePromises);
-  }
-  await Favorite.destroy({ where: { postId: post.id } });
-  await post.destroy();
-  res.json(post);
+  await Image.destroy({ where: { postId: id } });
+  await Favorite.destroy({ where: { postId: id } });
+  const deletedPost = await Post.destroy({ where: { id } });
+  res.json(deletedPost);
 });
 
 router.post<{}, Post, NewPostBody>(
@@ -152,7 +121,8 @@ router.post<{}, Post, NewPostBody>(
       userId: req.user.id,
       categoryId: category.id
     });
-    await saveImages(post.id, req.files);
+    const imageUrls = await uploadImages(req.files);
+    await saveImages(post.id, imageUrls);
     res.json(post);
   }
 );
@@ -184,7 +154,8 @@ router.put<{ id: string }, Post, Partial<NewPostBody>>(
       currentPost.categoryId = category.id;
     }
     if (req.files && Array.isArray(req.files)) {
-      await saveImages(currentPost.id, req.files);
+      const imageUrls = await uploadImages(req.files);
+      await saveImages(currentPost.id, imageUrls);
     }
     const post = await currentPost.update({
       title, description, price, condition, postcode

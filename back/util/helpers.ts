@@ -1,15 +1,13 @@
 import probe, { ProbeResult } from 'probe-image-size';
-import { Image } from '../models/index.js';
+import { Image, Post } from '../models/index.js';
 import firebase from './firebase.js';
 import { FIREBASE_BUCKET_URL } from './config.js';
 
 export const saveImages = async (
   postId: number,
-  files: Express.Multer.File[]
+  imageUrls: string[]
 ): Promise<Image[]> => {
-  const dimensionPromises = files.filter(
-    (file): file is typeof file & { location: string } => file.location !== undefined
-  ).map((file): Promise<ProbeResult> => probe(file.location));
+  const dimensionPromises = imageUrls.map((url): Promise<ProbeResult> => probe(url));
   const dimensions = await Promise.all(dimensionPromises);
   if (!dimensions) {
     throw new Error('getting image dimensions failed');
@@ -51,4 +49,26 @@ Promise<string> => new Promise((resolve, reject): void => {
 });
 
 export const uploadImages = (files: Express.Multer.File[]):
-Promise<string>[] => files.map((file): Promise<string> => uploadImage(file));
+Promise<string[]> => Promise.all(files.map((file): Promise<string> => uploadImage(file)));
+
+export const getPagination = (page: number, size: number): { limit: number; offset: number } => {
+  const limit = size || 3;
+  const offset = page ? page * limit : 0;
+
+  return { limit, offset };
+};
+
+export const getPagingData = (data: { count: number; rows: Post[] }, page: number, limit: number): {
+  totalItems: number;
+  posts: Post[];
+  totalPages: number;
+  currentPage: number;
+} => {
+  const { count: totalItems, rows: posts } = data;
+  const currentPage = page ? +page : 0;
+  const totalPages = Math.ceil(totalItems / limit);
+
+  return {
+    totalItems, posts, totalPages, currentPage
+  };
+};

@@ -39,6 +39,7 @@
     "react-router-native": "^6.6.2",
     "redux": "^4.2.0",
     "redux-thunk": "^2.4.2",
+    "socket.io-client": "^4.6.0",
     "yup": "^0.32.11"
   },
   "devDependencies": {

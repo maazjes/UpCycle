@@ -4,11 +4,10 @@ import { userExtractor } from '../util/middleware.js';
 import { UserBase } from '../types.js';
 import { User, Post, Image } from '../models/index.js';
 import firebase from '../util/firebase.js';
-import upload from '../util/multer.js';
 import { uploadImage } from '../util/helpers.js';
 
 const router = express.Router();
-const upload1 = multer();
+const upload = multer();
 
 interface ExtendedUser {
   id: string;
@@ -67,26 +66,28 @@ interface NewUserBody {
   displayName: string;
   password: string;
   bio?: string;
-  image: object;
-  file: string;
+  photoUrl?: string;
 }
+
+type UserFields = Omit<NewUserBody, 'email' | 'password'> & { id: string };
 
 router.post<{}, UserBase, NewUserBody>('/', upload.single('image'), async (req, res): Promise<void> => {
   const {
     email, displayName, password, bio
   } = req.body;
   const firebaseUser = await firebase.auth().createUser({ email, password });
-  const user = await User.create({
-    id: firebaseUser.uid, displayName, bio, photoUrl: req.file?.location
-  });
+  let userFields: UserFields = { id: firebaseUser.uid, displayName, bio };
+  if (req.file) {
+    const photoUrl = await uploadImage(req.file);
+    userFields = { ...userFields, photoUrl };
+  }
+  await User.create(userFields);
   res.json({
-    email, id: user.id, displayName, bio, photoUrl: user.photoUrl
+    ...userFields, email
   });
 });
 
-type EditableUserFields = { displayName: string; bio?: string; photoUrl?: string };
-
-router.put<{}, UserBase, NewUserBody>('/', userExtractor, upload1.single('image'), async (req, res): Promise<void> => {
+router.put<{}, UserBase, NewUserBody>('/', userExtractor, upload.single('image'), async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('invalid token');
   }
@@ -94,12 +95,11 @@ router.put<{}, UserBase, NewUserBody>('/', userExtractor, upload1.single('image'
     email, displayName, password, bio
   } = req.body;
   await firebase.auth().updateUser(req.user.id, { email, password });
-  let updatedFields: EditableUserFields = { displayName, bio };
   if (req.file) {
     const photoUrl = await uploadImage(req.file);
-    updatedFields = { ...updatedFields, photoUrl };
+    req.user.photoUrl = photoUrl;
   }
-  const user = await req.user.update(updatedFields);
+  const user = await req.user.update({ displayName, bio });
   res.json({
     email, id: user.id, displayName, bio, photoUrl: user.photoUrl
   });
