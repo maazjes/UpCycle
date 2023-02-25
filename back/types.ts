@@ -56,12 +56,15 @@ export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
-  message: () => void;
+  message: ({ content, createdAt }: { content: string; createdAt: Date }) => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
-  message: ({ content, receiverId }: { content: string; receiverId: string }) => void;
+  message: ({ content, chatId, createdAt }:
+  { content: string; chatId: number; createdAt: Date }) => void;
+  join: (chatId: number) => void;
+  leave: (chatId: number) => void;
 }
 
 export interface InterServerEvents {

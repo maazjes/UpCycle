@@ -99,7 +99,7 @@ const SignUp = (): JSX.Element => {
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
           <Button
-            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Sign up"
           />
         </View>

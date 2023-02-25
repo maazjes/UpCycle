@@ -23,9 +23,10 @@ const styles = StyleSheet.create({
   }
 });
 
-const SinglePost = ({ route }:
+const SinglePost = ({ route, navigation }:
 UserStackScreen<'SinglePost'>): JSX.Element => {
   const { postId } = route.params;
+  const { navigate } = navigation;
   const [posts, getPosts] = usePosts();
   const currentUser = useAppSelector((state): TokenUser | null => state.user);
   useEffect((): void => {
@@ -33,17 +34,26 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
       getPosts({ postId });
     }
   }, []);
+
   if (!posts || !posts[0]) {
     return <Loading />;
   }
   const post = posts[0];
+
+  const onUserBarPress = (): void => {
+    navigate('StackProfile', { userId: post.user.id, displayName: post.user.displayName });
+  };
+
+  const onMessage = (): void => {
+    navigate('SingleChat', { userId: post.user.id });
+  };
   const itemRight = currentUser?.id === post.user.id
     ? <PostOptions post={post} />
-    : <Button handleSubmit={(): null => null} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
+    : <Button onSubmit={onMessage} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-      <UserBar user={post.user} itemRight={itemRight} />
+      <UserBar onPress={onUserBarPress} user={post.user} itemRight={itemRight} />
       <SinglePostCard
         post={post}
         containerStyle={styles.container}

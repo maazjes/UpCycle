@@ -3,40 +3,46 @@ import {
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 
-class Room extends Model<
-InferAttributes<Room>, InferCreationAttributes<Room>
+class Chat extends Model<
+InferAttributes<Chat>, InferCreationAttributes<Chat>
 > {
   declare id: CreationOptional<number>;
 
-  declare userId1: string;
+  declare creatorId: string;
 
-  declare userId2: string;
+  declare userId: string;
+
+  declare lastMessage: string;
 }
 
-Room.init(
+Chat.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    userId1: {
+    creatorId: {
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
     },
-    userId2: {
+    userId: {
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
+    },
+    lastMessage: {
+      type: DataTypes.STRING,
+      allowNull: false
     }
   },
   {
     sequelize,
     underscored: true,
     timestamps: false,
-    modelName: 'room'
+    modelName: 'chat'
   }
 );
 
-export default Room;
+export default Chat;

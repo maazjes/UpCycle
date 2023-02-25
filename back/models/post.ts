@@ -73,6 +73,7 @@ Post.init(
   {
     sequelize,
     underscored: true,
+    timestamps: true,
     modelName: 'post'
   }
 );

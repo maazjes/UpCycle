@@ -8,9 +8,13 @@ InferAttributes<Message>, InferCreationAttributes<Message>
 > {
   declare id: CreationOptional<number>;
 
+  declare receiverId: string;
+
   declare senderId: string;
 
-  declare receiverId: string;
+  declare chatId: number;
+
+  declare content: string;
 }
 
 Message.init(
@@ -29,6 +33,15 @@ Message.init(
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
+    },
+    chatId: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: { model: 'chats', key: 'id' }
+    },
+    content: {
+      type: DataTypes.STRING,
+      allowNull: false
     }
   },
   {

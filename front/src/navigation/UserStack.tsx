@@ -7,7 +7,8 @@ import CreatePost from '../views/CreatePost';
 import Profile from '../views/Profile';
 import EditPost from '../views/EditPost';
 import EditProfile from '../views/EditProfile';
-import Chat from '../views/Chat';
+import Chats from '../views/Chats';
+import SingleChat from '../views/SingleChat';
 import { useAppSelector } from '../hooks/redux';
 
 const Stack = createNativeStackNavigator<UserStackParams>();
@@ -25,7 +26,8 @@ const UserStack = ({ initialRoute }:
       <Stack.Screen name="StackHome" component={Home} options={{ title: 'Home' }} />
       <Stack.Screen name="StackFavorites" component={Favorites} options={{ title: 'Favorites' }} />
       <Stack.Screen name="StackCreatePost" component={CreatePost} options={{ title: 'Create post' }} />
-      <Stack.Screen name="StackChat" component={Chat} options={{ title: 'Chats' }} />
+      <Stack.Screen name="StackChat" component={Chats} options={{ title: 'Chats' }} />
+      <Stack.Screen name="SingleChat" component={SingleChat} />
       <Stack.Screen name="SinglePost" component={SinglePost} options={{ title: 'Post' }} />
       <Stack.Screen name="StackProfile" component={Profile} options={{ title: 'Profile' }} initialParams={ProfileParams} />
       <Stack.Screen name="EditPost" component={EditPost} />

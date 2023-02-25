@@ -1,5 +1,5 @@
 // @ts-ignore
-const { DataTypes } = require('sequelize');
+const { DataTypes, QueryInterface } = require('sequelize');
 
 module.exports = {
   up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {

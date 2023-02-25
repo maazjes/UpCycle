@@ -66,7 +66,7 @@ const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>
             <FormikTextInput name="email" placeholder="email" />
             <FormikTextInput secureTextEntry name="password" placeholder="Password" />
             <Button
-              handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Login"
             />
           </View>

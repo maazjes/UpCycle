@@ -81,7 +81,7 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
           <FormikPicker items={conditions} name="condition" />
           {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
           <Button
-            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Submit"
           />
         </ScrollView>

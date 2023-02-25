@@ -4,7 +4,7 @@ import Category from './category.js';
 import Image from './image.js';
 import Favorite from './favorite.js';
 import Message from './message.js';
-import Room from './room.js';
+import Chat from './chat.js';
 
 User.hasMany(Post);
 Post.belongsTo(User);
@@ -17,13 +17,17 @@ Image.belongsTo(Post);
 
 User.belongsToMany(Post, { through: Favorite, as: 'favorites' });
 
-User.belongsToMany(User, { through: Room, as: 'rooms' });
-User.hasMany(Message);
+Chat.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
+Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
+Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
 
 export {
   Post,
   User,
   Category,
   Image,
-  Favorite
+  Favorite,
+  Chat,
+  Message
 };

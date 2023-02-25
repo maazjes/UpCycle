@@ -39,7 +39,7 @@ JSX.Element => {
 
   const itemRight = userId === currentUser?.id && userId
     ? <ProfileOptions user={user} />
-    : <Button handleSubmit={(): null => null} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
+    : <Button onSubmit={(): null => null} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
 
   return (
     <View style={styles.container}>

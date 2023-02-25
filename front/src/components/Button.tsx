@@ -16,12 +16,12 @@ const styles = StyleSheet.create({
 
 interface Props extends PressableProps {
   text: string;
-  handleSubmit: (event: GestureResponderEvent) => void;
+  onSubmit: (event: GestureResponderEvent) => void;
 }
 
-const Button = ({ text, handleSubmit, ...props }: Props): JSX.Element => (
+const Button = ({ text, onSubmit, ...props }: Props): JSX.Element => (
   <View style={{ display: 'flex' }}>
-    <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={handleSubmit}>
+    <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={onSubmit}>
       <Text color="textSecondary">{text}</Text>
     </Pressable>
   </View>

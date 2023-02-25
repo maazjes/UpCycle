@@ -51,7 +51,7 @@ router.get<{}, PostsResponse, GetPostsQuery>('/', userExtractor, async (req, res
     offset,
     where
   });
-  const response = getPagingData({ count: posts.count, rows: posts.rows }, Number(page), limit);
+  const pagination = getPagingData(posts.count, Number(page), limit);
   if (req.user && postId) {
     const user = await User.findByPk(req.user.id);
     if (!user) {
@@ -59,10 +59,10 @@ router.get<{}, PostsResponse, GetPostsQuery>('/', userExtractor, async (req, res
     }
     const found = await Favorite.findOne({ where: { postId: Number(postId), userId: user.id } });
     if (found) {
-      response.posts[0].setDataValue('favoriteId', found.id);
+      posts.rows[0].setDataValue('favoriteId', found.id);
     }
   }
-  res.json(response);
+  res.json({ ...pagination, posts: posts.rows });
 });
 
 router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promise<void> => {

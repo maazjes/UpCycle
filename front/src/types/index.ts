@@ -65,11 +65,18 @@ export interface TypedImage {
   id: string;
 }
 
-export interface PostsResponse {
+interface PaginationBase {
   totalItems: number;
   totalPages: number;
   currentPage: number;
-  posts: PostBase[] | [];
+}
+
+export interface PostsResponse extends PaginationBase {
+  posts: PostBase[];
+}
+
+export interface MessagesResponse extends PaginationBase {
+  messages: Message[];
 }
 
 export type GetPostsParams = {
@@ -82,6 +89,21 @@ export type GetPostsParams = {
 export type GetUsersParams = {
   userId?: string;
 };
+
+export interface Chat {
+  id: number;
+  creator: User;
+  user: User;
+}
+
+export interface Message {
+  id: number;
+  chatId: number;
+  content: string;
+  senderId: string;
+  receiverId: string;
+  createdAt: string;
+}
 
 export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'favoriteId'>;
 
@@ -113,6 +135,8 @@ export type UserStackParams = {
   'StackProfile': { userId?: string; displayName?: string };
   'EditPost': { postId: number };
   'EditProfile': { userId: string; bio: string; email: string; displayName: string; photoUrl: string };
+  'Chat': undefined;
+  'SingleChat': { userId: string };
 };
 
 export type UserTabsParams = {
@@ -122,6 +146,18 @@ export type UserTabsParams = {
   'CreatePost': undefined;
   'Chat': undefined;
 };
+
+export interface ServerToClientEvents {
+  message: ({ content, createdAt }: { content: string; createdAt: string }) => void;
+}
+
+export interface ClientToServerEvents {
+  message: ({ content, chatId, createdAt }:
+  { content: string; chatId: number; createdAt: string }) => void;
+  join: (chatId: number) => void;
+  leave: (chatId: number) => void;
+
+}
 
 export type UserStackNavigation =
 CompositeNavigationProp<NativeStackNavigationProp<UserStackParams>,

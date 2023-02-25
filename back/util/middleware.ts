@@ -28,6 +28,7 @@ const errorHandler = async (
   next: NextFunction
 ): Promise<void> => {
   const msg = error.message;
+  console.log(msg);
   if (msg === 'invalid username') {
     res.status(401).json({ error: 'This username does not exist.' });
   } else if (msg === 'invalid password') {

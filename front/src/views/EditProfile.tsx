@@ -82,7 +82,7 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
           <FormikTextInput name="email" placeholder="Email" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
           <Button
-            handleSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Save changes"
           />
         </View>
