@@ -5,6 +5,7 @@ import Image from './image.js';
 import Favorite from './favorite.js';
 import Message from './message.js';
 import Chat from './chat.js';
+import Follow from './follow.js';
 
 User.hasMany(Post);
 Post.belongsTo(User);
@@ -15,12 +16,17 @@ Post.belongsTo(Category);
 Post.hasMany(Image);
 Image.belongsTo(Post);
 
-User.belongsToMany(Post, { through: Favorite, as: 'favorites' });
+Post.hasMany(Favorite);
+Favorite.belongsTo(Post);
 
 Chat.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
+
+Follow.belongsTo(User, { foreignKey: 'followedId', as: 'followed' });
+Follow.belongsTo(User, { foreignKey: 'followerId', as: 'follower' });
 
 export {
   Post,
@@ -29,5 +35,6 @@ export {
   Image,
   Favorite,
   Chat,
-  Message
+  Message,
+  Follow
 };

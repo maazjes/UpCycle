@@ -23,7 +23,7 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare images?: Image[];
 
-  declare favoriteId?: number;
+  declare favoriteId?: number | null;
 }
 
 Post.init(

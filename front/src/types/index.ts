@@ -7,12 +7,21 @@ export interface PostBase {
   images: TypedImage[];
   title: string;
   price: string;
+}
+
+export interface Favorite {
+  id: number;
+  postId: number;
+  userId: number;
+}
+
+export interface Post extends PostBase {
   description: string;
   category: string;
   postcode: string;
   condition: Condition;
   user: User;
-  favoriteId?: number;
+  favoriteId: null | number;
 }
 
 export enum Condition {
@@ -32,21 +41,15 @@ export interface Category {
   subcategory?: number;
 }
 
-export interface TokenUser {
-  id: string;
-  email: string;
-  token: string;
-  displayName: string;
-}
-
 export interface User {
   id: string;
   displayName: string;
   email: string;
-  photoUrl: string;
-  bio: string;
-  posts?: PostBase[];
-  favorites?: PostBase[];
+  photoUrl: string | null;
+  bio: string | null;
+  username: string;
+  posts: PostBase[];
+  following?: boolean;
 }
 
 export interface ErrorResponse {
@@ -84,10 +87,12 @@ export type GetPostsParams = {
   size?: number;
   userId?: string;
   postId?: number;
+  favorite?: boolean;
 };
 
 export type GetUsersParams = {
   userId?: string;
+  role?: 'follower' | 'followed';
 };
 
 export interface Chat {
@@ -132,9 +137,9 @@ export type UserStackParams = {
   'StackCreatePost': undefined;
   'StackChat': undefined;
   'SinglePost': { postId: number };
-  'StackProfile': { userId?: string; displayName?: string };
+  'StackProfile': { userId: string; username: string };
   'EditPost': { postId: number };
-  'EditProfile': { userId: string; bio: string; email: string; displayName: string; photoUrl: string };
+  'EditProfile': { userId: string; bio: string; email: string; displayName: string; photoUrl: string; username: string };
   'Chat': undefined;
   'SingleChat': { userId: string };
 };

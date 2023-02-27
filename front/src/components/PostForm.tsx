@@ -16,7 +16,7 @@ import {
 
 const styles = StyleSheet.create({
   loginForm: {
-    margin: 20
+    padding: 20
   },
   descriptionField: {
     height: 100,
@@ -69,9 +69,8 @@ const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
         <ScrollView
-          contentContainerStyle={{ paddingBottom: 60 }}
+          contentContainerStyle={styles.loginForm}
           showsVerticalScrollIndicator={false}
-          style={styles.loginForm}
         >
           <FormikTextInput name="title" placeholder="Title" />
           <FormikTextInput name="price" placeholder="Price (€)" />

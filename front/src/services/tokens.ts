@@ -1,10 +1,16 @@
 import { AxiosResponse } from 'axios';
-import { Chat } from '../types';
 import api from '../util/axiosInstance';
 
-const refreshToken = async (): Promise<AxiosResponse<Chat[]>> => {
-  const response = await api.get<Chat[]>('refreshtoken');
+const refreshIdToken = async (body:
+{ refreshToken: string }): Promise<AxiosResponse<{ idToken: string }>> => {
+  const response = await api.post<{ idToken: string }>('refreshidtoken', body);
   return response;
 };
 
-export default { refreshToken };
+const verifyToken = async (body: { idToken: string }):
+Promise<AxiosResponse<{}>> => {
+  const response = await api.post<{}>('verifyidtoken', body);
+  return response;
+};
+
+export default { refreshIdToken, verifyToken };

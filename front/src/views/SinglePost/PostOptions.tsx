@@ -54,7 +54,7 @@ const PostOptions = ({ post }: { post: PostBase }): JSX.Element => {
       <Menu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Pressable onPress={openMenu}><Entypo name="menu" size={35} color="black" /></Pressable>}
+        anchor={<Pressable onPress={openMenu}><Entypo style={{ marginTop: 1 }} name="dots-three-horizontal" size={21} color="black" /></Pressable>}
       >
         <Menu.Item onPress={(): void => onPostEdit(post.id)} title="Edit" />
         <Menu.Item onPress={(): Promise<void> => onPostDelete(post.id)} title="Delete" />

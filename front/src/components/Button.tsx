@@ -5,7 +5,6 @@ import Text from './Text';
 
 const styles = StyleSheet.create({
   loginButton: {
-    marginTop: 5,
     height: 50,
     backgroundColor: '#347deb',
     alignItems: 'center',
@@ -15,14 +14,17 @@ const styles = StyleSheet.create({
 });
 
 interface Props extends PressableProps {
-  text: string;
+  text?: string;
+  element?: JSX.Element;
   onSubmit: (event: GestureResponderEvent) => void;
 }
 
-const Button = ({ text, onSubmit, ...props }: Props): JSX.Element => (
+const Button = ({
+  text = undefined, element = undefined, onSubmit, ...props
+}: Props): JSX.Element => (
   <View style={{ display: 'flex' }}>
     <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={onSubmit}>
-      <Text color="textSecondary">{text}</Text>
+      {text ? <Text color="textSecondary">{text}</Text> : element}
     </Pressable>
   </View>
 );

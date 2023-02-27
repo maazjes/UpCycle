@@ -18,7 +18,8 @@
     "moduleResolution": "node",
     "noEmit": false,
     "noEmitOnError": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "paths": {"@shared/*": ["../shared/*"]}
   },
   "files": ["./@types/express/index.d.ts"],
   "include": ["./"],

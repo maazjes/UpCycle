@@ -13,20 +13,23 @@ interface MessageBody {
 }
 
 router.post<{}, Message, MessageBody>('/', userExtractor, async (req, res): Promise<void> => {
-  const currentUserId = req.user.id;
+  const { user } = req;
+  if (!user) {
+    throw new Error('Authentication required');
+  }
   const { receiverId, content } = req.body;
   const [chat] = await Chat.findOrCreate({
     where: {
-      [Op.or]: [{ userId: currentUserId, creatorId: receiverId },
-        { userId: receiverId, creatorId: currentUserId }]
+      [Op.or]: [{ userId: user.id, creatorId: receiverId },
+        { userId: receiverId, creatorId: user.id }]
     },
-    defaults: { creatorId: currentUserId, userId: receiverId, lastMessage: content }
+    defaults: { creatorId: user.id, userId: receiverId, lastMessage: content }
   });
   if (chat.lastMessage !== content) {
     await chat.update({ lastMessage: content });
   }
   const message = await Message.create({
-    content, chatId: chat.id, receiverId, senderId: currentUserId
+    content, chatId: chat.id, receiverId, senderId: user.id
   });
   res.json(message);
 });
@@ -43,6 +46,9 @@ interface MessagesResponse extends PaginationBase {
 }
 
 router.get<{}, MessagesResponse, {}, GetMessagesQuery>('/', userExtractor, async (req, res): Promise<void> => {
+  if (!req.user) {
+    throw new Error('Authentication required');
+  }
   const {
     page, size, userId1, userId2
   } = req.query;

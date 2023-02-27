@@ -7,8 +7,8 @@ const Stack = createNativeStackNavigator<LoginStackParams>();
 
 const LoginStack = (): JSX.Element => (
   <Stack.Navigator>
-    <Stack.Screen name="Login" component={Login} />
-    <Stack.Screen name="SignUp" component={SignUp} />
+    <Stack.Screen name="Login" component={Login} options={{ title: 'Log in      ' }} />
+    <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign up' }} />
   </Stack.Navigator>
 );
 

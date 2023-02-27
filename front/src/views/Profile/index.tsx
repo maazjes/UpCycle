@@ -1,48 +1,47 @@
 import * as React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  View, StyleSheet
+  View
 } from 'react-native';
 import Loading from '../../components/Loading';
 import UserBar from '../../components/UserBar';
 import GridView from '../../components/GridView';
-import { TokenUser, UserStackScreen } from '../../types';
+import { TokenUser, User, UserStackScreen } from '../../types';
 import { useAppSelector } from '../../hooks/redux';
 import ProfileOptions from './ProfileOptions';
 import Button from '../../components/Button';
-import useUsers from '../../hooks/useUsers';
-
-const styles = StyleSheet.create({
-  container: {
-  }
-});
+import { getUser } from '../../services/users';
 
 const Profile = ({ route, navigation }:
 UserStackScreen<'StackProfile'>):
 JSX.Element => {
-  const { userId, displayName } = route.params;
-  if (displayName) {
-    navigation.setOptions({ title: displayName });
-  }
-  const currentUser = useAppSelector((state): TokenUser | null => state.user);
-  const [users, getUsers] = useUsers();
+  const { userId, username } = route.params;
 
   useEffect((): void => {
-    getUsers({ userId });
+    navigation.setOptions({ title: username });
+  }, [username]);
+
+  const currentUser = useAppSelector((state): TokenUser => state.user);
+  const [user, setUser] = useState<User | null>();
+
+  useEffect((): void => {
+    const initialize = async (): Promise<void> => {
+      const res = await getUser({ userId });
+      setUser(res.data);
+    };
+    initialize();
   }, []);
 
-  if (!users) {
+  if (!user) {
     return <Loading />;
   }
 
-  const user = users[0];
-
   const itemRight = userId === currentUser?.id && userId
-    ? <ProfileOptions user={user} />
+    ? <ProfileOptions setUser={setUser} user={user} />
     : <Button onSubmit={(): null => null} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
 
   return (
-    <View style={styles.container}>
+    <View>
       <UserBar itemRight={itemRight} user={user} profileImageSize={70} />
       <GridView posts={user.posts ?? []} />
     </View>

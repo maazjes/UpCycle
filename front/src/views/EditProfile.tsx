@@ -4,7 +4,7 @@ import {
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { UserStackScreen } from '../types';
-import usersService from '../services/users';
+import { updateUser } from '../services/users';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
@@ -38,21 +38,18 @@ const validationSchema = yup.object().shape({
 const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => {
   const error = useError();
   const {
-    email, displayName, photoUrl, bio
+    email, displayName, photoUrl, bio, username
   } = route.params;
 
   const initialValues = {
     email,
     displayName,
     bio,
+    username,
     images: [{ uri: photoUrl }]
   };
 
-  interface EditProfileProps {
-    displayName: string;
-    bio: string;
-    images: Array<{ uri: string }>;
-  }
+  type EditProfileProps = typeof initialValues;
 
   const onSubmit = async (
     { images, ...props }
@@ -65,7 +62,7 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
       }
     });
     try {
-      await usersService.updateUser({ ...props, image });
+      await updateUser({ ...props, image });
     } catch (e) {
       error(e);
     }
@@ -78,7 +75,8 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
           <View style={styles.photo}>
             <FormikImageInput circle name="images" amount={1} />
           </View>
-          <FormikTextInput style={styles.displayName} name="displayName" placeholder="Display name" />
+          <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
+          <FormikTextInput name="displayName" placeholder="Display name" />
           <FormikTextInput name="email" placeholder="Email" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
           <Button

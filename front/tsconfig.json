@@ -13,7 +13,8 @@
     "esModuleInterop": true,
     "declaration": true,
     "target": "ES6",
-    "typeRoots": ["node_modules/yup"]
+    "typeRoots": ["node_modules/yup"],
+    "paths": {"@shared/*": ["../shared/*"]}
   },
   "extends": "expo/tsconfig.base"
 }

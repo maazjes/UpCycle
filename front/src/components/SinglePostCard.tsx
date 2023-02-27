@@ -4,11 +4,11 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
-import favoritesService from '../services/favorites';
+import { addToFavorites, removeFromFavorites } from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
 import useError from '../hooks/useError';
-import { PostBase } from '../types';
+import { Post } from '../types';
 
 const styles = StyleSheet.create({
   titleAndPrice: {
@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   }
 });
 interface GridPostProps {
-  post: PostBase;
+  post: Post;
   containerStyle?: ViewStyle;
 }
 
@@ -36,29 +36,29 @@ const SinglePostCard = ({
   post, containerStyle = {}
 }: GridPostProps): JSX.Element => {
   const error = useError();
-  const [favoriteId, setFavoriteId] = useState<undefined | number>(post.favoriteId);
+  const [favoriteId, setFavoriteId] = useState<null | number>(post.favoriteId);
 
-  const addToFavorites = async (): Promise<void> => {
+  const onAddToFavorites = async (): Promise<void> => {
     try {
-      const favorite = await favoritesService.addToFavorites(post.id);
+      const favorite = await addToFavorites(post.id);
       setFavoriteId(favorite.data.id);
     } catch (e) {
       error(e);
     }
   };
 
-  const removeFromFavorites = async (): Promise<void> => {
+  const onRemoveFromFavorites = async (): Promise<void> => {
     try {
       if (favoriteId) {
-        await favoritesService.removeFromFavorites(favoriteId);
-        setFavoriteId(undefined);
+        await removeFromFavorites(favoriteId);
+        setFavoriteId(null);
       }
     } catch (e) {
       error(e);
     }
   };
 
-  const handleFavorite = favoriteId ? removeFromFavorites : addToFavorites;
+  const handleFavorite = favoriteId ? onRemoveFromFavorites : onAddToFavorites;
   const favoriteIcon = favoriteId
     ? <AntDesign style={styles.favorite} name="heart" size={28} color="#fa2f3a" />
     : <AntDesign style={styles.favorite} name="hearto" size={28} color="#fa2f3a" />;
@@ -71,7 +71,7 @@ const SinglePostCard = ({
       <View style={styles.infoBox}>
         <View style={styles.titleAndPrice}>
           <Text fontWeight="bold" fontSize="subheading">{post.title}</Text>
-          <Text fontSize="subheading" fontWeight="bold" color="blue">{post.price}</Text>
+          <Text fontSize="subheading" fontWeight="bold" color="green">{post.price}</Text>
           <Text style={{ marginTop: 5 }}>{post.description}</Text>
         </View>
         <Pressable onPress={handleFavorite}>

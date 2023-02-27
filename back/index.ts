@@ -14,6 +14,7 @@ import favoritesRouter from './controllers/favorites.js';
 import chatsRouter from './controllers/chats.js';
 import messagesRouter from './controllers/messages.js';
 import tokensRouter from './controllers/tokens.js';
+import followsRouter from './controllers/follows.js';
 import { errorHandler } from './util/middleware.js';
 import {
   ClientToServerEvents, ServerToClientEvents, SocketData, InterServerEvents
@@ -76,7 +77,8 @@ app.use('/api/images', imagesRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/chats', chatsRouter);
 app.use('/api/messages', messagesRouter);
-app.use('/api/refreshtoken', tokensRouter);
+app.use('/api/follows', followsRouter);
+app.use('/api', tokensRouter);
 app.use(errorHandler);
 
 const start = async (): Promise<void> => {

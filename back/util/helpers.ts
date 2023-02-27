@@ -75,3 +75,7 @@ export const getPagingData = (
     totalItems, totalPages, currentPage
   };
 };
+
+export const removeEmpty = (object: object) => JSON.parse(
+  JSON.stringify(object, (_, value) => value ?? undefined)
+);

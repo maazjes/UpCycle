@@ -8,9 +8,13 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 
   declare displayName: string;
 
+  declare username: string;
+
   declare photoUrl?: string;
 
   declare bio?: string;
+
+  declare email?: string;
 }
 
 User.init(
@@ -29,6 +33,10 @@ User.init(
       allowNull: true
     },
     displayName: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    username: {
       type: DataTypes.STRING,
       allowNull: false
     }

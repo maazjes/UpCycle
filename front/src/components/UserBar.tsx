@@ -2,13 +2,12 @@ import {
   View, Pressable, StyleSheet, ViewProps
 } from 'react-native';
 import { User } from '../types';
-import theme from '../styles/theme';
 import Text from './Text';
 import ProfileImage from './ProfileImage';
 
 const styles = StyleSheet.create({
   userBar: {
-    backgroundColor: theme.backgroundColors.secondary,
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -38,8 +37,8 @@ const UserBar = ({
         size={profileImageSize}
         uri={user.photoUrl}
       />
-      <View style={{ flexDirection: 'column', marginLeft: profileImageSize / 4 }}>
-        <Text style={{ marginBottom: -1 }} fontSize="subheading">{user.displayName}</Text>
+      <View style={{ flexDirection: 'column', marginLeft: profileImageSize / 3 }}>
+        <Text fontSize="subheading">{user.displayName}</Text>
         {extra}
       </View>
     </View>

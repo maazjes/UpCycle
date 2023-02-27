@@ -4,7 +4,7 @@ import {
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { TypedImage } from '../types';
-import usersService from '../services/users';
+import { createUser } from '../services/users';
 import useAuth from '../hooks/useAuth';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
@@ -19,8 +19,7 @@ const styles = StyleSheet.create({
   },
   bioField: {
     height: 100,
-    paddingTop: 13,
-    marginTop: 10
+    paddingTop: 13
   },
   bioAndPhoto: {
     flexDirection: 'row',
@@ -57,6 +56,7 @@ const SignUp = (): JSX.Element => {
   const initialValues = {
     email: '',
     displayName: '',
+    username: '',
     bio: '',
     password: '',
     passwordConfirmation: '',
@@ -75,7 +75,7 @@ const SignUp = (): JSX.Element => {
   }): Promise<void> => {
     const image = images[0];
     try {
-      await usersService.createUser({
+      await createUser({
         ...props, image, email, password
       });
       await login({ email, password });
@@ -92,9 +92,10 @@ const SignUp = (): JSX.Element => {
             <FormikImageInput circle name="images" amount={1} />
             <View style={{ flexDirection: 'column', width: screenWidth - 140 }}>
               <FormikTextInput name="email" placeholder="Email" />
-              <FormikTextInput style={{ marginBottom: 0 }} name="displayName" placeholder="Display name" />
+              <FormikTextInput style={{ marginBottom: 0 }} name="username" placeholder="Username" />
             </View>
           </View>
+          <FormikTextInput style={{ marginTop: 10 }} name="displayName" placeholder="Display name" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />

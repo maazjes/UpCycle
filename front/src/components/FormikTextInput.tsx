@@ -8,7 +8,8 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 10,
-    marginTop: 2
+    marginTop: 2,
+    marginLeft: 1
   },
   inputField: {
     height: 50,

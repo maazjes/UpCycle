@@ -15,77 +15,91 @@ import {
 const upload = multer();
 const router = express.Router();
 
+type PostBase = Pick<Post, 'id' | 'images' | 'title' | 'price'>;
+
 interface PostsResponse extends PaginationBase {
-  posts: Post[];
+  posts: PostBase[];
 }
 
 type GetPostsQuery = {
   page: string;
   size: string;
   userId?: string;
-  postId?: string;
+  favorite: string;
 };
 
-router.get<{}, PostsResponse, GetPostsQuery>('/', userExtractor, async (req, res): Promise<void> => {
-  let where = {};
+router.get<{}, PostsResponse, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
   const {
-    userId, postId, page, size
+    userId, page, size, favorite
   } = req.query;
-  where = userId ? { ...where, userId } : where;
-  where = postId ? { ...where, id: postId } : where;
-  const { limit, offset } = getPagination(Number(page), Number(size));
-  const posts = await Post.findAndCountAll({
-    attributes: { exclude: ['userId'] },
-    include: [{
-      model: User
-    },
-    {
-      model: Category,
-      attributes: ['id', 'name']
-    },
+  const attributes = ['id', 'title', 'price'];
+  const where = userId ? { userId } : {};
+  const postsInclude = [
     {
       model: Image,
       attributes: { exclude: ['postId'] }
-    }],
+    }];
+  const { limit, offset } = getPagination(Number(page), Number(size));
+
+  let favoritePosts: PostBase[] = [];
+  if (favorite && req.user) {
+    const favorites = await Favorite.findAndCountAll({
+      where: { userId: req.user.id },
+      include: {
+        model: Post,
+        attributes,
+        include: postsInclude
+      },
+      attributes: [],
+      limit,
+      offset
+    });
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post.dataValues);
+    res.json({ ...getPagingData(favorites.count, Number(page), limit), posts: favoritePosts });
+    return;
+  }
+  const posts = await Post.findAndCountAll({
+    attributes,
+    include: postsInclude,
     limit,
     offset,
     where
   });
-  const pagination = getPagingData(posts.count, Number(page), limit);
-  if (req.user && postId) {
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      throw new Error('user not found');
-    }
-    const found = await Favorite.findOne({ where: { postId: Number(postId), userId: user.id } });
-    if (found) {
-      posts.rows[0].setDataValue('favoriteId', found.id);
-    }
-  }
-  res.json({ ...pagination, posts: posts.rows });
+  res.json({ ...getPagingData(posts.count, Number(page), limit), posts: posts.rows });
 });
 
 router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promise<void> => {
   const { id } = req.params;
   const post = await Post.findOne({
     attributes: { exclude: ['userId', 'categoryId'] },
-    include: [{
-      model: User
-    },
-    {
-      model: Category,
-      attributes: ['id', 'name']
-    },
-    {
-      model: Image,
-      attributes: ['uri', 'height', 'width', 'id']
-    }],
+    include: [
+      {
+        model: Category,
+        attributes: ['id', 'name']
+      }, {
+        model: User,
+        attributes: ['id', 'username']
+      },
+      {
+        model: Image,
+        attributes: ['uri', 'height', 'width', 'id']
+      }],
     where: {
       id
     }
   });
   if (!post) {
     throw new Error('post not found');
+  }
+  if (req.user) {
+    const found = await Favorite.findOne({ where: { postId: Number(id), userId: req.user.id } });
+    if (found) {
+      post.setDataValue('favoriteId', found.id);
+    } else {
+      post.setDataValue('favoriteId', null);
+    }
   }
   res.json(post);
 });
@@ -107,7 +121,7 @@ router.post<{}, Post, NewPostBody>(
   upload.array('images', 5),
   async (req, res): Promise<void> => {
     if (!req.user) {
-      throw new Error('invalid token');
+      throw new Error('Authentication required');
     }
     const category = await Category.findOne({ where: { name: req.body.category } });
     if (!category) {
@@ -133,7 +147,7 @@ router.put<{ id: string }, Post, Partial<NewPostBody>>(
   upload.array('images', 5),
   async (req, res): Promise<void> => {
     if (!req.user) {
-      throw new Error('invalid token');
+      throw new Error('Authentication required');
     }
     const {
       title,

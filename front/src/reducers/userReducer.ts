@@ -1,13 +1,13 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { TokenUser } from '../types';
-
-type SliceState = TokenUser | null;
+import { UserBase } from '@shared/types';
 
 const userSlice = createSlice({
   name: 'token',
-  initialState: null as SliceState,
+  initialState: {
+    id: '', username: '', idToken: '', photoUrl: '', refreshToken: '', displayName: '', email: ''
+  },
   reducers: {
-    addUser(_state, action: PayloadAction<TokenUser | null>): TokenUser | null {
+    addUser(_state, action: PayloadAction<UserBase>): UserBase {
       return action.payload;
     }
   }

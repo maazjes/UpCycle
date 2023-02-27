@@ -21,7 +21,8 @@
 | Added a view for editing your profile. Migrated from using S3 to Firebase storage. | 8 hours |
 | Started making a websocket server for real time chat. | 4 hours |
 | Completed the chat logic that uses web sockets and the database for saving messages and chats. | 15 hours |
+| Restructured the backend, initialized followers and more... | 13 hours |
 
-**Total: 154 hours**
+**Total: 167 hours**
 
 plus many more additional hours on stupid mistakes...

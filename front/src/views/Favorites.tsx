@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import useUsers from '../hooks/useUsers';
+import usePosts from '../hooks/usePosts';
 import GridView from '../components/GridView';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
@@ -8,26 +8,26 @@ import { TokenUser } from '../types';
 
 const Favorites = (): JSX.Element => {
   const currentUser = useAppSelector((state): TokenUser | null => state.user);
-  const [users, getUsers] = useUsers();
+  const [posts, getPosts] = usePosts();
   useEffect((): void => {
-    const initializeFavorites = async (): Promise<void> => {
+    const initialize = async (): Promise<void> => {
       if (currentUser) {
-        await getUsers({ userId: currentUser.id });
+        await getPosts({ favorite: true });
       }
     };
-    initializeFavorites();
+    initialize();
   }, []);
 
-  if (!users) {
+  if (!posts) {
     return <Loading />;
   }
 
-  if (!users[0]?.favorites || users[0].favorites?.length === 0) {
-    return <Text>no favorites to show</Text>;
+  if (posts.length === 0) {
+    return <Text>no posts to show</Text>;
   }
 
   return (
-    <GridView posts={users[0].favorites} />
+    <GridView posts={posts} />
   );
 };
 

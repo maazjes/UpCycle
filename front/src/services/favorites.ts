@@ -6,6 +6,7 @@ interface Favorite {
   postId: number;
   userId: number;
 }
+
 const addToFavorites = async (postId: number): Promise<AxiosResponse<Favorite>> => {
   const favorite = await api.post<Favorite>('favorites', { postId });
   return favorite;
@@ -17,4 +18,9 @@ Promise<AxiosResponse<Favorite>> => {
   return favorite;
 };
 
-export default { addToFavorites, removeFromFavorites };
+const getFavorites = async (): Promise<AxiosResponse<Favorite[]>> => {
+  const favorite = await api.get<Favorite[]>('favorites');
+  return favorite;
+};
+
+export { addToFavorites, removeFromFavorites, getFavorites };

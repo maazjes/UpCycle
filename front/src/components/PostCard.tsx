@@ -3,6 +3,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { PostBase, UserStackNavigation } from '../types';
+import Text from './Text';
 
 const styles = StyleSheet.create({
   titleAndPrice: {
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: '#FFFF',
-    margin: 5
+    margin: 10
   }
 });
 
@@ -34,12 +35,19 @@ const PostCard = ({
   };
 
   return (
-    <Pressable onPress={onPostCardPress}>
-      <View style={[styles.container, containerStyle]}>
-        <Image
-          style={{ aspectRatio: 1, width: '100%', height: 200 }}
-          source={{ uri: post.images[0]?.uri }}
-        />
+    <Pressable style={[styles.container, containerStyle]} onPress={onPostCardPress}>
+      <Image
+        style={{
+          aspectRatio: 1, width: '100%', height: 200, borderRadius: 10
+        }}
+        source={{ uri: post.images[0]?.uri }}
+      />
+      <View style={{
+        flexDirection: 'column', marginHorizontal: 6, marginTop: 3
+      }}
+      >
+        <Text fontWeight="bold">{post.title}</Text>
+        <Text fontWeight="bold">{post.price}</Text>
       </View>
     </Pressable>
   );

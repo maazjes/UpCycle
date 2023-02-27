@@ -12,7 +12,6 @@ import { useAppSelector } from '../hooks/redux';
 import Text from '../components/Text';
 import Loading from '../components/Loading';
 import postsService from '../services/posts';
-import usePosts from '../hooks/usePosts';
 import useError from '../hooks/useError';
 import useNotification from '../hooks/useNotification';
 
@@ -25,8 +24,7 @@ const styles = StyleSheet.create({
 
 const PrivateProfile = (): JSX.Element => {
   const currentUser = useAppSelector((state): TokenUser | null => state.user);
-  const [, getPosts] = usePosts();
-  const [visiblePosts, setVisiblePosts] = useState<PostBase[] | null>(null);
+  const [posts, setPosts] = useState<PostBase[] | null>(null);
   const [visible, setVisible] = React.useState<{ [x: string]: boolean }>({});
   const error = useError();
   const notification = useNotification();
@@ -44,18 +42,18 @@ const PrivateProfile = (): JSX.Element => {
   useEffect((): void => {
     const getAndSetPosts = async (): Promise<void> => {
       if (currentUser) {
-        const freshPosts = await getPosts({ userId: currentUser.id });
-        setVisiblePosts(freshPosts);
+        const res = await postsService.getPosts({ userId: currentUser.id });
+        setPosts(res.data.posts);
       }
     };
     getAndSetPosts();
   }, []);
 
-  if (!visiblePosts) {
+  if (!posts) {
     return <Loading />;
   }
 
-  if (visiblePosts.length === 0) {
+  if (posts.length === 0) {
     return <Text>no posts to show</Text>;
   }
 
@@ -64,8 +62,8 @@ const PrivateProfile = (): JSX.Element => {
       try {
         await postsService.deletePost(id);
         notification('Post deleted successfully', false);
-        const newPosts = visiblePosts.filter((post): boolean => post.id !== id);
-        setVisiblePosts(newPosts);
+        const newPosts = posts.filter((post): boolean => post.id !== id);
+        setPosts(newPosts);
       } catch (e) {
         error(e);
       }
@@ -96,7 +94,7 @@ const PrivateProfile = (): JSX.Element => {
           <DataTable.Title><Text fontSize="subheading">Price</Text></DataTable.Title>
           <DataTable.Title>{}</DataTable.Title>
         </DataTable.Header>
-        {visiblePosts.map((post): JSX.Element => (
+        {posts.map((post): JSX.Element => (
           <DataTable.Row key={String(post.id)}>
             <DataTable.Cell><Text>{post.title}</Text></DataTable.Cell>
             <DataTable.Cell><Text>{post.price}</Text></DataTable.Cell>

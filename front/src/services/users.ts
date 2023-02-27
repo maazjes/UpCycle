@@ -30,8 +30,8 @@ const getUsers = async (params: GetUsersParams): Promise<AxiosResponse<User[]>> 
   return users;
 };
 
-const getUserById = async (id: string): Promise<AxiosResponse<User>> => {
-  const user = await api.get<User>(`users/${id}`);
+const getUser = async ({ userId }: { userId: string }): Promise<AxiosResponse<User>> => {
+  const user = await api.get<User>(`users/${userId}`);
   return user;
 };
 
@@ -41,6 +41,6 @@ const updateUser = async (props: UpdateUserProps): Promise<AxiosResponse<User>> 
   return user;
 };
 
-export default {
-  createUser, getUsers, getUserById, updateUser
+export {
+  createUser, getUsers, getUser, updateUser
 };

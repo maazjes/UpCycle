@@ -4,7 +4,7 @@ import {
   addParams, createFormData
 } from '../util/helpers';
 import {
-  PostBase, NewPostProps, PostsResponse, UpdatePostProps, GetPostsParams
+  PostBase, Post, NewPostProps, PostsResponse, UpdatePostProps, GetPostsParams
 } from '../types';
 
 const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase>> => {
@@ -25,9 +25,9 @@ Promise<AxiosResponse<PostsResponse>> => {
   return posts;
 };
 
-const getPostById = async (id: number): Promise<AxiosResponse<PostBase | null>> => {
-  const query = `posts/${id}`;
-  const post = await api.get<PostBase | null>(query);
+const getPost = async ({ postId }: { postId: number }): Promise<AxiosResponse<Post>> => {
+  const query = `posts/${postId}`;
+  const post = await api.get<Post>(query);
   return post;
 };
 
@@ -38,12 +38,12 @@ const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
 };
 
 const updatePost = async (id: number, newPost: UpdatePostProps):
-Promise<AxiosResponse<PostBase>> => {
+Promise<AxiosResponse<Post>> => {
   const formData = createFormData(newPost);
-  const post = await api.putForm<PostBase>(`posts/${id}`, formData);
+  const post = await api.putForm<Post>(`posts/${id}`, formData);
   return post;
 };
 
 export default {
-  createPost, getPosts, getPostById, deletePost, updatePost
+  createPost, getPosts, getPost, deletePost, updatePost
 };

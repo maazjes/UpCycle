@@ -4,7 +4,7 @@ import theme from '../styles/theme';
 
 const styles = StyleSheet.create({
   text: {
-    color: theme.textColors.textPrimary,
+    color: theme.textColors.primary,
     fontSize: theme.fontSizes.body,
     fontFamily: theme.fonts.main,
     fontWeight: theme.fontWeights.normal
@@ -17,6 +17,9 @@ const styles = StyleSheet.create({
   },
   blue: {
     color: theme.textColors.blue
+  },
+  green: {
+    color: theme.textColors.green
   },
   fontSizeSubheading: {
     fontSize: theme.fontSizes.subheading
@@ -33,17 +36,18 @@ const Text = ({
   style = {},
   ...props
 }: {
-  color?: 'textSecondary' | 'primary' | 'blue' | '';
+  color?: 'textSecondary' | 'primary' | 'blue' | 'green' | '';
   fontSize?: 'subheading' | 'body';
   fontWeight?: 'bold' | 'normal';
   style?: TextStyle;
-  children: string;
+  children?: string;
 }): JSX.Element => {
   const textStyle = [
     styles.text,
     color === 'textSecondary' && styles.colorTextSecondary,
     color === 'primary' && styles.colorPrimary,
     color === 'blue' && styles.blue,
+    color === 'green' && styles.green,
     fontSize === 'subheading' && styles.fontSizeSubheading,
     fontWeight === 'bold' && styles.fontWeightBold,
     style

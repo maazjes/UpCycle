@@ -3,20 +3,21 @@ import { useField } from 'formik';
 import * as postcodes from 'datasets-fi-postalcodes';
 import { useEffect, useState } from 'react';
 import TextInput from './TextInput';
+import Text from './Text';
 
 const styles = StyleSheet.create({
   errorText: {
     color: 'red',
     marginBottom: 10,
-    marginTop: 2
+    marginTop: 2,
+    marginLeft: 2
   },
   view: {
     flexDirection: 'row',
     justifyContent: 'space-evenly'
   },
   postcodeInput: {
-    width: '49%',
-    marginRight: '2%',
+    width: '100%',
     marginBottom: 10
   },
   cityInput: {
@@ -59,26 +60,21 @@ const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
   const showError = touched && error !== undefined;
 
   const cityFieldStyle = StyleSheet.flatten([styles.cityInput, error ? { color: 'red' } : {}]);
-  const cityFieldError = touched ? error : undefined;
-  const cityFieldValue = location.city || cityFieldError;
+  const cityFieldValue = location.city;
 
   return (
-    <View style={styles.view}>
-      <TextInput
-        onChangeText={(postcode: string): void => handleOnChange({ ...location, postcode })}
-        onBlur={(): void => helpers.setTouched(true)}
-        value={location.postcode}
-        error={showError}
-        placeholder="Postcode"
-        style={styles.postcodeInput}
-      />
-      <TextInput
-        onChangeText={(): null => null}
-        value={cityFieldValue}
-        error={false}
-        editable={false}
-        style={cityFieldStyle}
-      />
+    <View>
+      <View style={styles.view}>
+        <TextInput
+          onChangeText={(postcode: string): void => handleOnChange({ ...location, postcode })}
+          onBlur={(): void => helpers.setTouched(true)}
+          value={location.postcode}
+          error={showError}
+          placeholder="Postcode"
+          style={styles.postcodeInput}
+        />
+      </View>
+      {showError ? <Text style={styles.errorText}>{error}</Text> : cityFieldValue ? <Text style={{ marginBottom: 10, marginLeft: 2 }}>{cityFieldValue}</Text> : undefined}
     </View>
   );
 };

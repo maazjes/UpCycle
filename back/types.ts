@@ -1,5 +1,14 @@
 import { Request as ExpressRequest } from 'express';
 import { IncomingHttpHeaders } from 'http';
+import { User } from './models';
+
+declare global {
+  namespace Express {
+    export interface Request {
+      user?: User;
+    }
+  }
+}
 
 export interface RequestWithHeader<
 P, ResBody, ReqBody, ReqQuery, ReqHeaders
@@ -33,23 +42,6 @@ export interface NewPostBody {
   category: string;
   condition: Condition;
   postcode: string;
-}
-
-export interface UserBase {
-  id: string;
-  bio?: string;
-  photoUrl?: string;
-  email: string;
-  displayName: string;
-}
-
-export interface FirebaseLoginRes {
-  idToken: string;
-  email: string;
-  refreshToken: string;
-  expiresIn: string;
-  localId: string;
-  registered: boolean;
 }
 
 export interface ServerToClientEvents {

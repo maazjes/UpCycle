@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { Message, TokenUser, UserStackScreen } from '../types';
 import TextInput from '../components/TextInput';
 import socket from '../util/socket';
@@ -67,21 +68,31 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
   };
 
   return (
-    <View style={{ flexDirection: 'column', margin: 20 }}>
-      {messages.map((msg): JSX.Element => (
-        <View
-          key={msg.createdAt}
-          style={[msg.senderId === currentUser?.id
-            ? { alignSelf: 'flex-start' }
-            : { alignSelf: 'flex-end' }, styles.message]}
-        >
-          <Text>
-            {msg.content}
-          </Text>
-        </View>
-      ))}
-      <TextInput onChangeText={(value): void => setMessage(value)} error={false} />
-      <Button onSubmit={onNewMessage} text="Send" />
+    <View style={{
+      flexDirection: 'column', margin: 20, justifyContent: 'space-between', flex: 1
+    }}
+    >
+      <View>
+        {messages.map((msg): JSX.Element => (
+          <View
+            key={msg.createdAt}
+            style={[msg.senderId === currentUser?.id
+              ? { alignSelf: 'flex-start' }
+              : { alignSelf: 'flex-end' }, styles.message]}
+          >
+            <Text>
+              {msg.content}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <View style={{
+        flexDirection: 'row', marginTop: 10, marginBottom: 20
+      }}
+      >
+        <TextInput style={{ marginRight: 5, flex: 1 }} onChangeText={(value): void => setMessage(value)} error={false} />
+        <Button style={{ paddingHorizontal: 15, flex: 1 }} onSubmit={onNewMessage} element={<Feather name="message-circle" size={28} color="white" />} />
+      </View>
     </View>
   );
 };
