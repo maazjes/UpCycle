@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TokenUser } from '../types';
+import { TokenUser } from '@shared/types';
 
 class AuthStorage {
   namespace: string;

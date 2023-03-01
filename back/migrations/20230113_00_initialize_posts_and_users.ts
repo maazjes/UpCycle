@@ -35,11 +35,11 @@ module.exports = {
       },
       bio: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
       },
       photo_url: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: false
       },
       created_at: {
         type: DataTypes.DATE

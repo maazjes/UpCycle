@@ -1,20 +1,29 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { Post } from './index.js';
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
-  declare id: string;
+  declare id: CreationOptional<string>;
 
   declare displayName: string;
 
   declare username: string;
 
-  declare photoUrl?: string;
+  declare photoUrl: string;
 
-  declare bio?: string;
+  declare bio: string;
 
-  declare email?: string;
+  declare followId?: number;
+
+  declare following?: boolean;
+
+  declare posts?: Post[];
+
+  declare createdAt: CreationOptional<Date>;
+
+  declare updatedAt: CreationOptional<Date>;
 }
 
 User.init(
@@ -39,7 +48,9 @@ User.init(
     username: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   },
   {
     sequelize,

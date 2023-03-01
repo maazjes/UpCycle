@@ -2,10 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import {
   Entypo, AntDesign, FontAwesome, Feather
 } from '@expo/vector-icons';
-import ProfileImage from '../components/ProfileImage';
+import ProfilePhoto from '../components/ProfilePhoto';
 import UserStack from './UserStack';
-import { TokenUser, UserStackParams, UserTabsParams } from '../types';
-import { useAppSelector } from '../hooks/redux';
+import { UserStackParams, UserTabsParams } from '../types';
 
 interface Info {
   focused: boolean;
@@ -16,20 +15,17 @@ interface Info {
 const Tab = createBottomTabNavigator<UserTabsParams>();
 
 const renderUserStack = (
-  initialRoute: keyof UserStackParams,
-  profileParams?: { userId: string; username: string }
+  initialRoute: keyof UserStackParams
 ): () => JSX.Element => (
-  (): JSX.Element => <UserStack profileParams={profileParams} initialRoute={initialRoute} />
+  (): JSX.Element => <UserStack initialRoute={initialRoute} />
 );
 
-const UserTabs = (): JSX.Element => {
-  const currentUser = useAppSelector((state): TokenUser => state.user);
-  const profileParams = { userId: currentUser.id, username: currentUser.username };
+const UserTabs = ({ profilePhotoUrl }: { profilePhotoUrl: string }): JSX.Element => {
   const homeIcon = (info: Info): JSX.Element => <Entypo name="home" size={30} color={info.focused ? '#7bc17e' : 'black'} />;
   const favoritesIcon = (info: Info): JSX.Element => <AntDesign name="hearto" size={26} color={info.focused ? '#7bc17e' : 'black'} />;
   const createPostIcon = (info: Info): JSX.Element => <FontAwesome name="plus-square-o" size={30} color={info.focused ? '#7bc17e' : 'black'} />;
   const chatIcon = (info: Info): JSX.Element => <Feather name="message-circle" size={28} color={info.focused ? '#7bc17e' : 'black'} />;
-  const profileIcon = (): JSX.Element => <ProfileImage uri={currentUser.photoUrl} size={28} />;
+  const profileIcon = (): JSX.Element => <ProfilePhoto uri={profilePhotoUrl} size={28} />;
 
   return (
     <Tab.Navigator
@@ -64,7 +60,7 @@ const UserTabs = (): JSX.Element => {
       />
       <Tab.Screen
         name="Profile"
-        component={renderUserStack('StackProfile', profileParams)}
+        component={renderUserStack('StackProfile')}
         options={{ tabBarIcon: profileIcon }}
       />
     </Tab.Navigator>

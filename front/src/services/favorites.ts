@@ -4,17 +4,17 @@ import api from '../util/axiosInstance';
 interface Favorite {
   id: number;
   postId: number;
-  userId: number;
+  userId: string;
 }
 
-const addToFavorites = async (postId: number): Promise<AxiosResponse<Favorite>> => {
+const addFavorite = async (postId: number): Promise<AxiosResponse<Favorite>> => {
   const favorite = await api.post<Favorite>('favorites', { postId });
   return favorite;
 };
 
-const removeFromFavorites = async (id: number):
-Promise<AxiosResponse<Favorite>> => {
-  const favorite = await api.delete<Favorite>(`favorites/${id}`);
+const removeFavorite = async (id: number):
+Promise<AxiosResponse<undefined>> => {
+  const favorite = await api.delete<undefined>(`favorites/${id}`);
   return favorite;
 };
 
@@ -23,4 +23,4 @@ const getFavorites = async (): Promise<AxiosResponse<Favorite[]>> => {
   return favorite;
 };
 
-export { addToFavorites, removeFromFavorites, getFavorites };
+export { addFavorite, removeFavorite, getFavorites };

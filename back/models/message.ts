@@ -1,20 +1,25 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { User, Chat } from './index.js';
 
 class Message extends Model<
 InferAttributes<Message>, InferCreationAttributes<Message>
 > {
   declare id: CreationOptional<number>;
 
-  declare receiverId: string;
+  declare receiverId: ForeignKey<User['id']>;
 
-  declare senderId: string;
+  declare senderId: ForeignKey<User['id']>;
 
-  declare chatId: number;
+  declare chatId: ForeignKey<Chat['id']>;
 
   declare content: string;
+
+  declare createdAt: CreationOptional<Date>;
+
+  declare updatedAt: CreationOptional<Date>;
 }
 
 Message.init(
@@ -42,7 +47,9 @@ Message.init(
     content: {
       type: DataTypes.STRING,
       allowNull: false
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   },
   {
     sequelize,

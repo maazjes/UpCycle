@@ -1,43 +1,33 @@
 import { AxiosResponse } from 'axios';
-import api from '../util/axiosInstance';
 import {
-  User, GetUsersParams
-} from '../types';
+  FollowUser, NewUserBody, UpdateUserBody, UserBase, EmailUser
+} from '@shared/types';
+import { GetUsersQuery } from '../types';
+import api from '../util/axiosInstance';
 import { addParams, createFormData } from '../util/helpers';
 
-export interface SignupResponse {
-  id: string;
-  bio?: string;
-  photoUrl?: string;
-  email: string;
-  displayName: string;
-}
-
-type CreateUserProps = Omit<SignupResponse, 'id' | 'photoUrl'> & { image: { uri: string }; password: string };
-
-type UpdateUserProps = Partial<CreateUserProps>;
-
-const createUser = async (props: CreateUserProps):
-Promise<AxiosResponse<SignupResponse>> => {
+const createUser = async (props: NewUserBody):
+Promise<AxiosResponse<EmailUser>> => {
   const formdata = createFormData(props);
-  const response = await api.postForm<SignupResponse>('users', formdata);
+  const response = await api.postForm<EmailUser>('users', formdata);
   return response;
 };
 
-const getUsers = async (params: GetUsersParams): Promise<AxiosResponse<User[]>> => {
+const getUsers = async (params: GetUsersQuery):
+Promise<AxiosResponse<FollowUser[]>> => {
   const query = addParams('users', params);
-  const users = await api.get<(User & { email?: string })[]>(query);
+  const users = await api.get<(FollowUser)[]>(query);
   return users;
 };
 
-const getUser = async ({ userId }: { userId: string }): Promise<AxiosResponse<User>> => {
-  const user = await api.get<User>(`users/${userId}`);
+const getUser = async ({ userId }: { userId: string }): Promise<AxiosResponse<UserBase>> => {
+  const user = await api.get<UserBase>(`users/${userId}`);
   return user;
 };
 
-const updateUser = async (props: UpdateUserProps): Promise<AxiosResponse<User>> => {
+const updateUser = async (props: UpdateUserBody): Promise<AxiosResponse<UserBase>> => {
   const formdata = createFormData(props);
-  const user = await api.putForm<User>('users', formdata);
+  const user = await api.putForm<UserBase>('users', formdata);
   return user;
 };
 

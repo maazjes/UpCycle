@@ -3,22 +3,18 @@ import { Pressable, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { UserStackNavigation, User } from '../../types';
+import { User } from '@shared/types';
+import { UserStackNavigation } from '../../types';
 import useAuth from '../../hooks/useAuth';
 
-const ProfileOptions = ({ user, setUser }: {
-  user: User; setUser: (value: string) => void; }): JSX.Element => {
+const ProfileOptions = ({ user }: {
+  user: User; }): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
   const { navigate } = useNavigation<UserStackNavigation>();
   const { logout } = useAuth();
   const openMenu = (): void => setVisible(true);
   const closeMenu = (): void => setVisible(false);
-  const {
-    id, email, displayName, photoUrl, bio, username
-  } = user;
-  const editProfileParams = {
-    userId: id, email, displayName, photoUrl, bio, username
-  };
+
   return (
     <View
       style={{
@@ -31,7 +27,7 @@ const ProfileOptions = ({ user, setUser }: {
         onDismiss={closeMenu}
         anchor={<Pressable onPress={openMenu}><Ionicons name="settings-outline" size={28} color="black" /></Pressable>}
       >
-        <Menu.Item onPress={(): void => navigate('EditProfile', editProfileParams)} title="Edit profile" />
+        <Menu.Item onPress={(): void => navigate('EditProfile', user)} title="Edit profile" />
         <Menu.Item onPress={logout} title="Log out" />
       </Menu>
     </View>

@@ -1,18 +1,14 @@
 import express from 'express';
 import { Op } from 'sequelize';
+import { Message as SharedMessage, MessageBody, MessagePages } from '@shared/types.js';
 import { Chat, Message } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 import { getPagination, getPagingData } from '../util/helpers.js';
-import { PaginationBase } from '../types.js';
+import { GetMessagesQuery } from '../types.js';
 
 const router = express.Router();
 
-interface MessageBody {
-  receiverId: string;
-  content: string;
-}
-
-router.post<{}, Message, MessageBody>('/', userExtractor, async (req, res): Promise<void> => {
+router.post<{}, SharedMessage, MessageBody>('/', userExtractor, async (req, res): Promise<void> => {
   const { user } = req;
   if (!user) {
     throw new Error('Authentication required');
@@ -34,18 +30,7 @@ router.post<{}, Message, MessageBody>('/', userExtractor, async (req, res): Prom
   res.json(message);
 });
 
-type GetMessagesQuery = {
-  page: string;
-  size: string;
-  userId1: string;
-  userId2: string;
-};
-
-interface MessagesResponse extends PaginationBase {
-  messages: Message[];
-}
-
-router.get<{}, MessagesResponse, {}, GetMessagesQuery>('/', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, MessagePages, {}, GetMessagesQuery>('/', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }

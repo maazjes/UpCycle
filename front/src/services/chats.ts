@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { Chat } from '../types';
+import { Chat } from '@shared/types';
 import { addParams } from '../util/helpers';
 import api from '../util/axiosInstance';
 

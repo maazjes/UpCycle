@@ -7,10 +7,10 @@ const refreshIdToken = async (body:
   return response;
 };
 
-const verifyToken = async (body: { idToken: string }):
+const verifyIdToken = async (body: { idToken: string }):
 Promise<AxiosResponse<{}>> => {
   const response = await api.post<{}>('verifyidtoken', body);
   return response;
 };
 
-export default { refreshIdToken, verifyToken };
+export default { refreshIdToken, verifyIdToken };

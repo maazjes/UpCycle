@@ -14,7 +14,11 @@
     "declaration": true,
     "target": "ES6",
     "typeRoots": ["node_modules/yup"],
+    "baseUrl": ".",
     "paths": {"@shared/*": ["../shared/*"]}
   },
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base",
+  "files": ["../shared/types.ts"],
+  "include": ["./"],
+  "exclude": ["node_modules"]
 }

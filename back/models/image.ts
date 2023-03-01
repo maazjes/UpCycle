@@ -1,7 +1,8 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { Post } from './index.js';
 
 class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>> {
   declare id: CreationOptional<number>;
@@ -12,7 +13,7 @@ class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>
 
   declare height: number;
 
-  declare postId: number;
+  declare postId: ForeignKey<Post['id']>;
 }
 
 Image.init(

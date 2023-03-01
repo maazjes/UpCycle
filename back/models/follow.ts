@@ -1,16 +1,21 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { User } from './index.js';
 
 class Follow extends Model<
 InferAttributes<Follow>, InferCreationAttributes<Follow>
 > {
   declare id: CreationOptional<number>;
 
-  declare followerId: string;
+  declare followerId: ForeignKey<User['id']>;
 
-  declare followedId: string;
+  declare followedId: ForeignKey<User['id']>;
+
+  declare follower?: User;
+
+  declare followed?: User;
 }
 
 Follow.init(

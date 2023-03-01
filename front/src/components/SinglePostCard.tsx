@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
-import { addToFavorites, removeFromFavorites } from '../services/favorites';
+import { addFavorite, removeFavorite } from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
 import useError from '../hooks/useError';
@@ -38,19 +38,19 @@ const SinglePostCard = ({
   const error = useError();
   const [favoriteId, setFavoriteId] = useState<null | number>(post.favoriteId);
 
-  const onAddToFavorites = async (): Promise<void> => {
+  const onaddFavorite = async (): Promise<void> => {
     try {
-      const favorite = await addToFavorites(post.id);
+      const favorite = await addFavorite(post.id);
       setFavoriteId(favorite.data.id);
     } catch (e) {
       error(e);
     }
   };
 
-  const onRemoveFromFavorites = async (): Promise<void> => {
+  const onremoveFavorite = async (): Promise<void> => {
     try {
       if (favoriteId) {
-        await removeFromFavorites(favoriteId);
+        await removeFavorite(favoriteId);
         setFavoriteId(null);
       }
     } catch (e) {
@@ -58,7 +58,7 @@ const SinglePostCard = ({
     }
   };
 
-  const handleFavorite = favoriteId ? onRemoveFromFavorites : onAddToFavorites;
+  const handleFavorite = favoriteId ? onremoveFavorite : onaddFavorite;
   const favoriteIcon = favoriteId
     ? <AntDesign style={styles.favorite} name="heart" size={28} color="#fa2f3a" />
     : <AntDesign style={styles.favorite} name="hearto" size={28} color="#fa2f3a" />;

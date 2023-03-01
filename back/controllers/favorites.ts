@@ -1,10 +1,11 @@
 import express from 'express';
+import { Favorite as SharedFavorite } from '@shared/types.js';
 import { Favorite, Post } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.post<{}, Favorite, { postId: number }>('', userExtractor, async (req, res): Promise<void> => {
+router.post<{}, SharedFavorite, { postId: number }>('', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('invalid token');
   }
@@ -16,7 +17,7 @@ router.post<{}, Favorite, { postId: number }>('', userExtractor, async (req, res
   res.json(favorite);
 });
 
-router.delete <{ id: string }, Favorite>('/:id', userExtractor, async (req, res): Promise<void> => {
+router.delete <{ id: string }>('/:id', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -29,10 +30,10 @@ router.delete <{ id: string }, Favorite>('/:id', userExtractor, async (req, res)
     throw new Error('Authentication required');
   }
   await favorite.destroy();
-  res.json(favorite);
+  res.status(204).send();
 });
 
-router.get<{}, Favorite[]>('', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, SharedFavorite[]>('', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }

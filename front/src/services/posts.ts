@@ -1,10 +1,11 @@
 import { AxiosResponse } from 'axios';
+import { PostPages } from '@shared/types';
 import api from '../util/axiosInstance';
 import {
   addParams, createFormData
 } from '../util/helpers';
 import {
-  PostBase, Post, NewPostProps, PostsResponse, UpdatePostProps, GetPostsParams
+  PostBase, Post, NewPostProps, UpdatePostProps, GetPostsQuery
 } from '../types';
 
 const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase>> => {
@@ -17,11 +18,11 @@ const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase
   return post;
 };
 
-const getPosts = async (params?: GetPostsParams):
-Promise<AxiosResponse<PostsResponse>> => {
+const getPosts = async (params?: GetPostsQuery):
+Promise<AxiosResponse<PostPages>> => {
   let query = 'posts';
   query = params ? addParams(query, params) : query;
-  const posts = await api.get<PostsResponse>(query);
+  const posts = await api.get<PostPages>(query);
   return posts;
 };
 

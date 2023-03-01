@@ -3,7 +3,7 @@ import {
 } from 'react-native';
 import { User } from '../types';
 import Text from './Text';
-import ProfileImage from './ProfileImage';
+import ProfilePhoto from './ProfilePhoto';
 
 const styles = StyleSheet.create({
   userBar: {
@@ -19,13 +19,13 @@ const styles = StyleSheet.create({
 interface UserBarProps extends ViewProps {
   user: User;
   itemRight?: JSX.Element;
-  profileImageSize?: number;
+  profilePhotoSize?: number;
   extra?: JSX.Element;
   onPress?: () => void;
 }
 
 const UserBar = ({
-  user, itemRight = undefined, style, profileImageSize = 32,
+  user, itemRight = undefined, style, profilePhotoSize = 32,
   extra = undefined, onPress = (): null => null
 }: UserBarProps): JSX.Element => (
   <Pressable
@@ -33,11 +33,11 @@ const UserBar = ({
     onPress={onPress}
   >
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-      <ProfileImage
-        size={profileImageSize}
+      <ProfilePhoto
+        size={profilePhotoSize}
         uri={user.photoUrl}
       />
-      <View style={{ flexDirection: 'column', marginLeft: profileImageSize / 3 }}>
+      <View style={{ flexDirection: 'column', marginLeft: profilePhotoSize / 3 }}>
         <Text fontSize="subheading">{user.displayName}</Text>
         {extra}
       </View>

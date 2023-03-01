@@ -18,10 +18,12 @@
     "moduleResolution": "node",
     "noEmit": false,
     "noEmitOnError": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "paths": {"@shared/*": ["../shared/*"]}
   },
-  "files": ["./@types/express/index.d.ts"],
+  "files": ["../shared/types.ts"],
   "include": ["./"],
   "exclude": ["node_modules"]
 }

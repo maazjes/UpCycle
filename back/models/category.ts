@@ -1,5 +1,5 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 
@@ -8,7 +8,7 @@ class Category extends Model<InferAttributes<Category>, InferCreationAttributes<
 
   declare name: string;
 
-  declare subcategoryId: CreationOptional<number>;
+  declare subcategoryId: CreationOptional<ForeignKey<Category['id']>>;
 }
 
 Category.init(

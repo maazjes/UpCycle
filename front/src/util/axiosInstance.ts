@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
-import { ErrorResponse } from '../types';
+import { ErrorBody } from '@shared/types';
 
 const api = axios.create({
   baseURL: 'http://192.168.0.104:8080/api/',
@@ -8,7 +8,7 @@ const api = axios.create({
 
 api.interceptors.response.use(
   (response): AxiosResponse => response,
-  (error: AxiosError<ErrorResponse>): Promise<never> | string => {
+  (error: AxiosError<ErrorBody>): Promise<never> | string => {
     if (error.response?.data.error) {
       error.message = error.response.data.error;
     }

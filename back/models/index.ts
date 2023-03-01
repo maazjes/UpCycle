@@ -7,17 +7,17 @@ import Message from './message.js';
 import Chat from './chat.js';
 import Follow from './follow.js';
 
-User.hasMany(Post);
-Post.belongsTo(User);
+User.hasMany(Post, { foreignKey: 'postId' });
+Post.belongsTo(User, { foreignKey: 'postId' });
 
-Category.hasMany(Post);
-Post.belongsTo(Category);
+Category.hasMany(Post, { foreignKey: 'categoryId' });
+Post.belongsTo(Category, { foreignKey: 'categoryId' });
 
-Post.hasMany(Image);
-Image.belongsTo(Post);
+Post.hasMany(Image, { foreignKey: 'postId' });
+Image.belongsTo(Post, { foreignKey: 'postId' });
 
-Post.hasMany(Favorite);
-Favorite.belongsTo(Post);
+Post.hasMany(Favorite, { foreignKey: 'postId' });
+Favorite.belongsTo(Post, { foreignKey: 'postId' });
 
 Chat.belongsTo(User, { foreignKey: 'creatorId', as: 'creator' });
 Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
@@ -36,5 +36,6 @@ export {
   Favorite,
   Chat,
   Message,
-  Follow
+  Follow,
+  b
 };

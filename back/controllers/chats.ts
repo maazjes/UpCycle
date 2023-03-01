@@ -1,25 +1,29 @@
 import express from 'express';
+import { Chat as SharedChat } from '@shared/types.js';
 import { Chat, User } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.get<{}, {}, {}, { userId: string }>('/', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, SharedChat[]>('/', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
+  const include = ['id', 'displayName', 'username', 'photoUrl'];
   const chats = await Chat.findAll({
     include: [{
       model: User,
-      as: 'creator'
+      as: 'creator',
+      include
     }, {
       model: User,
-      as: 'user'
+      as: 'user',
+      include
     }],
-    attributes: { exclude: ['userId', 'creatorId'] },
+    attributes: ['id'],
     where: {}
   });
-  res.json(chats);
+  res.json(chats as SharedChat[]);
 });
 
 export default router;

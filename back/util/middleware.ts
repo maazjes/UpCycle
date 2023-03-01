@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { ErrorBody } from '@shared/types.js';
 import firebase from './firebase.js';
 import { User } from '../models/index.js';
 
@@ -24,7 +25,7 @@ const userExtractor = async (
 const errorHandler = async (
   error: Error,
   _req: Request,
-  res: Response<{ error: string }>,
+  res: Response<ErrorBody>,
   next: NextFunction
 ): Promise<void> => {
   const msg = error.message;

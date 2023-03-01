@@ -4,24 +4,24 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
-  profileImage: {
+  profilePhoto: {
     backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center'
   }
 });
 
-const ProfileImage = ({
+const ProfilePhoto = ({
   uri, size = 30
 }: {
-  uri: string; size?: number; }):
+  uri: string | null; size?: number; }):
 JSX.Element => (
   uri ? (
     <Image
-      style={[styles.profileImage, { borderRadius: size / 2, width: size, height: size }]}
+      style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
       source={{ uri }}
     />
   ) : <AntDesign style={{ marginTop: 3 }} name="user" size={size - 3} color="white" />
 );
 
-export default ProfileImage;
+export default ProfilePhoto;

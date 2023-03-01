@@ -1,4 +1,4 @@
-import { TokenUser } from '../types';
+import { TokenUser } from '@shared/types';
 import api from '../util/axiosInstance';
 import { useAppDispatch } from './redux';
 import { addUser } from '../reducers/userReducer';

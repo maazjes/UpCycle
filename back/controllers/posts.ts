@@ -1,9 +1,9 @@
 import express from 'express';
 import multer from 'multer';
 import {
-  PaginationBase,
-  NewPostBody
-} from '../types.js';
+  NewPostBody, PostPages, PostBase, Post as SharedPost,
+  UpdatePostBody
+} from '@shared/types.js';
 import {
   Post, User, Category, Image, Favorite
 } from '../models/index.js';
@@ -11,24 +11,12 @@ import { userExtractor } from '../util/middleware.js';
 import {
   saveImages, uploadImages, getPagingData, getPagination
 } from '../util/helpers.js';
+import { GetPostsQuery } from '../types.js';
 
 const upload = multer();
 const router = express.Router();
 
-type PostBase = Pick<Post, 'id' | 'images' | 'title' | 'price'>;
-
-interface PostsResponse extends PaginationBase {
-  posts: PostBase[];
-}
-
-type GetPostsQuery = {
-  page: string;
-  size: string;
-  userId?: string;
-  favorite: string;
-};
-
-router.get<{}, PostsResponse, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, PostPages, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
   const {
     userId, page, size, favorite
   } = req.query;
@@ -40,8 +28,6 @@ router.get<{}, PostsResponse, {}, GetPostsQuery>('', userExtractor, async (req, 
       attributes: { exclude: ['postId'] }
     }];
   const { limit, offset } = getPagination(Number(page), Number(size));
-
-  let favoritePosts: PostBase[] = [];
   if (favorite && req.user) {
     const favorites = await Favorite.findAndCountAll({
       where: { userId: req.user.id },
@@ -54,9 +40,8 @@ router.get<{}, PostsResponse, {}, GetPostsQuery>('', userExtractor, async (req, 
       limit,
       offset
     });
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post.dataValues);
+
+    const favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post! as PostBase);
     res.json({ ...getPagingData(favorites.count, Number(page), limit), posts: favoritePosts });
     return;
   }
@@ -67,10 +52,10 @@ router.get<{}, PostsResponse, {}, GetPostsQuery>('', userExtractor, async (req, 
     offset,
     where
   });
-  res.json({ ...getPagingData(posts.count, Number(page), limit), posts: posts.rows });
+  res.json({ ...getPagingData(posts.count, Number(page), limit), posts: posts.rows as PostBase[] });
 });
 
-router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promise<void> => {
+router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): Promise<void> => {
   const { id } = req.params;
   const post = await Post.findOne({
     attributes: { exclude: ['userId', 'categoryId'] },
@@ -101,21 +86,21 @@ router.get<{ id: string }, Post>('/:id', userExtractor, async (req, res): Promis
       post.setDataValue('favoriteId', null);
     }
   }
-  res.json(post);
+  res.json(post as SharedPost);
 });
 
-router.delete<{ id: string }, number>('/:id', async (req, res): Promise<void> => {
+router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   if (!id) {
     throw new Error('id missing from params');
   }
   await Image.destroy({ where: { postId: id } });
   await Favorite.destroy({ where: { postId: id } });
-  const deletedPost = await Post.destroy({ where: { id } });
-  res.json(deletedPost);
+  await Post.destroy({ where: { id } });
+  res.status(204).send();
 });
 
-router.post<{}, Post, NewPostBody>(
+router.post<{}, SharedPost, NewPostBody>(
   '/',
   userExtractor,
   upload.array('images', 5),
@@ -137,11 +122,11 @@ router.post<{}, Post, NewPostBody>(
     });
     const imageUrls = await uploadImages(req.files);
     await saveImages(post.id, imageUrls);
-    res.json(post);
+    res.json(post as SharedPost);
   }
 );
 
-router.put<{ id: string }, Post, Partial<NewPostBody>>(
+router.put<{ id: string }, SharedPost, UpdatePostBody>(
   '/:id',
   userExtractor,
   upload.array('images', 5),
@@ -174,7 +159,7 @@ router.put<{ id: string }, Post, Partial<NewPostBody>>(
     const post = await currentPost.update({
       title, description, price, condition, postcode
     });
-    res.json(post);
+    res.json(post as SharedPost);
   }
 );
 

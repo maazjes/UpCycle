@@ -55,7 +55,7 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
     { images, ...props }
     : EditProfileProps
   ): Promise<void> => {
-    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : undefined;
+    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : '';
     (Object.keys(props) as Array<keyof Omit<EditProfileProps, 'images'>>).forEach((key): void => {
       if (props[key] === initialValues[key]) {
         delete props[key];

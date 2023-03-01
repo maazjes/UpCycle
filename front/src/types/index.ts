@@ -1,127 +1,28 @@
 import { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-
-export interface PostBase {
-  id: number;
-  images: TypedImage[];
-  title: string;
-  price: string;
-}
-
-export interface Favorite {
-  id: number;
-  postId: number;
-  userId: number;
-}
-
-export interface Post extends PostBase {
-  description: string;
-  category: string;
-  postcode: string;
-  condition: Condition;
-  user: User;
-  favoriteId: null | number;
-}
-
-export enum Condition {
-  new = 'new',
-  slightlyUsed = 'slightly used',
-  used = 'used'
-}
-
-export interface Location {
-  city: string;
-  postcode: string;
-}
-
-export interface Category {
-  id: number;
-  name: string;
-  subcategory?: number;
-}
-
-export interface User {
-  id: string;
-  displayName: string;
-  email: string;
-  photoUrl: string | null;
-  bio: string | null;
-  username: string;
-  posts: PostBase[];
-  following?: boolean;
-}
-
-export interface ErrorResponse {
-  error: string;
-}
+import {
+  SharedGetMessagesQuery, SharedGetPostsQuery, SharedGetUsersQuery, NewPostBody, Image, TokenUser
+} from '@shared/types';
 
 export interface NotificationState {
   message: string;
   error: boolean;
 }
 
-export interface TypedImage {
-  width: number;
-  height: number;
-  uri: string;
-  id: string;
-}
-
-interface PaginationBase {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-}
-
-export interface PostsResponse extends PaginationBase {
-  posts: PostBase[];
-}
-
-export interface MessagesResponse extends PaginationBase {
-  messages: Message[];
-}
-
-export type GetPostsParams = {
-  page?: number;
-  size?: number;
-  userId?: string;
-  postId?: number;
-  favorite?: boolean;
+export type PaginationQuery = {
+  page: number;
+  size: number;
 };
 
-export type GetUsersParams = {
-  userId?: string;
-  role?: 'follower' | 'followed';
-};
+export type GetUsersQuery = PaginationQuery & SharedGetUsersQuery;
 
-export interface Chat {
-  id: number;
-  creator: User;
-  user: User;
-}
+export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
 
-export interface Message {
-  id: number;
-  chatId: number;
-  content: string;
-  senderId: string;
-  receiverId: string;
-  createdAt: string;
-}
+export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery & { postId?: number };
 
-export type NewPostProps = Omit<PostBase, 'user' | 'id' | 'favoriteId'>;
-
-export type UpdatePostProps = Partial<NewPostProps>;
-
-export interface InitialPostValues {
-  title: string;
-  price: string;
-  images: TypedImage[];
-  description: string;
-  postcode: string;
-  category: string;
-  condition: Condition;
+export interface InitialPostValues extends NewPostBody {
+  images: Image[];
 }
 
 export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
@@ -137,9 +38,9 @@ export type UserStackParams = {
   'StackCreatePost': undefined;
   'StackChat': undefined;
   'SinglePost': { postId: number };
-  'StackProfile': { userId: string; username: string };
+  'StackProfile': { userId?: string; username?: string };
   'EditPost': { postId: number };
-  'EditProfile': { userId: string; bio: string; email: string; displayName: string; photoUrl: string; username: string };
+  'EditProfile': TokenUser;
   'Chat': undefined;
   'SingleChat': { userId: string };
 };

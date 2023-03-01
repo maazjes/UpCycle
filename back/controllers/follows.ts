@@ -1,10 +1,11 @@
 import express from 'express';
+import { Follow as SharedFollow } from '@shared/types.js';
 import { Follow } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.post<{}, Follow, { userId: string }>('', userExtractor, async (req, res): Promise<void> => {
+router.post<{}, SharedFollow, { userId: string }>('', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -29,7 +30,7 @@ router.delete <{ id: string }, {}>('/:id', async (req, res): Promise<void> => {
     throw new Error('Authentication required');
   }
   await follow.destroy();
-  res.status(200).send();
+  res.status(204).send();
 });
 
 export default router;

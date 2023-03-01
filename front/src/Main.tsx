@@ -9,10 +9,11 @@ import {
   OpenSans_400Regular,
   OpenSans_500Medium
 } from '@expo-google-fonts/open-sans';
+import { TokenUser } from '@shared/types';
 import UserTabs from './navigation/UserTabs';
 import LoginStack from './navigation/LoginStack';
 import useAuthStorage from './hooks/useAuthStorage';
-import { TokenUser } from './types';
+import { defaultUser } from './util/constants';
 import useAuth from './hooks/useAuth';
 import tokensService from './services/tokens';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
@@ -36,9 +37,6 @@ export default (): JSX.Element | null => {
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
-      const defaultUser = {
-        id: '', username: '', idToken: '', photoUrl: '', refreshToken: ''
-      };
       let user = await authStorage.getUser() ?? defaultUser;
       let idToken = '';
       if (user) {
@@ -100,7 +98,7 @@ export default (): JSX.Element | null => {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         {currentUser ? (
-          <UserTabs />
+          <UserTabs profilePhotoUrl={currentUser.photoUrl} />
         ) : <LoginStack />}
       </NavigationContainer>
     </View>

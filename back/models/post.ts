@@ -1,10 +1,14 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes,
+  CreationOptional, ForeignKey
 } from 'sequelize';
+import { Condition } from '@shared/types.js';
 import { sequelize } from '../util/db.js';
-import Image from './image.js';
+import { User, Image, Category } from './index.js';
 
-class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
+class Post extends Model<
+InferAttributes<Post>, InferCreationAttributes<Post>
+> {
   declare id: CreationOptional<number>;
 
   declare title: string;
@@ -13,17 +17,21 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare description: string;
 
-  declare condition: string;
+  declare condition: Condition;
 
   declare postcode: string;
 
-  declare userId: string;
+  declare userId: ForeignKey<User['id']>;
 
-  declare categoryId: number;
+  declare categoryId: ForeignKey<Category['id']>;
 
   declare images?: Image[];
 
   declare favoriteId?: number | null;
+
+  declare createdAt: CreationOptional<Date>;
+
+  declare updatedAt: CreationOptional<Date>;
 }
 
 Post.init(
@@ -68,7 +76,9 @@ Post.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: 'categories', key: 'id' }
-    }
+    },
+    createdAt: DataTypes.DATE,
+    updatedAt: DataTypes.DATE
   },
   {
     sequelize,

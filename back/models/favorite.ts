@@ -1,16 +1,20 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes,
+  InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { Post, User } from './index.js';
 
 class Favorite extends Model<
 InferAttributes<Favorite>, InferCreationAttributes<Favorite>
 > {
   declare id: CreationOptional<number>;
 
-  declare postId: number;
+  declare postId: ForeignKey<Post['id']>;
 
-  declare userId: string;
+  declare userId: ForeignKey<User['id']>;
+
+  declare post?: Post;
 }
 
 Favorite.init(

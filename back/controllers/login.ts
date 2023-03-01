@@ -1,17 +1,8 @@
 import express from 'express';
 import got from 'got';
-import { UserBase } from '@shared/types';
+import { TokenUser, LoginBody } from '@shared/types.js';
 import { FIREBASE_API_KEY } from '../util/config.js';
 import User from '../models/user.js';
-
-const router = express.Router();
-
-interface LoginBody {
-  email: string;
-  password: string;
-}
-
-type LoginResponse = UserBase & { idToken: string; refreshToken: string };
 
 interface FirebaseLoginRes {
   idToken: string;
@@ -22,7 +13,9 @@ interface FirebaseLoginRes {
   registered: boolean;
 }
 
-router.post<{}, LoginResponse, LoginBody>('/', async (
+const router = express.Router();
+
+router.post<{}, TokenUser, LoginBody>('/', async (
   req,
   res
 ): Promise<void> => {

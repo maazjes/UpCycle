@@ -22,7 +22,8 @@
 | Started making a websocket server for real time chat. | 4 hours |
 | Completed the chat logic that uses web sockets and the database for saving messages and chats. | 15 hours |
 | Restructured the backend, initialized followers and more... | 13 hours |
+| Started retyping the whole project so I could share types between backend and frontend. Almost done. | 8 hours |
 
-**Total: 167 hours**
+**Total: 175 hours**
 
 plus many more additional hours on stupid mistakes...

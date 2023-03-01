@@ -1,17 +1,16 @@
 import { useState } from 'react';
-import usersService from '../services/users';
-import { User, GetUsersParams } from '../types';
+import { FollowUser, GetUsersQuery } from '@shared/types';
+import { getUsers } from '../services/users';
 
-const useUsers = (): [User[] | null, typeof getUsers] => {
-  const [users, setUsers] = useState<User[] | null>(null);
-  const getUsers = async (params: GetUsersParams): Promise<void> => {
-    const response = await usersService.getUsers(params);
-    const body = response.data;
-    if (body) {
-      setUsers(body);
+const useUsers = (): [FollowUser[] | null, typeof fetchMore] => {
+  const [users, setUsers] = useState<FollowUser[] | null>(null);
+  const fetchMore = async (params: GetUsersQuery): Promise<void> => {
+    const res = await getUsers(params);
+    if (res.data) {
+      setUsers((users ?? []).concat(res.data));
     }
   };
-  return [users, getUsers];
+  return [users, fetchMore];
 };
 
 export default useUsers;

@@ -1,18 +1,23 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { User } from './index.js';
 
 class Chat extends Model<
 InferAttributes<Chat>, InferCreationAttributes<Chat>
 > {
   declare id: CreationOptional<number>;
 
-  declare creatorId: string;
+  declare creatorId: ForeignKey<User['id']>;
 
-  declare userId: string;
+  declare userId: ForeignKey<User['id']>;
 
   declare lastMessage: string;
+
+  declare creator?: User;
+
+  declare user?: User;
 }
 
 Chat.init(
