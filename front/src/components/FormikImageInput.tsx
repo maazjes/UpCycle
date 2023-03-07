@@ -4,31 +4,23 @@ import {
 import { useField } from 'formik';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
+import { TypedImage } from '@shared/types';
+import { dpw } from 'util/helpers';
 import Text from './Text';
-import { TypedImage } from '../types';
 
 const styles = StyleSheet.create({
   errorText: {
     color: 'red',
-    marginBottom: 10,
+    marginBottom: '10%',
     marginTop: 2
   },
-  deleteIcon: {
-    position: 'absolute',
-    right: -6,
-    top: -6
-  },
-  circleIcon: {
-    position: 'absolute',
-    top: -1,
-    left: -1
-  },
   imageBox: {
-    height: 100,
-    width: 100,
+    height: dpw(0.3),
+    width: dpw(0.3),
     backgroundColor: '#F2F2F2',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    marginVertical: 10
   },
   imageBoxes: {
     flexDirection: 'row',
@@ -36,8 +28,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly'
   },
   addedImage: {
-    width: 100,
-    height: 100
+    width: dpw(0.3),
+    height: dpw(0.3),
+    marginVertical: 10
   }
 });
 
@@ -68,7 +61,7 @@ const FormikImageInput = ({
     const { width, height, uri } = result.assets[0];
     const aspectRatio = width / height;
     const image = {
-      width, height, uri, id: `${uri}${aspectRatio}${Math.random()}`
+      width, height, uri, id: aspectRatio * Math.random()
     };
     return image;
   };
@@ -80,7 +73,7 @@ const FormikImageInput = ({
     }
   };
 
-  const deleteAndAddImage = async (imageId: string): Promise<void> => {
+  const deleteAndAddImage = async (imageId: number): Promise<void> => {
     let filtered = field.value.filter((image): boolean => image.id !== imageId);
     const image = await pickImage();
     if (image) {
@@ -89,8 +82,13 @@ const FormikImageInput = ({
     helpers.setValue(filtered);
   };
 
-  const addedImageStyle = circle ? [styles.addedImage, { borderRadius: 50 }] : styles.addedImage;
-  const imageBoxStyle = circle ? [styles.imageBox, { borderRadius: 50 }] : styles.imageBox;
+  const addedImageStyle = circle
+    ? [styles.addedImage, { borderRadius: dpw(0.15) }]
+    : styles.addedImage;
+
+  const imageBoxStyle = circle
+    ? [styles.imageBox, { borderRadius: dpw(0.15) }]
+    : styles.imageBox;
 
   return (
     <>

@@ -38,7 +38,7 @@ const validationSchema = yup.object().shape({
 const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => {
   const error = useError();
   const {
-    email, displayName, photoUrl, bio, username
+    email, displayName, photoUrl, bio, username, id
   } = route.params;
 
   const initialValues = {
@@ -55,14 +55,14 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
     { images, ...props }
     : EditProfileProps
   ): Promise<void> => {
-    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : '';
+    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : undefined;
     (Object.keys(props) as Array<keyof Omit<EditProfileProps, 'images'>>).forEach((key): void => {
       if (props[key] === initialValues[key]) {
         delete props[key];
       }
     });
     try {
-      await updateUser({ ...props, image });
+      await updateUser(id, { ...props, image });
     } catch (e) {
       error(e);
     }

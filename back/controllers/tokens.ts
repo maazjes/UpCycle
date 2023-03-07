@@ -2,17 +2,9 @@ import express from 'express';
 import got from 'got';
 import { FIREBASE_API_KEY } from '../util/config.js';
 import firebase from '../util/firebase.js';
+import { FirebaseTokenRes } from '../types.js';
 
 const router = express.Router();
-
-interface FirebaseTokenRes {
-  expires_in: string;
-  token_type: 'Bearer';
-  refresh_token: string;
-  id_token: string;
-  user_id: string;
-  project_id: string;
-}
 
 router.post<{}, { idToken: string }, { refreshToken: string }>('/refreshidtoken', async (req, res): Promise<void> => {
   const { refreshToken } = req.body;

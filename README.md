@@ -23,7 +23,8 @@
 | Completed the chat logic that uses web sockets and the database for saving messages and chats. | 15 hours |
 | Restructured the backend, initialized followers and more... | 13 hours |
 | Started retyping the whole project so I could share types between backend and frontend. Almost done. | 8 hours |
+| Continued making the types shared between backend and frontend. Had to configure metro and babel configs to do it which took a long time. Also made some progress on adding following function. | 20 hours |
 
-**Total: 175 hours**
+**Total: 195 hours**
 
 plus many more additional hours on stupid mistakes...

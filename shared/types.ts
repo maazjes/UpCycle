@@ -1,3 +1,4 @@
+// Users
 
 export interface UserBase {
   id: string;
@@ -6,14 +7,13 @@ export interface UserBase {
   photoUrl: string;
 }
 
-export interface PaginationBase {
-  totalItems: number;
-  totalPages: number;
-  currentPage: number;
-}
-
 export interface BioUser extends UserBase {
   bio: string;
+}
+
+export interface RawUser extends BioUser {
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface EmailUser extends BioUser {
@@ -21,16 +21,7 @@ export interface EmailUser extends BioUser {
 }
 
 export interface PostsUser extends UserBase {
-  posts: PostBase[]
-}
-
-export interface FollowUser extends UserBase {
-  followId: number;
-  following: boolean;
-}
-
-export interface ChatUser extends UserBase {
-  chatId: number;
+  posts: PostBase[];
 }
 
 export interface TokenUser extends EmailUser {
@@ -38,64 +29,31 @@ export interface TokenUser extends EmailUser {
   refreshToken: string;
 }
 
-export interface UserPages extends PaginationBase {
-  users: FollowUser[] | ChatUser[]
-}
-
-export interface NewUserBody extends Omit<EmailUser, 'id'> {
+export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl'> {
   password: string;
 }
 
-export interface UpdateUserBody extends Partial<NewUserBody> {}
+export interface SharedUpdateUserBody extends Partial<SharedNewUserBody> {}
 
-export interface Image {
-  width: number;
-  height: number;
-  uri: string;
-  id: number;
-}
+// Posts
 
 export interface PostBase {
   id: number;
-  images: Image[];
+  images: TypedImage[];
   title: string;
   price: string;
-}
-
-export type SharedGetPostsQuery = {
-  userId?: string;
-  favorite?: 'true';
-};
-
-export type SharedGetMessagesQuery = {
-  userId1: string;
-  userId2: string;
-}
-
-export type SharedGetUsersQuery = {
-  followedId: string;
-  followerId: string;
-  chats: 'true';
 }
 
 export interface Post extends PostBase {
   description: string;
   condition: Condition;
   postcode: string;
-  userId: string;
-  categoryId: number;
+  user: UserBase;
+  category: Category;
   favoriteId: number | null;
 }
 
-export interface UpdatePostBody extends Partial<NewPostBody> {}
-
-export enum Condition {
-  new = 'new',
-  slightlyUsed = 'slightly used',
-  used = 'used'
-}
-
-export interface NewPostBody {
+export interface SharedNewPostBody {
   title: string;
   description: string;
   price: string;
@@ -104,32 +62,27 @@ export interface NewPostBody {
   postcode: string;
 }
 
-export interface PostPages extends PaginationBase {
-  posts: PostBase[]
+export interface SharedUpdatePostBody extends Partial<SharedNewPostBody> {}
+
+export interface PostPage extends PaginationBase {
+  data: PostBase[];
 }
 
-export interface LoginBody {
-  email: string;
-  password: string;
-}
+export type SharedGetPostsQuery = {
+  userId?: string;
+  favorite?: 'true';
+};
 
-export interface Category {
+// Images
+
+export interface TypedImage {
+  width: number;
+  height: number;
+  uri: string;
   id: number;
-  name: string;
-  subcategory?: number;
 }
 
-export interface Favorite {
-  id: number;
-  postId: number;
-  userId: string;
-}
-
-export interface Follow {
-  id: number;
-  followerId: string;
-  followedId: string;
-}
+// Messages
 
 export interface Message {
   id: number;
@@ -146,19 +99,89 @@ export interface MessageBody {
   content: string;
 }
 
-export interface MessagePages extends PaginationBase {
-  messages: Message[]
+export interface MessagePage extends PaginationBase {
+  data: Message[];
 }
+
+export type SharedGetMessagesQuery = {
+  userId1: string;
+  userId2: string;
+};
+
+// Follows
+
+export interface FollowBase {
+  id: number;
+  followerId: string;
+}
+
+export interface Follow extends FollowBase {
+  followingId: string;
+}
+
+export interface Following extends FollowBase {
+  following: UserBase;
+}
+
+export interface Follower extends FollowBase {
+  follower: UserBase;
+}
+
+export interface FollowingPage extends PaginationBase {
+  data: Following[];
+}
+
+export interface FollowerPage extends PaginationBase {
+  data: Follower[];
+}
+
+// Chats
+
+export interface Chat {
+  id: number;
+  lastMessage: string;
+  user: UserBase;
+}
+
+export interface ChatPage extends PaginationBase {
+  data: Chat[];
+}
+
+// Categories
+
+export interface Category {
+  id: number;
+  name: string;
+  subcategoryId: number | null;
+}
+
+// Favorites
+
+export interface Favorite {
+  id: number;
+  postId: number;
+  userId: string;
+}
+
+// Misc
 
 export interface ErrorBody {
   error: string;
 }
 
-export interface Chat {
-  id: number;
-  creatorId: string;
-  userId: string;
-  lastMessage: string;
-  creator: UserBase;
-  user: UserBase;
+export enum Condition {
+  new = 'new',
+  slightlyUsed = 'slightly used',
+  used = 'used'
+}
+
+export interface LoginBody {
+  email: string;
+  password: string;
+}
+
+export interface PaginationBase {
+  totalItems: number;
+  offset: number;
+  data: any[];
 }

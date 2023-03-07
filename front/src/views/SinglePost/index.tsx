@@ -2,14 +2,15 @@ import {
   StyleSheet, Dimensions, ScrollView
 } from 'react-native';
 import { useState, useEffect } from 'react';
+import { TokenUser, Post } from '@shared/types';
 import Loading from '../../components/Loading';
 import UserBar from '../../components/UserBar';
 import SinglePostCard from '../../components/SinglePostCard';
-import { Post, TokenUser, UserStackScreen } from '../../types';
+import { UserStackScreen } from '../../types';
 import { useAppSelector } from '../../hooks/redux';
 import PostOptions from './PostOptions';
 import Button from '../../components/Button';
-import postsService from '../../services/posts';
+import { getPost } from '../../services/posts';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -32,7 +33,7 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
 
   useEffect((): void => {
     const getAndSetPost = async (): Promise<void> => {
-      const res = await postsService.getPost({ postId });
+      const res = await getPost({ postId });
       setPost(res.data);
     };
     getAndSetPost();

@@ -1,29 +1,42 @@
 import express from 'express';
-import { Chat as SharedChat } from '@shared/types.js';
+import { ChatPage, Chat as SharedChat } from '@shared/types.js';
+import { Op } from 'sequelize';
+import { PaginationQuery } from '../types';
+import { UserBaseAttributes } from '../util/constants.js';
 import { Chat, User } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.get<{}, SharedChat[]>('/', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, ChatPage, {}, PaginationQuery>('/', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
-  const include = ['id', 'displayName', 'username', 'photoUrl'];
-  const chats = await Chat.findAll({
+  const { limit, offset } = req.query;
+  const chats = await Chat.findAndCountAll({
     include: [{
       model: User,
       as: 'creator',
-      include
+      attributes: UserBaseAttributes
     }, {
       model: User,
       as: 'user',
-      include
+      attributes: UserBaseAttributes
     }],
-    attributes: ['id'],
-    where: {}
+    attributes: ['id', 'lastMessage'],
+    limit: Number(limit),
+    offset: Number(offset),
+    where: { [Op.or]: [{ creatorId: req.user.id }, { userId: req.user.id }] }
   });
-  res.json(chats as SharedChat[]);
+  const finalChats = chats.rows.map((chat): SharedChat => {
+    const user = req.user!.id === chat.dataValues.creator!.id
+      ? chat.dataValues.user!
+      : chat.dataValues.creator!;
+    const chatValues = { ...chat.dataValues, user };
+    delete chatValues.creator;
+    return chatValues;
+  });
+  res.json({ totalItems: chats.count, offset: Number(offset), data: finalChats });
 });
 
 export default router;

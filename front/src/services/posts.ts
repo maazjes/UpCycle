@@ -1,50 +1,40 @@
 import { AxiosResponse } from 'axios';
-import { PostPages } from '@shared/types';
+import { PostPage, PostBase, Post } from '@shared/types';
 import api from '../util/axiosInstance';
-import {
-  addParams, createFormData
-} from '../util/helpers';
-import {
-  PostBase, Post, NewPostProps, UpdatePostProps, GetPostsQuery
-} from '../types';
+import { addQuery, createFormData } from '../util/helpers';
+import { GetPostsQuery, UpdatePostBody, NewPostBody } from '../types';
 
-const createPost = async (newPost: NewPostProps): Promise<AxiosResponse<PostBase>> => {
-  const formdata = createFormData(newPost);
-  const post = await api.postForm<PostBase>('posts', formdata, {
+const createPost = (body: NewPostBody): Promise<AxiosResponse<Post>> => {
+  const formdata = createFormData(body);
+  return api.postForm<Post>('posts', formdata, {
     headers: {
       'Content-Type': 'multipart/form-data'
     }
   });
-  return post;
 };
 
-const getPosts = async (params?: GetPostsQuery):
-Promise<AxiosResponse<PostPages>> => {
-  let query = 'posts';
-  query = params ? addParams(query, params) : query;
-  const posts = await api.get<PostPages>(query);
-  return posts;
+const getPosts = (query: GetPostsQuery):
+Promise<AxiosResponse<PostPage>> => {
+  const finalQuery = addQuery('posts', query);
+  return api.get<PostPage>(finalQuery);
 };
 
-const getPost = async ({ postId }: { postId: number }): Promise<AxiosResponse<Post>> => {
+const getPost = (postId: number): Promise<AxiosResponse<Post>> => {
   const query = `posts/${postId}`;
-  const post = await api.get<Post>(query);
-  return post;
+  return api.get<Post>(query);
 };
 
-const deletePost = async (id: number): Promise<AxiosResponse<PostBase>> => {
-  const query = `posts/${id}`;
-  const post = api.delete<PostBase>(query);
-  return post;
+const deletePost = (postId: number): Promise<AxiosResponse<PostBase>> => {
+  const query = `posts/${postId}`;
+  return api.delete<PostBase>(query);
 };
 
-const updatePost = async (id: number, newPost: UpdatePostProps):
+const updatePost = (postId: number, body: UpdatePostBody):
 Promise<AxiosResponse<Post>> => {
-  const formData = createFormData(newPost);
-  const post = await api.putForm<Post>(`posts/${id}`, formData);
-  return post;
+  const formData = createFormData(body);
+  return api.putForm<Post>(`posts/${postId}`, formData);
 };
 
-export default {
+export {
   createPost, getPosts, getPost, deletePost, updatePost
 };

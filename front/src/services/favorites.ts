@@ -1,26 +1,10 @@
 import { AxiosResponse } from 'axios';
+import { Favorite } from '@shared/types';
 import api from '../util/axiosInstance';
 
-interface Favorite {
-  id: number;
-  postId: number;
-  userId: string;
-}
+const addFavorite = (body: { postId: number }): Promise<AxiosResponse<Favorite>> => api.post<Favorite>('favorites', body);
 
-const addFavorite = async (postId: number): Promise<AxiosResponse<Favorite>> => {
-  const favorite = await api.post<Favorite>('favorites', { postId });
-  return favorite;
-};
+const removeFavorite = (favoriteId: number):
+Promise<AxiosResponse<undefined>> => api.delete<undefined>(`favorites/${favoriteId}`);
 
-const removeFavorite = async (id: number):
-Promise<AxiosResponse<undefined>> => {
-  const favorite = await api.delete<undefined>(`favorites/${id}`);
-  return favorite;
-};
-
-const getFavorites = async (): Promise<AxiosResponse<Favorite[]>> => {
-  const favorite = await api.get<Favorite[]>('favorites');
-  return favorite;
-};
-
-export { addFavorite, removeFavorite, getFavorites };
+export { addFavorite, removeFavorite };

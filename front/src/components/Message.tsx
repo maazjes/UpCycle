@@ -13,5 +13,4 @@ const styles = StyleSheet.create({
   }
 });
 
-const Message = ({ content }: { content: string }): JSX.Element => <View
->
+const Message = ({ content }: { content: string }): JSX.Element => <View>

@@ -3,9 +3,8 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useNavigation } from '@react-navigation/native';
-import { LoginStackNavigation, TypedImage } from '../types';
-import usersService from '../services/users';
+import { TypedImage } from '@shared/types';
+import { createUser } from '../services/users';
 import useAuth from '../hooks/useAuth';
 import useError from '../hooks/useError';
 import FormikTextInput from './FormikTextInput';
@@ -52,7 +51,6 @@ const validationSchema = yup.object().shape({
 });
 
 const UserForm = (): JSX.Element => {
-  const { navigate } = useNavigation<LoginStackNavigation>();
   const { login } = useAuth();
   const error = useError();
 
@@ -77,11 +75,10 @@ const UserForm = (): JSX.Element => {
   }): Promise<void> => {
     const image = images[0];
     try {
-      await usersService.createUser({
+      await createUser({
         ...props, image, email, password
       });
       await login({ email, password });
-      navigate('Home');
     } catch (e) {
       error(e);
     }

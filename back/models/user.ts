@@ -2,7 +2,6 @@ import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
-import { Post } from './index.js';
 
 class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare id: CreationOptional<string>;
@@ -14,12 +13,6 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare photoUrl: string;
 
   declare bio: string;
-
-  declare followId?: number;
-
-  declare following?: boolean;
-
-  declare posts?: Post[];
 
   declare createdAt: CreationOptional<Date>;
 

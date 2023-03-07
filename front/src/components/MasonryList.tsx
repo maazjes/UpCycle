@@ -5,8 +5,8 @@ import {
   Dimensions
 } from 'react-native';
 import { useEffect, useState } from 'react';
+import { PostBase } from '@shared/types';
 import PostCard from './PostCard';
-import { PostBase } from '../types';
 
 const styles = StyleSheet.create({
   container: {

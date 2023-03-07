@@ -1,44 +1,30 @@
-import { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { useAppSelector } from '../hooks/redux';
-import { TokenUser, Chat, UserStackScreen } from '../types';
-import chatsService from '../services/chats';
+import { FlatList } from 'react-native';
+import useChats from 'hooks/useChats';
+import { UserStackScreen } from '../types';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 
 const Chats = ({ navigation }: UserStackScreen<'StackChat'>): JSX.Element => {
   const { navigate } = navigation;
-  const [chats, setChats] = useState<null | Chat[]>(null);
-  const currentUser = useAppSelector((state): TokenUser | null => state.user);
+  const [chats, fetchChats] = useChats();
 
-  useEffect((): void => {
-    const initialize = async (): Promise<void> => {
-      if (currentUser) {
-        const response = await chatsService.getChats({ userId: currentUser.id });
-        setChats(response.data);
-      }
-    };
-    initialize();
-  }, []);
-
-  if (!chats || !currentUser) {
+  if (!chats) {
     return <Loading />;
   }
 
   return (
-    <View>
-      {chats.map((chat): JSX.Element => {
-        const user = currentUser.id === chat.creator.id
-          ? chat.user : chat.creator;
-        return (
-          <UserBar
-            key={chat.id}
-            onPress={(): void => navigate('SingleChat', { userId: user.id })}
-            user={user}
-          />
-        );
-      })}
-    </View>
+    <FlatList
+      keyExtractor={(item): string => String(item.id)}
+      data={chats.data}
+      renderItem={({ item }): JSX.Element => (
+        <UserBar
+          onPress={(): void => navigate('SingleChat', { userId: item.user.id })}
+          user={item.user}
+        />
+      )}
+      onEndReached={fetchChats}
+      onEndReachedThreshold={0.2}
+    />
   );
 };
 

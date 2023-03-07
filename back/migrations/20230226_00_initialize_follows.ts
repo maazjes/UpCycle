@@ -16,7 +16,7 @@ module.exports = {
           allowNull: false,
           references: { model: 'users', key: 'id' }
         },
-        followed_id: {
+        following_id: {
           type: DataTypes.STRING,
           allowNull: false,
           references: { model: 'users', key: 'id' }

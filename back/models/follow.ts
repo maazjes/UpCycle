@@ -1,5 +1,6 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
+  Model, DataTypes, InferAttributes, InferCreationAttributes,
+  CreationOptional, ForeignKey, NonAttribute
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 import { User } from './index.js';
@@ -11,11 +12,11 @@ InferAttributes<Follow>, InferCreationAttributes<Follow>
 
   declare followerId: ForeignKey<User['id']>;
 
-  declare followedId: ForeignKey<User['id']>;
+  declare followingId: ForeignKey<User['id']>;
 
-  declare follower?: User;
+  declare follower?: NonAttribute<User>;
 
-  declare followed?: User;
+  declare following?: NonAttribute<User>;
 }
 
 Follow.init(
@@ -30,7 +31,7 @@ Follow.init(
       allowNull: false,
       references: { model: 'users', key: 'id' }
     },
-    followedId: {
+    followingId: {
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }

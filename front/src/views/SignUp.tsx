@@ -1,9 +1,9 @@
-import {
-  View, StyleSheet, GestureResponderEvent, Dimensions
-} from 'react-native';
+import { View, StyleSheet, GestureResponderEvent } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { TypedImage } from '../types';
+import { TypedImage } from '@shared/types';
+import { dpw } from 'util/helpers';
+import Container from 'components/Container';
 import { createUser } from '../services/users';
 import useAuth from '../hooks/useAuth';
 import useError from '../hooks/useError';
@@ -11,21 +11,27 @@ import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import FormikImageInput from '../components/FormikImageInput';
 
-const { width: screenWidth } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
-  SignupForm: {
-    margin: 12
-  },
   bioField: {
-    height: 100,
+    height: '20%',
     paddingTop: 13
   },
   bioAndPhoto: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
+  },
+  emailAndUsername: {
+    flexDirection: 'column',
+    width: dpw(0.55)
+  },
+  username: {
+    marginBottom: 0
+  },
+  displayName: {
+    marginTop: 10
   }
+
 });
 
 const validationSchema = yup.object().shape({
@@ -68,6 +74,7 @@ const SignUp = (): JSX.Element => {
   }: {
     email: string;
     displayName: string;
+    username: string;
     bio: string;
     password: string;
     passwordConfirmation: string;
@@ -87,23 +94,23 @@ const SignUp = (): JSX.Element => {
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
-        <View style={styles.SignupForm}>
+        <Container>
           <View style={styles.bioAndPhoto}>
             <FormikImageInput circle name="images" amount={1} />
-            <View style={{ flexDirection: 'column', width: screenWidth - 140 }}>
+            <View style={styles.emailAndUsername}>
               <FormikTextInput name="email" placeholder="Email" />
-              <FormikTextInput style={{ marginBottom: 0 }} name="username" placeholder="Username" />
+              <FormikTextInput style={styles.username} name="username" placeholder="Username" />
             </View>
           </View>
-          <FormikTextInput style={{ marginTop: 10 }} name="displayName" placeholder="Display name" />
+          <FormikTextInput style={styles.displayName} name="displayName" placeholder="Display name" />
           <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
           <Button
-            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Sign up"
           />
-        </View>
+        </Container>
       )}
     </Formik>
   );

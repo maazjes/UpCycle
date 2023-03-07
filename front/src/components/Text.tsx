@@ -26,19 +26,24 @@ const styles = StyleSheet.create({
   },
   fontWeightBold: {
     fontWeight: theme.fontWeights.bold
+  },
+  textAlignCenter: {
+    textAlign: 'center'
   }
 });
 
 const Text = ({
   color = '',
-  fontSize = 'body',
-  fontWeight = 'normal',
+  size = 'body',
+  weight = 'normal',
+  align = 'left',
   style = {},
   ...props
 }: {
   color?: 'textSecondary' | 'primary' | 'blue' | 'green' | '';
-  fontSize?: 'subheading' | 'body';
-  fontWeight?: 'bold' | 'normal';
+  size?: 'subheading' | 'body';
+  weight?: 'bold' | 'normal';
+  align?: 'left' | 'center';
   style?: TextStyle;
   children?: string;
 }): JSX.Element => {
@@ -48,8 +53,9 @@ const Text = ({
     color === 'primary' && styles.colorPrimary,
     color === 'blue' && styles.blue,
     color === 'green' && styles.green,
-    fontSize === 'subheading' && styles.fontSizeSubheading,
-    fontWeight === 'bold' && styles.fontWeightBold,
+    size === 'subheading' && styles.fontSizeSubheading,
+    weight === 'bold' && styles.fontWeightBold,
+    align === 'center' && styles.textAlignCenter,
     style
   ];
 

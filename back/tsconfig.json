@@ -21,9 +21,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
-    "paths": {"@shared/*": ["../shared/*"]}
+    "baseUrl": "./",
+    "paths": {
+      "@shared/*": ["../shared/*"],
+      "util/*": ["util/*"],
+      "types": ["types.ts"]
+    }
   },
-  "files": ["../shared/types.ts"],
-  "include": ["./"],
+  "include": ["./", "../shared"],
   "exclude": ["node_modules"]
 }

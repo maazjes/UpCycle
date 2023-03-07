@@ -1,25 +1,11 @@
 import {
-  StyleSheet, View, ViewStyle, Image, Pressable
+  View, ViewStyle, Image, Pressable
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { PostBase, UserStackNavigation } from '../types';
+import { PostBase } from '@shared/types';
+import { dpw } from 'util/helpers';
+import { UserStackNavigation } from '../types';
 import Text from './Text';
-
-const styles = StyleSheet.create({
-  titleAndPrice: {
-    flexDirection: 'column'
-  },
-  infoBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    justifyContent: 'space-between'
-  },
-  container: {
-    backgroundColor: '#FFFF',
-    margin: 10
-  }
-});
 
 interface GridPostProps {
   post: PostBase;
@@ -35,10 +21,10 @@ const PostCard = ({
   };
 
   return (
-    <Pressable style={[styles.container, containerStyle]} onPress={onPostCardPress}>
+    <Pressable style={containerStyle} onPress={onPostCardPress}>
       <Image
         style={{
-          aspectRatio: 1, width: '100%', height: 200, borderRadius: 10
+          aspectRatio: 1, width: '100%', height: dpw(0.41), borderRadius: 10
         }}
         source={{ uri: post.images[0]?.uri }}
       />
@@ -46,8 +32,8 @@ const PostCard = ({
         flexDirection: 'column', marginHorizontal: 6, marginTop: 3
       }}
       >
-        <Text fontWeight="bold">{post.title}</Text>
-        <Text fontWeight="bold">{post.price}</Text>
+        <Text weight="bold">{post.title}</Text>
+        <Text weight="bold">{post.price}</Text>
       </View>
     </Pressable>
   );

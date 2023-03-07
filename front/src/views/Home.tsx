@@ -12,7 +12,7 @@ const Home = (): JSX.Element => {
     return <Loading />;
   }
   return (
-    <GridView posts={posts} />
+    <GridView posts={posts.data} />
   );
 };
 

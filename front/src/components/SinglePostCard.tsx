@@ -4,11 +4,11 @@ import {
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
+import { Post } from '@shared/types';
 import { addFavorite, removeFavorite } from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
 import useError from '../hooks/useError';
-import { Post } from '../types';
 
 const styles = StyleSheet.create({
   titleAndPrice: {

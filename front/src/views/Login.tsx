@@ -1,9 +1,12 @@
 import {
-  View, StyleSheet, GestureResponderEvent, Pressable
+  View, StyleSheet, GestureResponderEvent, Pressable,
+  Image
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Container from 'components/Container';
+import { dph, dpw } from 'util/helpers';
 import useAuth from '../hooks/useAuth';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
@@ -12,14 +15,21 @@ import Text from '../components/Text';
 import { LoginStackParams } from '../types';
 
 const styles = StyleSheet.create({
-  loginForm: {
-    justifyContent: 'center',
-    margin: 12,
-    marginTop: 100
+  logo: {
+    width: dpw(0.6),
+    height: dpw((903 / 2134) * 0.6),
+    marginBottom: dph(0.02),
+    alignSelf: 'center'
   },
-  signUp: {
-    marginTop: 10,
-    alignItems: 'center'
+  loginForm: {
+    marginTop: dph(0.1)
+  },
+  signUpButton: {
+    alignSelf: 'center',
+    marginTop: dph(0.03)
+  },
+  loginButton: {
+    marginTop: dph(0.015)
   }
 });
 
@@ -40,6 +50,7 @@ const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>
   const { login } = useAuth();
   const error = useError();
   const { navigate } = navigation;
+
   const initialValues = {
     email: '',
     password: '',
@@ -59,23 +70,26 @@ const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>
   };
 
   return (
-    <View>
+    <Container style={styles.loginForm}>
+      {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
+      <Image style={styles.logo} source={require('../../assets/logo.png')} />
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {({ handleSubmit }): JSX.Element => (
-          <View style={styles.loginForm}>
+          <View>
             <FormikTextInput name="email" placeholder="email" />
             <FormikTextInput secureTextEntry name="password" placeholder="Password" />
             <Button
-              onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              style={styles.loginButton}
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Login"
             />
           </View>
         )}
       </Formik>
-      <View style={styles.signUp}>
-        <Pressable onPress={(): void => navigate('SignUp')}><Text fontWeight="bold" color="blue">Sign up</Text></Pressable>
-      </View>
-    </View>
+      <Pressable style={styles.signUpButton} onPress={(): void => navigate('SignUp')}>
+        <Text weight="bold" color="green">Sign up</Text>
+      </Pressable>
+    </Container>
   );
 };
 

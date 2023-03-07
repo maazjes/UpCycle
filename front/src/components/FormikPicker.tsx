@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useState } from 'react';
 import { Picker } from '@react-native-picker/picker';
 import { useField } from 'formik';
@@ -24,7 +24,7 @@ const FormikPicker = ({ name, items }: Props): JSX.Element => {
   const { error } = meta;
 
   return (
-    <>
+    <View>
       <Picker
         selectedValue={selectedItem}
         onValueChange={(itemValue): void => {
@@ -43,7 +43,7 @@ const FormikPicker = ({ name, items }: Props): JSX.Element => {
         )}
       </Picker>
       {showError && error && <Text style={styles.errorText}>{error}</Text>}
-    </>
+    </View>
   );
 };
 

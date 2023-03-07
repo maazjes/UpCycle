@@ -10,7 +10,7 @@ import {
 import {
   useCallback, useRef, useState
 } from 'react';
-import { TypedImage } from '../types';
+import { TypedImage } from '@shared/types';
 
 const { width: windowWidth } = Dimensions.get('window');
 
@@ -69,7 +69,7 @@ const Carousel = ({ images }: { images: TypedImage[] }): JSX.Element => {
         horizontal
         showsHorizontalScrollIndicator={false}
         onScroll={onScroll}
-        keyExtractor={(item): string => item.id}
+        keyExtractor={(item): string => String(item.id)}
       />
       <View style={styles.dots}>
         {dots}

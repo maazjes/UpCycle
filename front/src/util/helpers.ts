@@ -1,9 +1,11 @@
 import { isString } from 'formik';
-import { UpdatePostProps } from '../types';
+import { PaginationBase } from '@shared/types';
+import { Dimensions, PixelRatio } from 'react-native';
+import { UpdatePostBody } from '../types';
 
 type IndexSignature = string | number | symbol;
 
-export const addParams = (query: string, params: {
+export const addQuery = (query: string, params: {
   [key:IndexSignature]:string | number; }): string => {
   Object.keys(params).forEach((key, i): void => {
     if (i === 0) {
@@ -37,7 +39,7 @@ interface CreateUserFormDataProps {
   bio?: string;
 }
 
-type CreateFormDataProps = UpdatePostProps & CreateUserFormDataProps;
+type CreateFormDataProps = UpdatePostBody & CreateUserFormDataProps;
 
 export const createFormData = (params: CreateFormDataProps): FormData => {
   const propKeys = Object.keys(params) as Array<keyof CreateFormDataProps>;
@@ -51,7 +53,6 @@ export const createFormData = (params: CreateFormDataProps): FormData => {
     }
     if (key === 'image' && params.image) {
       const formattedImages = formatImages([params.image]);
-      console.log(formattedImages[0]);
       formdata.append('image', formattedImages[0]);
     }
     const value = params[key];
@@ -60,4 +61,21 @@ export const createFormData = (params: CreateFormDataProps): FormData => {
     }
   });
   return formdata;
+};
+
+export const concatPages = (oldPage: PaginationBase, newPage: PaginationBase):
+PaginationBase => ({
+  totalItems: newPage.totalItems,
+  offset: newPage.offset,
+  data: oldPage.data.concat(newPage.data)
+});
+
+export const dpw = (widthPercent: number): number => {
+  const screenWidth = Dimensions.get('window').width;
+  return PixelRatio.roundToNearestPixel(screenWidth * widthPercent);
+};
+
+export const dph = (heightPercent: number): number => {
+  const screenHeight = Dimensions.get('window').height;
+  return PixelRatio.roundToNearestPixel(screenHeight * heightPercent);
 };

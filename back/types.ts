@@ -1,6 +1,9 @@
 import { Request as ExpressRequest } from 'express';
 import { IncomingHttpHeaders } from 'http';
-import { SharedGetMessagesQuery, SharedGetPostsQuery, SharedGetUsersQuery } from '@shared/types';
+import {
+  SharedGetMessagesQuery, SharedGetPostsQuery,
+  UserBase
+} from '@shared/types';
 import { User } from './models';
 
 declare global {
@@ -11,27 +14,47 @@ declare global {
   }
 }
 
-export interface RequestWithHeader<
-P, ResBody, ReqBody, ReqQuery, ReqHeaders
-> extends ExpressRequest<P, ResBody, ReqBody, ReqQuery> {
-  headers: IncomingHttpHeaders & ReqHeaders;
-}
-
 export interface DecodedToken {
   username: string;
   id: number;
 }
 
 export type PaginationQuery = {
-  page: string;
-  size: string;
+  limit: string;
+  offset: string;
 };
 
-export type GetUsersQuery = PaginationQuery & SharedGetUsersQuery;
+export interface FirebaseLoginRes {
+  idToken: string;
+  email: string;
+  refreshToken: string;
+  expiresIn: string;
+  localId: string;
+  registered: boolean;
+}
+
+export interface FirebaseTokenRes {
+  expires_in: string;
+  token_type: 'Bearer';
+  refresh_token: string;
+  id_token: string;
+  user_id: string;
+  project_id: string;
+}
 
 export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
 
-export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery & { postId?: string };
+export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;
+
+export type GetFollowsQuery = PaginationQuery;
+
+export interface UserBaseKeys extends Array<keyof UserBase> {}
+
+export interface RequestWithHeader<
+P, ResBody, ReqBody, ReqQuery, ReqHeaders
+> extends ExpressRequest<P, ResBody, ReqBody, ReqQuery> {
+  headers: IncomingHttpHeaders & ReqHeaders;
+}
 
 export interface ServerToClientEvents {
   noArg: () => void;

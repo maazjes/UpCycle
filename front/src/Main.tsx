@@ -13,7 +13,6 @@ import { TokenUser } from '@shared/types';
 import UserTabs from './navigation/UserTabs';
 import LoginStack from './navigation/LoginStack';
 import useAuthStorage from './hooks/useAuthStorage';
-import { defaultUser } from './util/constants';
 import useAuth from './hooks/useAuth';
 import tokensService from './services/tokens';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
@@ -27,7 +26,7 @@ export default (): JSX.Element | null => {
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
   const { logout } = useAuth();
-  const currentUser = useAppSelector((state): TokenUser => state.user);
+  const currentUser = useAppSelector((state): TokenUser | null => state.user);
   const ready = useRef(false);
   const handle = useRef<number>();
   const [fontsLoaded] = useFonts({
@@ -37,7 +36,7 @@ export default (): JSX.Element | null => {
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
-      let user = await authStorage.getUser() ?? defaultUser;
+      let user = await authStorage.getUser() ?? null;
       let idToken = '';
       if (user) {
         try {
@@ -48,6 +47,7 @@ export default (): JSX.Element | null => {
           user = { ...user, idToken: data.idToken };
         } catch (e) {
           ready.current = true;
+          dispatch(addUser(null));
           return;
         }
 

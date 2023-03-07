@@ -1,7 +1,8 @@
+import { Condition } from '@shared/types';
+import { NewPostBody } from 'types';
 import useError from '../hooks/useError';
 import useNotification from '../hooks/useNotification';
-import postsService from '../services/posts';
-import { Condition, NewPostProps } from '../types';
+import { createPost } from '../services/posts';
 import PostForm from '../components/PostForm';
 
 const CreatePost = (): JSX.Element => {
@@ -18,9 +19,10 @@ const CreatePost = (): JSX.Element => {
     condition: Condition.new
   };
 
-  const onSubmit = async (values: NewPostProps): Promise<void> => {
+  const onSubmit = async (values: NewPostBody): Promise<void> => {
     try {
-      await postsService.createPost({ ...values, price: `${values.price}€` });
+      console.log(values);
+      await createPost({ ...values, price: `${values.price}€` });
       notification('Post created successfully.', false);
     } catch (e) {
       error(e);

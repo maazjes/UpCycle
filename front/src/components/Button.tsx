@@ -1,30 +1,32 @@
 import {
   View, StyleSheet, Pressable, PressableProps, GestureResponderEvent
 } from 'react-native';
+import { dph } from 'util/helpers';
 import Text from './Text';
 
 const styles = StyleSheet.create({
-  loginButton: {
-    height: 50,
-    backgroundColor: '#347deb',
+  button: {
+    height: dph(0.08),
+    backgroundColor: '#4ad34a',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 4
+    borderRadius: 4,
+    padding: 10
   }
 });
 
 interface Props extends PressableProps {
   text?: string;
   element?: JSX.Element;
-  onSubmit: (event: GestureResponderEvent) => void;
+  onPress: (event: GestureResponderEvent) => void;
 }
 
 const Button = ({
-  text = undefined, element = undefined, onSubmit, ...props
+  text = undefined, element = undefined, onPress, ...props
 }: Props): JSX.Element => (
   <View style={{ display: 'flex' }}>
-    <Pressable style={StyleSheet.flatten([styles.loginButton, props.style])} onPress={onSubmit}>
-      {text ? <Text color="textSecondary">{text}</Text> : element}
+    <Pressable style={StyleSheet.flatten([styles.button, props.style])} onPress={onPress}>
+      {text ? <Text weight="bold" color="textSecondary">{text}</Text> : element}
     </Pressable>
   </View>
 );

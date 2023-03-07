@@ -1,36 +1,22 @@
 import { AxiosResponse } from 'axios';
-import {
-  FollowUser, NewUserBody, UpdateUserBody, UserBase, EmailUser
-} from '@shared/types';
-import { GetUsersQuery } from '../types';
+import { EmailUser } from '@shared/types';
+import { UpdateUserBody, NewUserBody } from 'types';
 import api from '../util/axiosInstance';
-import { addParams, createFormData } from '../util/helpers';
+import { createFormData } from '../util/helpers';
 
-const createUser = async (props: NewUserBody):
+const createUser = (body: NewUserBody):
 Promise<AxiosResponse<EmailUser>> => {
-  const formdata = createFormData(props);
-  const response = await api.postForm<EmailUser>('users', formdata);
-  return response;
+  const formdata = createFormData(body);
+  return api.postForm<EmailUser>('users', formdata);
 };
 
-const getUsers = async (params: GetUsersQuery):
-Promise<AxiosResponse<FollowUser[]>> => {
-  const query = addParams('users', params);
-  const users = await api.get<(FollowUser)[]>(query);
-  return users;
-};
+const getUser = (userId: string): Promise<AxiosResponse<EmailUser>> => api.get<EmailUser>(`users/${userId}`);
 
-const getUser = async ({ userId }: { userId: string }): Promise<AxiosResponse<UserBase>> => {
-  const user = await api.get<UserBase>(`users/${userId}`);
-  return user;
-};
-
-const updateUser = async (props: UpdateUserBody): Promise<AxiosResponse<UserBase>> => {
-  const formdata = createFormData(props);
-  const user = await api.putForm<UserBase>('users', formdata);
-  return user;
+const updateUser = (userId: string, body: UpdateUserBody): Promise<AxiosResponse<EmailUser>> => {
+  const formdata = createFormData(body);
+  return api.putForm<EmailUser>(`users/${userId}`, formdata);
 };
 
 export {
-  createUser, getUsers, getUser, updateUser
+  createUser, getUser, updateUser
 };

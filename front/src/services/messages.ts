@@ -1,18 +1,14 @@
 import { AxiosResponse } from 'axios';
-import { MessageBody, GetMessagesRes } from '@shared/types';
-import { Message, GetMessagesQuery } from '../types';
+import { MessageBody, Message, MessagePage } from '@shared/types';
+import { GetMessagesQuery } from '../types';
 import api from '../util/axiosInstance';
-import { addParams } from '../util/helpers';
+import { addQuery } from '../util/helpers';
 
-const createMessage = async (body: MessageBody): Promise<AxiosResponse<Message>> => {
-  const response = await api.post<Message>('messages', body);
-  return response;
-};
+const createMessage = (body: MessageBody): Promise<AxiosResponse<Message>> => api.post<Message>('messages', body);
 
-const getMessages = async (params: GetMessagesQuery): Promise<AxiosResponse<GetMessagesRes>> => {
-  const query = addParams('messages', params);
-  const response = await api.get<GetMessagesRes>(query);
-  return response;
+const getMessages = (query: GetMessagesQuery): Promise<AxiosResponse<MessagePage>> => {
+  const finalQuery = addQuery('messages', query);
+  return api.get<MessagePage>(finalQuery);
 };
 
 export default { createMessage, getMessages };

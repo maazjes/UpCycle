@@ -1,92 +1,73 @@
 import express from 'express';
 import multer from 'multer';
 import {
-  NewPostBody, PostPages, PostBase, Post as SharedPost,
-  UpdatePostBody
+  SharedNewPostBody, PostPage, PostBase, Post as SharedPost,
+  SharedUpdatePostBody
 } from '@shared/types.js';
 import {
-  Post, User, Category, Image, Favorite
+  Post, Category, Image, Favorite
 } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
-import {
-  saveImages, uploadImages, getPagingData, getPagination
-} from '../util/helpers.js';
+import { saveImages, uploadImages } from '../util/helpers.js';
 import { GetPostsQuery } from '../types.js';
+import {
+  PostInclude, PostBaseInclude, PostBaseAttributes, PostAttributes
+} from '../util/constants.js';
 
 const upload = multer();
 const router = express.Router();
 
-router.get<{}, PostPages, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, PostPage, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
   const {
-    userId, page, size, favorite
+    userId, limit, offset, favorite
   } = req.query;
-  const attributes = ['id', 'title', 'price'];
   const where = userId ? { userId } : {};
-  const postsInclude = [
-    {
-      model: Image,
-      attributes: { exclude: ['postId'] }
-    }];
-  const { limit, offset } = getPagination(Number(page), Number(size));
   if (favorite && req.user) {
     const favorites = await Favorite.findAndCountAll({
       where: { userId: req.user.id },
       include: {
         model: Post,
-        attributes,
-        include: postsInclude
+        attributes: PostBaseAttributes,
+        include: PostBaseInclude
       },
       attributes: [],
-      limit,
-      offset
+      limit: Number(limit),
+      offset: Number(offset)
     });
 
     const favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post! as PostBase);
-    res.json({ ...getPagingData(favorites.count, Number(page), limit), posts: favoritePosts });
+    res.json({ totalItems: favorites.count, offset: Number(offset), data: favoritePosts });
     return;
   }
   const posts = await Post.findAndCountAll({
-    attributes,
-    include: postsInclude,
-    limit,
-    offset,
+    attributes: PostBaseAttributes,
+    include: PostBaseInclude,
+    limit: Number(limit),
+    offset: Number(offset),
     where
   });
-  res.json({ ...getPagingData(posts.count, Number(page), limit), posts: posts.rows as PostBase[] });
+  res.json({ totalItems: posts.count, offset: Number(offset), data: posts.rows } as PostPage);
 });
 
 router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): Promise<void> => {
+  if (!req.user) {
+    throw new Error('Authentication required');
+  }
   const { id } = req.params;
   const post = await Post.findOne({
-    attributes: { exclude: ['userId', 'categoryId'] },
-    include: [
-      {
-        model: Category,
-        attributes: ['id', 'name']
-      }, {
-        model: User,
-        attributes: ['id', 'username']
-      },
-      {
-        model: Image,
-        attributes: ['uri', 'height', 'width', 'id']
-      }],
-    where: {
-      id
-    }
+    attributes: PostAttributes,
+    include: PostInclude,
+    where: { id }
   });
   if (!post) {
     throw new Error('post not found');
   }
-  if (req.user) {
-    const found = await Favorite.findOne({ where: { postId: Number(id), userId: req.user.id } });
-    if (found) {
-      post.setDataValue('favoriteId', found.id);
-    } else {
-      post.setDataValue('favoriteId', null);
-    }
+  const found = await Favorite.findOne({ where: { postId: Number(id), userId: req.user.id } });
+  let favoriteId = null;
+  if (found) {
+    favoriteId = found.id;
   }
-  res.json(post as SharedPost);
+  res.json({ ...post, favoriteId } as SharedPost);
 });
 
 router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
@@ -100,7 +81,7 @@ router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
   res.status(204).send();
 });
 
-router.post<{}, SharedPost, NewPostBody>(
+router.post<{}, SharedPost, SharedNewPostBody>(
   '/',
   userExtractor,
   upload.array('images', 5),
@@ -115,6 +96,7 @@ router.post<{}, SharedPost, NewPostBody>(
     if (!req.files || !Array.isArray(req.files)) {
       throw new Error('images missing from request');
     }
+    console.log(req.body);
     const post = await Post.create({
       ...req.body,
       userId: req.user.id,
@@ -122,11 +104,11 @@ router.post<{}, SharedPost, NewPostBody>(
     });
     const imageUrls = await uploadImages(req.files);
     await saveImages(post.id, imageUrls);
-    res.json(post as SharedPost);
+    res.json({ ...post, favoriteId: null } as SharedPost);
   }
 );
 
-router.put<{ id: string }, SharedPost, UpdatePostBody>(
+router.put<{ id: string }, SharedPost, SharedUpdatePostBody>(
   '/:id',
   userExtractor,
   upload.array('images', 5),
@@ -150,16 +132,17 @@ router.put<{ id: string }, SharedPost, UpdatePostBody>(
       if (!category) {
         throw new Error('category not found');
       }
-      currentPost.categoryId = category.id;
+      currentPost.set({ categoryId: category.id });
     }
     if (req.files && Array.isArray(req.files)) {
       const imageUrls = await uploadImages(req.files);
       await saveImages(currentPost.id, imageUrls);
     }
-    const post = await currentPost.update({
+    currentPost.set({
       title, description, price, condition, postcode
     });
-    res.json(post as SharedPost);
+    const post = await currentPost.save();
+    res.json({ ...post, favoriteId: null } as SharedPost);
   }
 );
 

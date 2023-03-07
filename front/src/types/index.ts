@@ -2,30 +2,51 @@ import { CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
-  SharedGetMessagesQuery, SharedGetPostsQuery, SharedGetUsersQuery, NewPostBody, Image, TokenUser
+  SharedGetMessagesQuery, SharedGetPostsQuery, SharedNewPostBody,
+  TokenUser, SharedUpdateUserBody, TypedImage, SharedNewUserBody,
+  SharedUpdatePostBody, FollowBase, UserBase, PaginationBase
 } from '@shared/types';
+
+export interface UpdateUserBody extends SharedUpdateUserBody {
+  image?: { uri: string };
+}
+
+export interface NewUserBody extends SharedNewUserBody {
+  image: TypedImage;
+}
+
+export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;
+
+export interface NewPostBody extends SharedNewPostBody {
+  images: TypedImage[];
+}
+
+export interface UpdatePostBody extends SharedUpdatePostBody {
+  images?: TypedImage[];
+}
+
+export interface Follow extends FollowBase {
+  following?: UserBase;
+  follower?: UserBase;
+}
+
+export interface FollowPage extends PaginationBase {
+  data: Follow[];
+}
+
+export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
+
+export type PaginationQuery = {
+  limit: number;
+  offset: number;
+};
 
 export interface NotificationState {
   message: string;
   error: boolean;
 }
 
-export type PaginationQuery = {
-  page: number;
-  size: number;
-};
-
-export type GetUsersQuery = PaginationQuery & SharedGetUsersQuery;
-
-export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
-
-export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery & { postId?: number };
-
-export interface InitialPostValues extends NewPostBody {
-  images: Image[];
-}
-
-export type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+// React Native Navigation
 
 export type LoginStackParams = {
   'Login': undefined;
@@ -43,6 +64,7 @@ export type UserStackParams = {
   'EditProfile': TokenUser;
   'Chat': undefined;
   'SingleChat': { userId: string };
+  'Follows': { userId: string; role: 'follower' | 'following' };
 };
 
 export type UserTabsParams = {
@@ -52,6 +74,17 @@ export type UserTabsParams = {
   'CreatePost': undefined;
   'Chat': undefined;
 };
+
+export type UserStackNavigation =
+CompositeNavigationProp<NativeStackNavigationProp<UserStackParams>,
+BottomTabNavigationProp<UserTabsParams>>;
+
+export type LoginStackNavigation = NativeStackNavigationProp<LoginStackParams>;
+
+export type UserStackScreen<S extends keyof UserStackParams> =
+NativeStackScreenProps<UserStackParams, S>;
+
+// SocketIO
 
 export interface ServerToClientEvents {
   message: ({ content, createdAt }: { content: string; createdAt: string }) => void;
@@ -64,12 +97,3 @@ export interface ClientToServerEvents {
   leave: (chatId: number) => void;
 
 }
-
-export type UserStackNavigation =
-CompositeNavigationProp<NativeStackNavigationProp<UserStackParams>,
-BottomTabNavigationProp<UserTabsParams>>;
-
-export type LoginStackNavigation = NativeStackNavigationProp<LoginStackParams>;
-
-export type UserStackScreen<S extends keyof UserStackParams> =
-NativeStackScreenProps<UserStackParams, S>;

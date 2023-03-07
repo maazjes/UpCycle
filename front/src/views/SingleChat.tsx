@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { Message, TokenUser, UserStackScreen } from '../types';
+import { MessagePage, TokenUser } from '@shared/types';
+import { UserStackScreen } from 'types';
+import Loading from 'components/Loading';
 import TextInput from '../components/TextInput';
 import socket from '../util/socket';
 import messagesService from '../services/messages';
 import { useAppSelector } from '../hooks/redux';
 import Text from '../components/Text';
 import Button from '../components/Button';
-
-type VisibleMessage = Omit<Message, 'id' | 'chatId'>;
 
 const styles = StyleSheet.create({
   message: {
@@ -23,9 +23,9 @@ const styles = StyleSheet.create({
 const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
   const [chatId, setChatId] = useState<number>();
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<VisibleMessage[]>([]);
+  const [messages, setMessages] = useState<MessagePage>();
   const { userId } = route.params;
-  const currentUser = useAppSelector((state): TokenUser | null => state.user);
+  const currentUser = useAppSelector((state): TokenUser => state.user!);
 
   useEffect((): void => {
     socket.on('message', (data): void => {
@@ -35,9 +35,6 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
 
   useEffect((): void => {
     const getAndSetMessages = async (): Promise<void> => {
-      if (!currentUser) {
-        return;
-      }
       try {
         const response = await messagesService.getMessages({
           userId1: currentUser.id, userId2: userId, page: 0, size: 5
@@ -67,15 +64,19 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
     setMessages(messages.concat(newMessage));
   };
 
+  if (!messages) {
+    return <Loading />;
+  }
+
   return (
     <View style={{
       flexDirection: 'column', margin: 20, justifyContent: 'space-between', flex: 1
     }}
     >
       <View>
-        {messages.map((msg): JSX.Element => (
+        {messages.data.map((msg): JSX.Element => (
           <View
-            key={msg.createdAt}
+            key={msg.id}
             style={[msg.senderId === currentUser?.id
               ? { alignSelf: 'flex-start' }
               : { alignSelf: 'flex-end' }, styles.message]}
@@ -90,8 +91,22 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
         flexDirection: 'row', marginTop: 10, marginBottom: 20
       }}
       >
-        <TextInput style={{ marginRight: 5, flex: 1 }} onChangeText={(value): void => setMessage(value)} error={false} />
-        <Button style={{ paddingHorizontal: 15, flex: 1 }} onSubmit={onNewMessage} element={<Feather name="message-circle" size={28} color="white" />} />
+        <TextInput
+          style={{ marginRight: 5, flex: 1 }}
+          onChangeText={(value): void => setMessage(value)}
+          error={false}
+        />
+        <Button
+          style={{ paddingHorizontal: 15, flex: 1 }}
+          onSubmit={onNewMessage}
+          element={(
+            <Feather
+              name="message-circle"
+              size={28}
+              color="white"
+            />
+          )}
+        />
       </View>
     </View>
   );

@@ -1,32 +1,41 @@
 import {
-  FlatList, StyleProp, ViewStyle, StyleSheet
+  FlatList, StyleSheet, FlatListProps, View
 } from 'react-native';
+import { PostBase } from '@shared/types';
 import PostCard from './PostCard';
-import { PostBase } from '../types';
+import Container from './Container';
 
 const styles = StyleSheet.create({
   oneItem: {
     justifyContent: 'flex-start'
   },
   moreItems: {
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-between'
   }
 });
 
-const GridView = ({ posts, style = {} }:
-{ posts: PostBase[]; style?: StyleProp<ViewStyle> }): JSX.Element => (
-  <FlatList
-    columnWrapperStyle={[styles.moreItems, posts.length === 1 && styles.oneItem]}
-    numColumns={2}
-    keyExtractor={(item): string => String(item.id)}
-    data={posts}
-    renderItem={({ item }): JSX.Element => (
-      <PostCard
-        post={item}
-      />
-    )}
-    style={style}
-  />
+interface GridViewProps extends Omit<FlatListProps<PostBase>, 'data' | 'renderItem'> {
+  posts: PostBase[];
+}
+
+const itemSeparator = (): JSX.Element => <View style={{ paddingVertical: 10 }} />;
+
+const GridView = ({ posts, ...props }: GridViewProps): JSX.Element => (
+  <Container>
+    <FlatList
+      columnWrapperStyle={[styles.moreItems, posts.length === 1 && styles.oneItem]}
+      numColumns={2}
+      keyExtractor={(item): string => String(item.id)}
+      data={posts}
+      ItemSeparatorComponent={itemSeparator}
+      renderItem={({ item }): JSX.Element => (
+        <PostCard
+          post={item}
+        />
+      )}
+      {...props}
+    />
+  </Container>
 );
 
 export default GridView;

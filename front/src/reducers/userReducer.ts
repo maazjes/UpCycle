@@ -1,14 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { TokenUser } from '@shared/types';
-import { defaultUser } from '../util/constants';
-
-const initialState: TokenUser = defaultUser;
 
 const userSlice = createSlice({
   name: 'token',
-  initialState,
+  initialState: null as TokenUser | null,
   reducers: {
-    addUser(_state, action: PayloadAction<TokenUser>): TokenUser {
+    addUser(_state, action: PayloadAction<TokenUser | null>): TokenUser | null {
       return action.payload;
     }
   }

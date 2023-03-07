@@ -4,23 +4,26 @@ import {
 import { useEffect, useState } from 'react';
 import { Formik, FormikConfig } from 'formik';
 import * as yup from 'yup';
-import categoriesService from '../services/categories';
+import { Category } from '@shared/types';
+import { NewPostBody } from 'types';
+import { conditions } from 'util/constants';
+import { dph } from 'util/helpers';
+import { getCategories } from '../services/categories';
 import FormikTextInput from './FormikTextInput';
 import FormikImageInput from './FormikImageInput';
 import FormikPicker from './FormikPicker';
 import PostCodeInput from './PostCodeInput';
 import Button from './Button';
-import {
-  Category, InitialPostValues
-} from '../types';
+import Text from './Text';
+import Container from './Container';
 
 const styles = StyleSheet.create({
-  loginForm: {
-    padding: 20
-  },
   descriptionField: {
     height: 100,
     paddingTop: 13
+  },
+  addPhotosText: {
+    marginTop: dph(0.02)
   }
 });
 
@@ -48,44 +51,44 @@ const validationSchema = yup.object().shape({
 });
 
 interface PostFormProps {
-  initialValues: InitialPostValues;
-  onSubmit: FormikConfig<InitialPostValues>['onSubmit'];
+  initialValues: NewPostBody;
+  onSubmit: FormikConfig<NewPostBody>['onSubmit'];
 }
 
 const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => {
   const [categories, setCategories] = useState<Category[] | null>(null);
 
   useEffect((): void => {
-    categoriesService.getCategories().then((result): void => {
-      setCategories(result.data);
-    });
+    const initialize = async (): Promise<void> => {
+      const res = await getCategories();
+      setCategories(res.data);
+    };
+    initialize();
   }, []);
 
   const categoryNames = categories ? categories.map((category): string => category.name) : [];
 
-  const conditions = ['new', 'slightly used', 'used'];
-
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit }): JSX.Element => (
-        <ScrollView
-          contentContainerStyle={styles.loginForm}
-          showsVerticalScrollIndicator={false}
-        >
-          <FormikTextInput name="title" placeholder="Title" />
-          <FormikTextInput name="price" placeholder="Price (€)" />
-          <PostCodeInput name="postcode" />
-          <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
-          <FormikImageInput name="images" containerStyle={{ marginVertical: 10 }} amount={3} />
-          <FormikPicker items={conditions} name="condition" />
-          {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
-          <Button
-            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Submit"
-          />
-        </ScrollView>
-      )}
-    </Formik>
+    <Container>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {({ handleSubmit }): JSX.Element => (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <FormikTextInput name="title" placeholder="Title" />
+            <FormikTextInput name="price" placeholder="Price (€)" />
+            <PostCodeInput name="postcode" />
+            <FormikTextInput multiline textAlignVertical="top" style={styles.descriptionField} name="description" placeholder="Description" />
+            <Text style={styles.addPhotosText} size="subheading" align="center">Lisää kuvia</Text>
+            <FormikImageInput name="images" containerStyle={{ marginVertical: 10 }} amount={3} />
+            <FormikPicker items={conditions} name="condition" />
+            {categoryNames ? <FormikPicker items={categoryNames} name="category" /> : <View />}
+            <Button
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Submit"
+            />
+          </ScrollView>
+        )}
+      </Formik>
+    </Container>
   );
 };
 

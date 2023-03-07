@@ -1,9 +1,8 @@
 import express from 'express';
 import { Op } from 'sequelize';
-import { Message as SharedMessage, MessageBody, MessagePages } from '@shared/types.js';
+import { Message as SharedMessage, MessageBody, MessagePage } from '@shared/types.js';
 import { Chat, Message } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
-import { getPagination, getPagingData } from '../util/helpers.js';
 import { GetMessagesQuery } from '../types.js';
 
 const router = express.Router();
@@ -30,18 +29,17 @@ router.post<{}, SharedMessage, MessageBody>('/', userExtractor, async (req, res)
   res.json(message);
 });
 
-router.get<{}, MessagePages, {}, GetMessagesQuery>('/', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, MessagePage, {}, GetMessagesQuery>('/', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
   const {
-    page, size, userId1, userId2
+    limit, offset, userId1, userId2
   } = req.query;
-  const { limit, offset } = getPagination(Number(page), Number(size));
   const messages = await Message.findAndCountAll(
     {
-      limit,
-      offset,
+      limit: Number(limit),
+      offset: Number(offset),
       where: {
         [Op.or]: [{ senderId: userId1, receiverId: userId2 },
           { senderId: userId2, receiverId: userId1 }]
@@ -49,8 +47,7 @@ router.get<{}, MessagePages, {}, GetMessagesQuery>('/', userExtractor, async (re
       order: [['createdAt', 'DESC']]
     }
   );
-  const pagination = getPagingData(messages.count, Number(page), limit);
-  res.json({ ...pagination, messages: messages.rows });
+  res.json({ totalItems: messages.count, offset: Number(offset), data: messages.rows });
 });
 
 export default router;

@@ -25,8 +25,6 @@ export const saveImages = async (
   return images;
 };
 
-export const isString = (object: unknown): object is string => typeof object === 'string' || object instanceof String;
-
 export const uploadImage = (file: Express.Multer.File):
 Promise<string> => new Promise((resolve, reject): void => {
   const bucket = firebase.storage().bucket(FIREBASE_BUCKET_URL);
@@ -76,6 +74,4 @@ export const getPagingData = (
   };
 };
 
-export const removeEmpty = (object: object) => JSON.parse(
-  JSON.stringify(object, (_, value) => value ?? undefined)
-);
+export const isString = (object: unknown): object is string => typeof object === 'string' || object instanceof String;

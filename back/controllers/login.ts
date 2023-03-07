@@ -3,15 +3,7 @@ import got from 'got';
 import { TokenUser, LoginBody } from '@shared/types.js';
 import { FIREBASE_API_KEY } from '../util/config.js';
 import User from '../models/user.js';
-
-interface FirebaseLoginRes {
-  idToken: string;
-  email: string;
-  refreshToken: string;
-  expiresIn: string;
-  localId: string;
-  registered: boolean;
-}
+import { FirebaseLoginRes } from '../types.js';
 
 const router = express.Router();
 

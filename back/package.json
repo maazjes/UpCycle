@@ -6,8 +6,8 @@
   "exports": "./index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev index.ts",
-    "devtest": "nodemon --exec node --loader ts-node/esm index.ts",
+    "dev": "node --watch --loader ts-node/esm index.ts",
+    "devtest": "ts-node-dev -esm -r tsconfig-paths/register index.ts",
     "migration:down": "node --loader ts-node/esm util/rollback.ts"
   },
   "engines": {
@@ -51,10 +51,8 @@
     "eslint": "^8.31.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
-    "nodemon": "^2.0.20",
     "sequelize-typescript-migration-engine": "^0.0.6",
     "ts-node": "^10.9.1",
-    "ts-node-dev": "^2.0.0",
     "typescript": "^4.9.4"
   }
 }

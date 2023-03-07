@@ -28,6 +28,8 @@
     "@typescript-eslint/restrict-template-expressions": "error",
     "import/prefer-default-export": "off",
     "no-param-reassign": 0,
+    "no-nested-ternary": "off",
+    "global-require":"off",
     "react/require-default-props": [
       2,
       {

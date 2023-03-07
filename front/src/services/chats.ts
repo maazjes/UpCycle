@@ -1,12 +1,12 @@
 import { AxiosResponse } from 'axios';
-import { Chat } from '@shared/types';
-import { addParams } from '../util/helpers';
+import { ChatPage } from '@shared/types';
+import { PaginationQuery } from 'types';
+import { addQuery } from 'util/helpers';
 import api from '../util/axiosInstance';
 
-const getChats = async (params: { userId: string }): Promise<AxiosResponse<Chat[]>> => {
-  const query = addParams('chats', params);
-  const response = await api.get<Chat[]>(query);
-  return response;
+const getChats = (query: PaginationQuery): Promise<AxiosResponse<ChatPage>> => {
+  const finalQuery = addQuery('chats', query);
+  return api.get<ChatPage>(finalQuery);
 };
 
-export default { getChats };
+export { getChats };

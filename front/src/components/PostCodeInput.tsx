@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 import { useField } from 'formik';
+// @ts-ignore
 import * as postcodes from 'datasets-fi-postalcodes';
 import { useEffect, useState } from 'react';
 import TextInput from './TextInput';
@@ -20,10 +21,9 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 10
   },
-  cityInput: {
-    width: '49%',
-    borderWidth: 0,
-    color: '#737373'
+  cityField: {
+    marginBottom: 10,
+    marginLeft: 4
   }
 });
 
@@ -40,6 +40,8 @@ const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
     let cityToAdd = '';
     let postcodeToAdd = '';
     if (postcode.length === 5) {
+      // eslint-disable-next-line max-len
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
       const cityByCode = postcodes[postcode];
       if (cityByCode && typeof cityByCode === 'string') {
         cityToAdd = cityByCode;
@@ -58,8 +60,6 @@ const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
 
   const { error, touched } = meta;
   const showError = touched && error !== undefined;
-
-  const cityFieldStyle = StyleSheet.flatten([styles.cityInput, error ? { color: 'red' } : {}]);
   const cityFieldValue = location.city;
 
   return (
@@ -74,7 +74,10 @@ const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
           style={styles.postcodeInput}
         />
       </View>
-      {showError ? <Text style={styles.errorText}>{error}</Text> : cityFieldValue ? <Text style={{ marginBottom: 10, marginLeft: 2 }}>{cityFieldValue}</Text> : undefined}
+      {showError
+        ? <Text style={styles.errorText}>{error}</Text> : cityFieldValue
+          ? <Text style={styles.cityField}>{cityFieldValue}</Text>
+          : undefined}
     </View>
   );
 };

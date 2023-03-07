@@ -1,21 +1,26 @@
 import { AxiosResponse } from 'axios';
+import { FollowingPage, FollowerPage, Follow } from '@shared/types';
+import { PaginationQuery } from 'types';
+import { addQuery } from 'util/helpers';
 import api from '../util/axiosInstance';
 
-interface Follow {
-  id: number;
-  followerId: string;
-  followedId: string;
+const addFollow = (body: { userId: string }): Promise<AxiosResponse<Follow>> => api.post<Follow>('follows', body);
+
+const removeFollow = (followId: string):
+Promise<AxiosResponse<undefined>> => api.delete<undefined>(`follows/${followId}`);
+
+function getFollowers(userId: string, query: PaginationQuery):
+Promise<AxiosResponse<FollowerPage>> {
+  const finalQuery = addQuery(`${userId}/followers`, query);
+  return api.get<FollowerPage>(finalQuery);
 }
 
-const follow = async (postId: number): Promise<AxiosResponse<Follow>> => {
-  const Follow = await api.post<Follow>('follows', { postId });
-  return Follow;
-};
+function getFollowings(userId: string, query: PaginationQuery):
+Promise<AxiosResponse<FollowingPage>> {
+  const finalQuery = addQuery(`${userId}/followings`, query);
+  return api.get<FollowingPage>(finalQuery);
+}
 
-const unfollow = async ({}):
-Promise<AxiosResponse<undefined>> => {
-  const Follow = await api.delete<undefined>(`follows/${id}`);
-  return Follow;
+export {
+  addFollow, removeFollow, getFollowers, getFollowings
 };
-
-export { follow, unfollow };

@@ -1,27 +1,23 @@
 import { AxiosResponse } from 'axios';
 import { useState, useEffect } from 'react';
+import { Post } from '@shared/types';
+import { NewPostBody, UserStackScreen } from '../types';
 import Loading from '../components/Loading';
 import PostForm from '../components/PostForm';
-import {
-  NewPostProps, TypedImage, Post, Optional,
-  UserStackScreen
-} from '../types';
-import postsService from '../services/posts';
-import imagesService from '../services/images';
+import { getPost, updatePost } from '../services/posts';
+import { deleteImage } from '../services/images';
 import useNotification from '../hooks/useNotification';
 import useError from '../hooks/useError';
-
-type PartialPost = Optional<Post, 'user' | 'id'>;
 
 const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
   const notification = useNotification();
   const { postId } = route.params;
-  const [currentPost, setCurrentPost] = useState<PartialPost | null>(null);
+  const [currentPost, setCurrentPost] = useState<Post | null>(null);
   const error = useError();
 
   useEffect((): void => {
     const getAndSetPost = async (): Promise<void> => {
-      const res = await postsService.getPost({ postId });
+      const res = await getPost({ postId });
       setCurrentPost(res.data);
     };
     getAndSetPost();
@@ -33,10 +29,10 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
     );
   }
 
-  const onSubmit = async ({ images, ...values }: NewPostProps): Promise<void> => {
+  const onSubmit = async ({ images, ...values }: NewPostBody): Promise<void> => {
     try {
       const valuesToAdd = { ...values, price: `${values.price}€` };
-      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostProps, 'images'>>)
+      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostBody, 'images'>>)
         .forEach(
           (key): boolean => (values[key] === currentPost[key]) && delete valuesToAdd[key]
         );
@@ -53,10 +49,10 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
       const imagesToDelete = ([...currentPost.images])
         .filter((image): boolean => !imageUris.includes(image.uri));
       const imagePromises = imagesToDelete
-        .map((image): Promise<AxiosResponse<TypedImage>> => imagesService.deleteImage(image.id));
+        .map((image): Promise<AxiosResponse<undefined>> => deleteImage(image.id));
       await Promise.all(imagePromises);
       const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
-      await postsService.updatePost(Number(postId), finalValuesToAdd);
+      await updatePost(Number(postId), finalValuesToAdd);
       const newcurrentPost = { ...currentPost, ...finalValuesToAdd };
       setCurrentPost(newcurrentPost);
       notification('Post updated successfully.', false);
