@@ -21,7 +21,8 @@ module.exports = {
           allowNull: false,
           references: { model: 'users', key: 'id' }
         }
-      }
+      },
+      { uniqueKeys: { uniqueIds: { fields: ['follower_id', 'following_id'] } } }
     );
   },
   down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {

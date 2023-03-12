@@ -1,6 +1,6 @@
 import {
   Model, DataTypes, InferAttributes, InferCreationAttributes,
-  CreationOptional, ForeignKey, NonAttribute
+  CreationOptional, ForeignKey
 } from 'sequelize';
 import { Condition } from '@shared/types.js';
 import { sequelize } from '../util/db.js';
@@ -23,17 +23,15 @@ InferAttributes<Post>, InferCreationAttributes<Post>
 
   declare userId: ForeignKey<User['id']>;
 
-  declare categoryId: ForeignKey<Category['id']>;
-
   declare createdAt: CreationOptional<Date>;
 
   declare updatedAt: CreationOptional<Date>;
 
-  declare images?: NonAttribute<Image[]>;
+  declare images?: Image[];
 
-  declare user?: NonAttribute<User>;
+  declare user?: User;
 
-  declare category?: NonAttribute<Category>;
+  declare category?: Category;
 }
 
 Post.init(
@@ -73,11 +71,6 @@ Post.init(
       type: DataTypes.STRING,
       allowNull: false,
       references: { model: 'users', key: 'id' }
-    },
-    categoryId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: { model: 'categories', key: 'id' }
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE

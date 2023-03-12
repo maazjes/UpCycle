@@ -40,7 +40,7 @@ const SinglePostCard = ({
 
   const onaddFavorite = async (): Promise<void> => {
     try {
-      const favorite = await addFavorite(post.id);
+      const favorite = await addFavorite({ postId: post.id });
       setFavoriteId(favorite.data.id);
     } catch (e) {
       error(e);
@@ -70,8 +70,8 @@ const SinglePostCard = ({
       />
       <View style={styles.infoBox}>
         <View style={styles.titleAndPrice}>
-          <Text fontWeight="bold" fontSize="subheading">{post.title}</Text>
-          <Text fontSize="subheading" fontWeight="bold" color="green">{post.price}</Text>
+          <Text size="subheading" weight="bold">{post.title}</Text>
+          <Text size="subheading" weight="bold" color="green">{post.price}</Text>
           <Text style={{ marginTop: 5 }}>{post.description}</Text>
         </View>
         <Pressable onPress={handleFavorite}>

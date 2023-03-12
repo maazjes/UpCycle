@@ -37,8 +37,8 @@ const UserTabs = ({ profilePhotoUrl }: { profilePhotoUrl: string }): JSX.Element
       }}
     >
       <Tab.Screen
-        name="Home"
-        component={renderUserStack('StackHome')}
+        name="Search"
+        component={renderUserStack('StackSearch')}
         options={{
           tabBarIcon: homeIcon
         }}
@@ -46,7 +46,9 @@ const UserTabs = ({ profilePhotoUrl }: { profilePhotoUrl: string }): JSX.Element
       <Tab.Screen
         name="Favorites"
         component={renderUserStack('StackFavorites')}
-        options={{ tabBarIcon: favoritesIcon }}
+        options={{
+          tabBarIcon: favoritesIcon
+        }}
       />
       <Tab.Screen
         name="CreatePost"

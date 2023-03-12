@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeights.normal
   },
   colorTextSecondary: {
-    color: theme.textColors.textSecondary
+    color: theme.textColors.secondary
   },
   colorPrimary: {
     color: theme.textColors.primary
@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
 });
 
 const Text = ({
-  color = '',
+  color = 'primary',
   size = 'body',
   weight = 'normal',
   align = 'left',
   style = {},
   ...props
 }: {
-  color?: 'textSecondary' | 'primary' | 'blue' | 'green' | '';
+  color?: 'secondary' | 'primary' | 'blue' | 'green';
   size?: 'subheading' | 'body';
   weight?: 'bold' | 'normal';
   align?: 'left' | 'center';
@@ -49,7 +49,7 @@ const Text = ({
 }): JSX.Element => {
   const textStyle = [
     styles.text,
-    color === 'textSecondary' && styles.colorTextSecondary,
+    color === 'secondary' && styles.colorTextSecondary,
     color === 'primary' && styles.colorPrimary,
     color === 'blue' && styles.blue,
     color === 'green' && styles.green,

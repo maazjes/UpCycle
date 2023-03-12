@@ -10,6 +10,7 @@ import {
   OpenSans_500Medium
 } from '@expo-google-fonts/open-sans';
 import { TokenUser } from '@shared/types';
+import Container from 'components/Container';
 import UserTabs from './navigation/UserTabs';
 import LoginStack from './navigation/LoginStack';
 import useAuthStorage from './hooks/useAuthStorage';

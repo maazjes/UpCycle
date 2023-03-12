@@ -29,6 +29,12 @@ export interface TokenUser extends EmailUser {
   refreshToken: string;
 }
 
+export interface User extends EmailUser {
+  followers: number;
+  following: number;
+  followId: number | null;
+}
+
 export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl'> {
   password: string;
 }
@@ -57,12 +63,9 @@ export interface SharedNewPostBody {
   title: string;
   description: string;
   price: string;
-  category: string;
   condition: Condition;
   postcode: string;
 }
-
-export interface SharedUpdatePostBody extends Partial<SharedNewPostBody> {}
 
 export interface PostPage extends PaginationBase {
   data: PostBase[];
@@ -71,6 +74,7 @@ export interface PostPage extends PaginationBase {
 export type SharedGetPostsQuery = {
   userId?: string;
   favorite?: 'true';
+  contains?: string;
 };
 
 // Images
@@ -152,7 +156,7 @@ export interface ChatPage extends PaginationBase {
 export interface Category {
   id: number;
   name: string;
-  subcategoryId: number | null;
+  subcategories: Category[];
 }
 
 // Favorites

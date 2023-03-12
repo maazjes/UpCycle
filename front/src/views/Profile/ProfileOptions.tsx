@@ -3,12 +3,13 @@ import { Pressable, View } from 'react-native';
 import { Menu } from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { User } from '@shared/types';
+import { EmailUser } from '@shared/types';
+import Button from 'components/Button';
 import { UserStackNavigation } from '../../types';
 import useAuth from '../../hooks/useAuth';
 
 const ProfileOptions = ({ user }: {
-  user: User; }): JSX.Element => {
+  user: EmailUser; }): JSX.Element => {
   const [visible, setVisible] = React.useState(false);
   const { navigate } = useNavigation<UserStackNavigation>();
   const { logout } = useAuth();
@@ -25,7 +26,7 @@ const ProfileOptions = ({ user }: {
       <Menu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Pressable onPress={openMenu}><Ionicons name="settings-outline" size={28} color="black" /></Pressable>}
+        anchor={<Button text="options" size="small" onPress={openMenu} />}
       >
         <Menu.Item onPress={(): void => navigate('EditProfile', user)} title="Edit profile" />
         <Menu.Item onPress={logout} title="Log out" />

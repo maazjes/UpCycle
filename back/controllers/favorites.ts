@@ -5,7 +5,7 @@ import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.post<{}, SharedFavorite, { postId: number }>('', userExtractor, async (req, res): Promise<void> => {
+router.post<{}, SharedFavorite, { postId: number }>('/', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('invalid token');
   }

@@ -1,5 +1,5 @@
 import { AxiosResponse } from 'axios';
-import { EmailUser } from '@shared/types';
+import { EmailUser, User } from '@shared/types';
 import { UpdateUserBody, NewUserBody } from 'types';
 import api from '../util/axiosInstance';
 import { createFormData } from '../util/helpers';
@@ -10,7 +10,7 @@ Promise<AxiosResponse<EmailUser>> => {
   return api.postForm<EmailUser>('users', formdata);
 };
 
-const getUser = (userId: string): Promise<AxiosResponse<EmailUser>> => api.get<EmailUser>(`users/${userId}`);
+const getUser = (userId: string): Promise<AxiosResponse<User>> => api.get<User>(`users/${userId}`);
 
 const updateUser = (userId: string, body: UpdateUserBody): Promise<AxiosResponse<EmailUser>> => {
   const formdata = createFormData(body);

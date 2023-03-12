@@ -3,20 +3,13 @@ const { DataTypes, QueryInterface } = require('sequelize');
 
 module.exports = {
   up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
-    await queryInterface.createTable('categories', {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      },
-      name: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false
-      }
+    await queryInterface.addColumn('categories', 'parent_category_id', {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: 'categories', key: 'id' }
     });
   },
   down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
-    await queryInterface.dropTable('categories');
+    await queryInterface.removeColumn('categories', 'parent_category_id');
   }
 };

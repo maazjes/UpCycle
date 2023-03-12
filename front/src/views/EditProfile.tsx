@@ -1,5 +1,5 @@
 import {
-  View, StyleSheet, GestureResponderEvent
+  View, StyleSheet, GestureResponderEvent, ScrollView
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
@@ -69,23 +69,25 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
   };
 
   return (
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit }): JSX.Element => (
-        <View style={styles.SignupForm}>
-          <View style={styles.photo}>
-            <FormikImageInput circle name="images" amount={1} />
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+        {({ handleSubmit }): JSX.Element => (
+          <View style={styles.SignupForm}>
+            <View style={styles.photo}>
+              <FormikImageInput circle name="images" amount={1} />
+            </View>
+            <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
+            <FormikTextInput name="displayName" placeholder="Display name" />
+            <FormikTextInput name="email" placeholder="Email" />
+            <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
+            <Button
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Save changes"
+            />
           </View>
-          <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
-          <FormikTextInput name="displayName" placeholder="Display name" />
-          <FormikTextInput name="email" placeholder="Email" />
-          <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
-          <Button
-            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Save changes"
-          />
-        </View>
-      )}
-    </Formik>
+        )}
+      </Formik>
+    </ScrollView>
   );
 };
 

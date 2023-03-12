@@ -3,8 +3,8 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   SharedGetMessagesQuery, SharedGetPostsQuery, SharedNewPostBody,
-  TokenUser, SharedUpdateUserBody, TypedImage, SharedNewUserBody,
-  SharedUpdatePostBody, FollowBase, UserBase, PaginationBase
+  SharedUpdateUserBody, TypedImage, SharedNewUserBody,
+  FollowBase, UserBase, PaginationBase, EmailUser
 } from '@shared/types';
 
 export interface UpdateUserBody extends SharedUpdateUserBody {
@@ -18,12 +18,11 @@ export interface NewUserBody extends SharedNewUserBody {
 export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;
 
 export interface NewPostBody extends SharedNewPostBody {
+  categories: number[];
   images: TypedImage[];
 }
 
-export interface UpdatePostBody extends SharedUpdatePostBody {
-  images?: TypedImage[];
-}
+export interface UpdatePostBody extends Partial<NewPostBody> {}
 
 export interface Follow extends FollowBase {
   following?: UserBase;
@@ -54,21 +53,22 @@ export type LoginStackParams = {
 };
 
 export type UserStackParams = {
-  'StackHome': undefined;
+  'StackSearch': undefined;
   'StackFavorites': { userId: string };
   'StackCreatePost': undefined;
   'StackChat': undefined;
   'SinglePost': { postId: number };
   'StackProfile': { userId?: string; username?: string };
   'EditPost': { postId: number };
-  'EditProfile': TokenUser;
+  'EditProfile': EmailUser;
   'Chat': undefined;
   'SingleChat': { userId: string };
   'Follows': { userId: string; role: 'follower' | 'following' };
+  'SelectCategory': { selectedCategories: React.MutableRefObject<string[]> };
 };
 
 export type UserTabsParams = {
-  'Home': undefined;
+  'Search': undefined;
   'Favorites': { userId: string };
   'Profile': undefined;
   'CreatePost': undefined;

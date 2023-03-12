@@ -1,4 +1,6 @@
 import probe, { ProbeResult } from 'probe-image-size';
+import { createHash, Hash } from 'crypto';
+import { createReadStream, PathLike } from 'fs';
 import { Image } from '../models/index.js';
 import firebase from './firebase.js';
 import { FIREBASE_BUCKET_URL } from './config.js';
@@ -75,3 +77,16 @@ export const getPagingData = (
 };
 
 export const isString = (object: unknown): object is string => typeof object === 'string' || object instanceof String;
+
+export const hashFile = async (path: PathLike, algo = 'md5'): Promise<string> => {
+  const hashFunc = createHash(algo);
+  const contentStream = createReadStream(path);
+  const updateDone = new Promise((resolve, reject): void => {
+    contentStream.on('data', (data): Hash => hashFunc.update(data));
+    contentStream.on('close', resolve);
+    contentStream.on('error', reject);
+  });
+
+  await updateDone;
+  return hashFunc.digest('hex');
+};

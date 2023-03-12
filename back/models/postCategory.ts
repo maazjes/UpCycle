@@ -2,32 +2,32 @@ import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
+import { Post, Category } from './index.js';
 
-class Category extends Model<InferAttributes<Category>, InferCreationAttributes<Category>> {
+class PostCategory extends Model<InferAttributes<PostCategory>,
+InferCreationAttributes<PostCategory>> {
   declare id: CreationOptional<number>;
 
-  declare name: string;
+  declare postId: ForeignKey<Post['id']>;
 
-  declare parentCategoryId: CreationOptional<ForeignKey<Category['id']>> | null;
-
-  declare subcategories?: Category[];
+  declare categoryId: ForeignKey<Category['id']>;
 }
 
-Category.init(
+PostCategory.init(
   {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
     },
-    name: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false
-    },
-    parentCategoryId: {
+    postId: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
+      references: { model: 'posts', key: 'id' }
+    },
+    categoryId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
       references: { model: 'categories', key: 'id' }
     }
   },
@@ -35,8 +35,8 @@ Category.init(
     sequelize,
     underscored: true,
     timestamps: false,
-    modelName: 'category'
+    modelName: 'postCategory'
   }
 );
 
-export default Category;
+export default PostCategory;

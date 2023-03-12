@@ -21,6 +21,10 @@ const styles = StyleSheet.create({
   },
   container: {
     justifyContent: 'center'
+  },
+  userBar: {
+    paddingHorizontal: '5%',
+    paddingVertical: '3%'
   }
 });
 
@@ -28,12 +32,12 @@ const SinglePost = ({ route, navigation }:
 UserStackScreen<'SinglePost'>): JSX.Element => {
   const { postId } = route.params;
   const [post, setPost] = useState<null | Post>(null);
-  const currentUser = useAppSelector((state): TokenUser | null => state.user);
+  const currentUser = useAppSelector((state): TokenUser => state.user!);
   const { navigate } = navigation;
 
   useEffect((): void => {
     const getAndSetPost = async (): Promise<void> => {
-      const res = await getPost({ postId });
+      const res = await getPost(postId);
       setPost(res.data);
     };
     getAndSetPost();
@@ -51,13 +55,18 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
     navigate('SingleChat', { userId: post.user.id });
   };
 
-  const itemRight = currentUser?.id === post.user.id
+  const itemRight = currentUser.id === post.user.id
     ? <PostOptions post={post} />
-    : <Button onSubmit={onMessage} style={{ paddingHorizontal: 10, height: 32 }} text="Message" />;
+    : <Button onPress={onMessage} size="small" text="Message" />;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-      <UserBar onPress={onUserBarPress} user={post.user} itemRight={itemRight} />
+      <UserBar
+        style={styles.userBar}
+        onPress={onUserBarPress}
+        user={post.user}
+        itemRight={itemRight}
+      />
       <SinglePostCard
         post={post}
         containerStyle={styles.container}

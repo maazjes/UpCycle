@@ -1,7 +1,10 @@
-import { isString } from 'formik';
+import {
+  FieldHelperProps,
+  FieldInputProps, FieldMetaProps, isString, useField
+} from 'formik';
 import { PaginationBase } from '@shared/types';
 import { Dimensions, PixelRatio } from 'react-native';
-import { UpdatePostBody } from '../types';
+import { UpdatePostBody, UpdateUserBody } from '../types';
 
 type IndexSignature = string | number | symbol;
 
@@ -32,19 +35,12 @@ export const formatImages = (images: { uri: string }[]): Blob[] => {
   return formattedImages;
 };
 
-interface CreateUserFormDataProps {
-  displayName?: string;
-  email?: string;
-  image?: { uri: string };
-  bio?: string;
-}
+type CreateFormDataParams = UpdatePostBody & UpdateUserBody;
 
-type CreateFormDataProps = UpdatePostBody & CreateUserFormDataProps;
-
-export const createFormData = (params: CreateFormDataProps): FormData => {
-  const propKeys = Object.keys(params) as Array<keyof CreateFormDataProps>;
+export const createFormData = (params: CreateFormDataParams): FormData => {
+  const keys = Object.keys(params) as Array<keyof CreateFormDataParams>;
   const formdata = new FormData();
-  propKeys.forEach((key): void => {
+  keys.forEach((key): void => {
     if (key === 'images' && params.images) {
       const formattedImages = formatImages(params.images);
       formattedImages.forEach((image): void => {
@@ -54,6 +50,9 @@ export const createFormData = (params: CreateFormDataProps): FormData => {
     if (key === 'image' && params.image) {
       const formattedImages = formatImages([params.image]);
       formdata.append('image', formattedImages[0]);
+    }
+    if (key === 'categories') {
+      formdata.append('categories', JSON.stringify(params[key]));
     }
     const value = params[key];
     if (value && isString(value)) {
@@ -78,4 +77,13 @@ export const dpw = (widthPercent: number): number => {
 export const dph = (heightPercent: number): number => {
   const screenHeight = Dimensions.get('window').height;
   return PixelRatio.roundToNearestPixel(screenHeight * heightPercent);
+};
+
+export const conditionalUseField = (r: boolean, name: string):
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+[FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>] | [] => {
+  if (r) {
+    return useField(name);
+  }
+  return [];
 };

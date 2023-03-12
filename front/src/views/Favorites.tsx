@@ -22,6 +22,7 @@ const styles = StyleSheet.create({
 
 const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Element => {
   const [posts, fetchPosts] = usePosts({ favorite: 'true' });
+  console.log(posts);
   const { navigate } = navigation;
 
   if (!posts) {
@@ -41,8 +42,6 @@ const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Eleme
   return (
     <GridView
       posts={posts.data}
-      onEndReachedThreshold={0.2}
-      onEndReached={fetchPosts}
     />
   );
 };

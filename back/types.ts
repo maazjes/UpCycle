@@ -2,7 +2,7 @@ import { Request as ExpressRequest } from 'express';
 import { IncomingHttpHeaders } from 'http';
 import {
   SharedGetMessagesQuery, SharedGetPostsQuery,
-  UserBase
+  UserBase, SharedNewPostBody
 } from '@shared/types';
 import { User } from './models';
 
@@ -13,6 +13,12 @@ declare global {
     }
   }
 }
+
+export interface NewPostBody extends SharedNewPostBody {
+  categories: string;
+}
+
+export interface UpdatePostBody extends Partial<NewPostBody> {}
 
 export interface DecodedToken {
   username: string;

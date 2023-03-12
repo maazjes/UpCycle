@@ -1,15 +1,13 @@
 import express from 'express';
 import multer from 'multer';
+import { PostPage, PostBase, Post as SharedPost } from '@shared/types.js';
+import { Op } from 'sequelize';
+import { NewPostBody, GetPostsQuery, UpdatePostBody } from '../types.js';
 import {
-  SharedNewPostBody, PostPage, PostBase, Post as SharedPost,
-  SharedUpdatePostBody
-} from '@shared/types.js';
-import {
-  Post, Category, Image, Favorite
+  Post, Category, Image, Favorite, PostCategory
 } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 import { saveImages, uploadImages } from '../util/helpers.js';
-import { GetPostsQuery } from '../types.js';
 import {
   PostInclude, PostBaseInclude, PostBaseAttributes, PostAttributes
 } from '../util/constants.js';
@@ -17,11 +15,22 @@ import {
 const upload = multer();
 const router = express.Router();
 
-router.get<{}, PostPage, {}, GetPostsQuery>('', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res): Promise<void> => {
   const {
-    userId, limit, offset, favorite
+    userId, limit, offset, favorite, contains
   } = req.query;
-  const where = userId ? { userId } : {};
+
+  const userWhere = userId ? { userId } : undefined;
+  const containsWhere = contains
+    ? {
+      [Op.or]: [
+        { title: { [Op.substring]: contains } },
+        { description: { [Op.substring]: contains } }
+      ]
+    }
+    : {};
+  const where = userWhere || containsWhere;
+
   if (favorite && req.user) {
     const favorites = await Favorite.findAndCountAll({
       where: { userId: req.user.id },
@@ -34,7 +43,6 @@ router.get<{}, PostPage, {}, GetPostsQuery>('', userExtractor, async (req, res):
       limit: Number(limit),
       offset: Number(offset)
     });
-
     const favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post! as PostBase);
     res.json({ totalItems: favorites.count, offset: Number(offset), data: favoritePosts });
     return;
@@ -67,7 +75,7 @@ router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): 
   if (found) {
     favoriteId = found.id;
   }
-  res.json({ ...post, favoriteId } as SharedPost);
+  res.json({ ...post.dataValues, favoriteId } as SharedPost);
 });
 
 router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
@@ -81,7 +89,7 @@ router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
   res.status(204).send();
 });
 
-router.post<{}, SharedPost, SharedNewPostBody>(
+router.post<{}, SharedPost, NewPostBody>(
   '/',
   userExtractor,
   upload.array('images', 5),
@@ -89,26 +97,28 @@ router.post<{}, SharedPost, SharedNewPostBody>(
     if (!req.user) {
       throw new Error('Authentication required');
     }
-    const category = await Category.findOne({ where: { name: req.body.category } });
-    if (!category) {
-      throw new Error('category not found');
+    const categories: number[] = JSON.parse(req.body.categories);
+    const foundCategories = await Category.findAll({ where: { id: { [Op.or]: categories } } });
+    if (categories.length !== foundCategories.length) {
+      throw new Error('one or more invalid category');
     }
     if (!req.files || !Array.isArray(req.files)) {
       throw new Error('images missing from request');
     }
-    console.log(req.body);
     const post = await Post.create({
       ...req.body,
-      userId: req.user.id,
-      categoryId: category.id
+      userId: req.user.id
     });
+    const postCategories = categories.map((categoryId):
+    { categoryId: number; postId: number } => ({ categoryId, postId: post.id }));
+    await PostCategory.bulkCreate(postCategories);
     const imageUrls = await uploadImages(req.files);
     await saveImages(post.id, imageUrls);
     res.json({ ...post, favoriteId: null } as SharedPost);
   }
 );
 
-router.put<{ id: string }, SharedPost, SharedUpdatePostBody>(
+router.put<{ id: string }, SharedPost, UpdatePostBody>(
   '/:id',
   userExtractor,
   upload.array('images', 5),
@@ -123,16 +133,23 @@ router.put<{ id: string }, SharedPost, SharedUpdatePostBody>(
       condition,
       postcode
     } = req.body;
+    const categories: number[] | null = req.body.categories
+      ? JSON.parse(req.body.categories)
+      : null;
+
     const currentPost = await Post.findOne({ where: { id: req.params.id } });
     if (!currentPost) {
       throw new Error('invalid post id');
     }
-    if (req.body.category) {
-      const category = await Category.findOne({ where: { name: req.body.category } });
-      if (!category) {
-        throw new Error('category not found');
+    if (categories) {
+      const foundCategories = await Category.findAll({ where: { id: { [Op.or]: categories } } });
+      if (categories.length !== foundCategories.length) {
+        throw new Error('one or more invalid category');
       }
-      currentPost.set({ categoryId: category.id });
+      await PostCategory.destroy({ where: { postId: currentPost.id } });
+      const postCategories = categories.map((categoryId):
+      { categoryId: number; postId: number } => ({ categoryId, postId: currentPost.id }));
+      await PostCategory.bulkCreate(postCategories);
     }
     if (req.files && Array.isArray(req.files)) {
       const imageUrls = await uploadImages(req.files);

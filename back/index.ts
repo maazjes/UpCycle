@@ -77,7 +77,7 @@ app.use('/api/images', imagesRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/chats', chatsRouter);
 app.use('/api/messages', messagesRouter);
-app.use('/api/follows', followsRouter);
+app.use('/api', followsRouter);
 app.use('/api', tokensRouter);
 app.use(errorHandler);
 

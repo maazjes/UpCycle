@@ -7,7 +7,7 @@ import { UserBaseAttributes } from '../util/constants.js';
 
 const router = express.Router();
 
-router.post<{}, SharedFollow, { userId: string }>('', userExtractor, async (req, res): Promise<void> => {
+router.post<{}, SharedFollow, { userId: string }>('/follows', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -19,7 +19,7 @@ router.post<{}, SharedFollow, { userId: string }>('', userExtractor, async (req,
   res.json(follow);
 });
 
-router.delete <{ id: string }, {}>('/:id', async (req, res): Promise<void> => {
+router.delete <{ id: string }, {}>('/follows/:id', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -35,7 +35,7 @@ router.delete <{ id: string }, {}>('/:id', async (req, res): Promise<void> => {
   res.status(204).send();
 });
 
-router.get<{ userId: string }, FollowerPage, {}, GetFollowsQuery>('/:userId/followers', userExtractor, async (req, res): Promise<void> => {
+router.get<{ userId: string }, FollowerPage, {}, GetFollowsQuery>('/users/:userId/followers', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -49,9 +49,10 @@ router.get<{ userId: string }, FollowerPage, {}, GetFollowsQuery>('/:userId/foll
     },
     limit: Number(limit),
     offset: Number(offset),
-    where: { followerId: userId },
+    where: { followingId: userId },
     attributes: ['id', 'followerId']
   });
+  console.log(follows);
   res.json({
     totalItems: follows.count,
     offset: Number(offset),
@@ -59,7 +60,7 @@ router.get<{ userId: string }, FollowerPage, {}, GetFollowsQuery>('/:userId/foll
   } as FollowerPage);
 });
 
-router.get<{ userId: string }, FollowingPage, {}, GetFollowsQuery>('/:userId/followings', userExtractor, async (req, res): Promise<void> => {
+router.get<{ userId: string }, FollowingPage, {}, GetFollowsQuery>('/users/:userId/following', userExtractor, async (req, res): Promise<void> => {
   if (!req.user) {
     throw new Error('Authentication required');
   }
@@ -74,9 +75,10 @@ router.get<{ userId: string }, FollowingPage, {}, GetFollowsQuery>('/:userId/fol
     },
     limit: Number(limit),
     offset: Number(offset),
-    where: { followingId: userId },
+    where: { followerId: userId },
     attributes: ['id', 'followerId']
   });
+  console.log(follows);
   res.json({
     totalItems: follows.count,
     offset: Number(offset),

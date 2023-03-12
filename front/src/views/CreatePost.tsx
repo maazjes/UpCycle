@@ -15,8 +15,8 @@ const CreatePost = (): JSX.Element => {
     images: [],
     description: '',
     postcode: '',
-    category: 'clothes',
-    condition: Condition.new
+    condition: Condition.new,
+    categories: []
   };
 
   const onSubmit = async (values: NewPostBody): Promise<void> => {

@@ -1,27 +1,44 @@
 import express from 'express';
 import multer from 'multer';
 import {
-  EmailUser, SharedNewUserBody, SharedUpdateUserBody
+  EmailUser, SharedNewUserBody, SharedUpdateUserBody,
+  User as SharedUser
 } from '@shared/types';
+import { Op } from 'sequelize';
 import { userExtractor } from '../util/middleware.js';
-import { User } from '../models/index.js';
+import { User, Follow } from '../models/index.js';
 import firebase from '../util/firebase.js';
 import { uploadImage } from '../util/helpers.js';
 
 const router = express.Router();
 const upload = multer();
 
-router.get<{ id: string }, EmailUser>('/:id', async (req, res): Promise<void> => {
-  const { id } = req.params;
+router.get<{ userId: string }, SharedUser>('/:userId', userExtractor, async (req, res): Promise<void> => {
+  if (!req.user) {
+    throw new Error('authentication required');
+  }
+  const { userId } = req.params;
   const user = await User.findOne({
-    where: { id },
+    where: { id: userId },
     attributes: { exclude: ['createdAt', 'updatedAt'] }
   });
+  const followers = await Follow.count({ where: { followingId: userId } });
+  const following = await Follow.count({ where: { followerId: userId } });
+  const follow = await Follow.findOne({
+    where: {
+      [Op.and]:
+    [{ followerId: req.user.id }, { followingId: userId }]
+    }
+  });
+  const followId = follow ? follow.id : null;
+
   if (!user) {
     throw new Error('user not found');
   }
   const { email } = await firebase.auth().getUser(user.id);
-  res.json({ ...user.dataValues, email: email! });
+  res.json({
+    ...user.dataValues, email: email!, followers, following, followId
+  });
 });
 
 router.post<{}, EmailUser, SharedNewUserBody>('/', upload.single('image'), async (req, res): Promise<void> => {

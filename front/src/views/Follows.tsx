@@ -2,13 +2,14 @@ import useFollows from 'hooks/useFollows';
 import { UserStackScreen } from 'types';
 import Loading from 'components/Loading';
 import UserBar from 'components/UserBar';
-import { addFollow, removeFollow } from 'services/follows';
+import { createFollow, removeFollow } from 'services/follows';
 import { FlatList } from 'react-native';
 import { useAppSelector } from 'hooks/redux';
 import { Follow, TokenUser } from '@shared/types';
 import Button from 'components/Button';
 import { AxiosResponse } from 'axios';
 import Text from 'components/Text';
+import Container from 'components/Container';
 
 const Follows = ({ route }: UserStackScreen<'Follows'>): JSX.Element => {
   const { userId, role } = route.params;
@@ -30,27 +31,29 @@ const Follows = ({ route }: UserStackScreen<'Follows'>): JSX.Element => {
   }
 
   return (
-    <FlatList
-      keyExtractor={(item): string => String(item.id)}
-      data={follows.data}
-      renderItem={({ item }): JSX.Element => {
-        const following = item.followerId === currentUser.id;
-        const onPress = ():
-        Promise<AxiosResponse<Follow>> |
-        Promise<AxiosResponse<undefined>> => (following
-          ? removeFollow(userId)
-          : addFollow({ userId }));
-        const buttonText = following ? 'Unfollow' : 'Follow';
-        return (
-          <UserBar
-            itemRight={<Button onPress={onPress} text={buttonText} />}
-            user={item[role]!}
-          />
-        );
-      }}
-      onEndReached={fetchFollows}
-      onEndReachedThreshold={0.2}
-    />
+    <Container>
+      <FlatList
+        keyExtractor={(item): string => String(item.id)}
+        data={follows.data}
+        renderItem={({ item }): JSX.Element => {
+          const following = item.followerId === currentUser.id;
+          const onPress = ():
+          Promise<AxiosResponse<Follow>> |
+          Promise<AxiosResponse<undefined>> => (following
+            ? removeFollow(item.id)
+            : createFollow({ userId }));
+          const buttonText = following ? 'Unfollow' : 'Follow';
+          return (
+            <UserBar
+              itemRight={<Button size="small" onPress={onPress} text={buttonText} />}
+              user={item[role]!}
+            />
+          );
+        }}
+        onEndReached={fetchFollows}
+        onEndReachedThreshold={0.2}
+      />
+    </Container>
   );
 };
 
