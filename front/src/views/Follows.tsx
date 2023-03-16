@@ -43,9 +43,12 @@ const Follows = ({ route }: UserStackScreen<'Follows'>): JSX.Element => {
             ? removeFollow(item.id)
             : createFollow({ userId }));
           const buttonText = following ? 'Unfollow' : 'Follow';
+          const itemRight = (item.following?.id || item.follower?.id) === currentUser.id
+            ? undefined
+            : <Button o={following} size="small" onPress={onPress} text={buttonText} />;
           return (
             <UserBar
-              itemRight={<Button size="small" onPress={onPress} text={buttonText} />}
+              itemRight={itemRight}
               user={item[role]!}
             />
           );

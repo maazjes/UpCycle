@@ -4,18 +4,18 @@ import Modal from './Modal';
 import Text from './Text';
 import Line from './Line';
 
-interface Props extends ModalProps {
-  menuItems: { [key: string]: () => void };
+interface Props extends Omit<ModalProps, 'children'> {
+  items: { [key: string]: (...args: any[]) => any };
 }
 
-const MenuModal = ({ menuItems, ...props }: Props): JSX.Element => (
+const MenuModal = ({ items, ...props }: Props): JSX.Element => (
   <Modal {...props}>
-    { Object.keys(menuItems).map((key): JSX.Element => (
+    {Object.keys(items).map((key, i): JSX.Element => (
       <View>
-        <Line style={{ borderColor: '#161716' }} />
-        <TouchableOpacity onPress={menuItems[key]}>
+        {i > 0 ? <Line style={{ borderColor: '#161716' }} /> : null}
+        <TouchableOpacity onPress={items[key]}>
           <Text
-            style={{ marginVertical: 13 }}
+            style={{ marginVertical: 15 }}
             align="center"
             size="subheading"
           >
@@ -23,7 +23,7 @@ const MenuModal = ({ menuItems, ...props }: Props): JSX.Element => (
           </Text>
         </TouchableOpacity>
       </View>
-    )) }
+    ))}
   </Modal>
 );
 

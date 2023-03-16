@@ -59,6 +59,7 @@ const UserForm = (): JSX.Element => {
     displayName: '',
     bio: '',
     password: '',
+    username: '',
     passwordConfirmation: '',
     images: []
   };
@@ -69,6 +70,7 @@ const UserForm = (): JSX.Element => {
     email: string;
     displayName: string;
     bio: string;
+    username: string;
     password: string;
     passwordConfirmation: string;
     images: TypedImage[];
@@ -99,7 +101,7 @@ const UserForm = (): JSX.Element => {
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
           <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
           <Button
-            onSubmit={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+            onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Sign up"
           />
         </View>

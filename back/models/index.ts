@@ -11,6 +11,8 @@ import PostCategory from './postCategory.js';
 Category.hasMany(Category, { foreignKey: 'parentCategoryId', as: 'subcategories' });
 Category.belongsTo(Category, { foreignKey: 'parentCategoryId' });
 
+Post.belongsToMany(Category, { through: PostCategory });
+
 User.hasMany(Post, { foreignKey: 'userId' });
 Post.belongsTo(User, { foreignKey: 'userId' });
 
@@ -28,6 +30,8 @@ Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
 
 Follow.belongsTo(User, { foreignKey: 'followingId', as: 'following' });
 Follow.belongsTo(User, { foreignKey: 'followerId', as: 'follower' });
+
+PostCategory.belongsTo(Post);
 
 export {
   Post,

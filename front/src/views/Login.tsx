@@ -4,15 +4,15 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Container from 'components/Container';
 import { dph, dpw } from 'util/helpers';
+import useNotification from 'hooks/useNotification';
+import { isAxiosError } from 'axios';
 import useAuth from '../hooks/useAuth';
-import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import Text from '../components/Text';
-import { LoginStackParams } from '../types';
+import { LoginStackScreen } from '../types';
 
 const styles = StyleSheet.create({
   logo: {
@@ -46,9 +46,9 @@ const validationSchema = yup.object().shape({
     .required('password is required')
 });
 
-const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>): JSX.Element => {
+const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
   const { login } = useAuth();
-  const error = useError();
+  const notification = useNotification();
   const { navigate } = navigation;
 
   const initialValues = {
@@ -65,7 +65,9 @@ const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>
     try {
       await login({ email, password });
     } catch (e) {
-      error(e);
+      if (isAxiosError(e)) {
+        notification({ message: e.message, error: true, modal: false });
+      }
     }
   };
 
@@ -88,6 +90,9 @@ const Login = ({ navigation }: NativeStackScreenProps<LoginStackParams, 'Login'>
       </Formik>
       <Pressable style={styles.signUpButton} onPress={(): void => navigate('SignUp')}>
         <Text weight="bold" color="green">Sign up</Text>
+      </Pressable>
+      <Pressable style={styles.signUpButton} onPress={(): void => navigate('ResetPassword')}>
+        <Text weight="bold" color="green">Reset password</Text>
       </Pressable>
     </Container>
   );

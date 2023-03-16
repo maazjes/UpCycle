@@ -1,73 +1,67 @@
 import { Searchbar } from 'react-native-paper';
 import { useState, useEffect, useRef } from 'react';
 import useDebounce from 'hooks/useDebounce';
-import GridView from 'components/GridView';
-import { View } from 'react-native';
-import { Category } from '@shared/types';
-import { getCategories } from 'services/categories';
-import Button from 'components/Button';
 import CategoryPicker from 'components/CategoryPicker';
+import Scrollable from 'components/Scrollable';
+import GridView from 'components/GridView';
+import Container from 'components/Container';
+import { SearchPostsQuery } from 'types';
+import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
 import usePosts from '../hooks/usePosts';
 
 const Search = (): JSX.Element => {
-  const [posts, getPosts] = usePosts();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [posts, fetchPosts] = usePosts();
+  const [searchQuery, setSearchQuery] = useState<string>();
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
-  const [visible, setVisible] = useState(false);
-  const [activeCategories, setActiveCategories] = useState<Category[][]>([[]]);
-  const selectedCategories = useRef<Category['id'][]>([]);
+  const [category, setCategory] = useState<number>();
+  const searchParams = useRef<SearchPostsQuery>();
+  const notification = useNotification();
 
   useEffect((): void => {
     const search = async (): Promise<void> => {
-      await getPosts({ contains: debouncedSearchQuery });
+      let query: SearchPostsQuery | undefined;
+      if (debouncedSearchQuery) {
+        query = { ...query, contains: debouncedSearchQuery };
+      }
+      if (category) {
+        query = { ...query, categoryId: String(category) };
+      }
+      if (query) {
+        try {
+          await fetchPosts(query);
+        } catch (e) {
+          notification({ message: 'Something went wrong. Please try again.', error: true, modal: true });
+        }
+      }
+      searchParams.current = query;
     };
     search();
-  }, [debouncedSearchQuery]);
-
-  useEffect(():void => {
-    const initialize = async (): Promise<void> => {
-      const res = await getCategories();
-      setActiveCategories([[...res.data]]);
-    };
-    initialize();
-  }, []);
+  }, [category, debouncedSearchQuery]);
 
   const onChangeSearch = (query: string): void => setSearchQuery(query);
-
-  const openModal = (): void => {
-    if (selectedCategories) {
-      selectedCategories.current = [];
-      setActiveCategories([[...activeCategories[0]]]);
-    }
-    setVisible(true);
-  };
-
-  const closeModal = (): void => setVisible(false);
 
   if (!posts) {
     return <Loading />;
   }
 
   return (
-    <View>
+    <Scrollable
+      onEndReached={(): Promise<void> => fetchPosts(searchParams.current)}
+    >
       <Searchbar
         placeholder="Search"
         onChangeText={onChangeSearch}
-        value={searchQuery}
+        value={searchQuery || ''}
       />
       <CategoryPicker
         search
-        activeCategories={activeCategories}
-        selectedCategories={selectedCategories}
-        setActiveCategories={setActiveCategories}
-        setVisible={setVisible}
-        visible={visible}
-        onDismiss={closeModal}
+        setCategory={setCategory}
       />
-      <Button style={{ margin: 30 }} text="asd" onPress={openModal} />
-      <GridView posts={posts.data} />
-    </View>
+      <Container>
+        <GridView posts={posts.data} />
+      </Container>
+    </Scrollable>
   );
 };
 

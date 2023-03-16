@@ -1,39 +1,38 @@
-import {
-  FlatList, StyleSheet, FlatListProps, View
-} from 'react-native';
 import { PostBase } from '@shared/types';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import PostCard from './PostCard';
 
 const styles = StyleSheet.create({
-  oneItem: {
+  posts: {
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  onePost: {
     justifyContent: 'flex-start'
   },
-  moreItems: {
-    justifyContent: 'space-evenly'
+  postCard: {
+    marginBottom: 20
+  },
+  lastPostCard: {
+    marginBottom: 10
   }
 });
 
-interface GridViewProps extends Omit<FlatListProps<PostBase>, 'data' | 'renderItem'> {
+interface Props extends ViewProps {
   posts: PostBase[];
 }
 
-const itemSeparator = (): JSX.Element => <View style={{ paddingVertical: 10 }} />;
-
-const GridView = ({ posts, ...props }: GridViewProps): JSX.Element => (
-  <FlatList
-    columnWrapperStyle={[styles.moreItems, posts.length === 1 && styles.oneItem]}
-    numColumns={2}
-    keyExtractor={(item): string => String(item.id)}
-    data={posts}
-    ItemSeparatorComponent={itemSeparator}
-    renderItem={({ item }): JSX.Element => (
+const GridView = ({ posts, style }: Props): JSX.Element => (
+  <View style={[styles.posts, posts.length === 1 ? styles.onePost : {}, style]}>
+    {posts.map((post, i): JSX.Element => (
       <PostCard
-        post={item}
+        key={post.id}
+        containerStyle={i < posts.length - 2 ? styles.postCard : styles.lastPostCard}
+        post={post}
       />
-    )}
-    showsVerticalScrollIndicator={false}
-    {...props}
-  />
+    ))}
+  </View>
 );
 
 export default GridView;

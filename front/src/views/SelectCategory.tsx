@@ -8,8 +8,6 @@ import { getCategories } from 'services/categories';
 import { UserStackScreen } from 'types';
 import { useField } from 'formik';
 
-const allCategory: Category = { id: -1, name: 'all' };
-
 const SelectCategory = ({ route, navigation }: UserStackScreen<'SelectCategory'>): JSX.Element => {
   const { selectedCategories } = route.params;
   const [activeCategories, setActiveCategories] = useState<Category[][]>([[]]);

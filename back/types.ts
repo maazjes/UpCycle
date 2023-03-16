@@ -48,6 +48,11 @@ export interface FirebaseTokenRes {
   project_id: string;
 }
 
+export interface FirebasePasswordResetRes {
+  email: string;
+  requestType: string;
+}
+
 export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
 
 export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;

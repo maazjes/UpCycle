@@ -10,6 +10,8 @@ class Category extends Model<InferAttributes<Category>, InferCreationAttributes<
 
   declare parentCategoryId: CreationOptional<ForeignKey<Category['id']>> | null;
 
+  declare depth: number;
+
   declare subcategories?: Category[];
 }
 
@@ -29,6 +31,13 @@ Category.init(
       type: DataTypes.INTEGER,
       allowNull: true,
       references: { model: 'categories', key: 'id' }
+    },
+    depth: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        max: 100
+      }
     }
   },
   {

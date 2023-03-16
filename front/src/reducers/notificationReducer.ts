@@ -7,13 +7,13 @@ import { RootState, AppDispatch } from '../types/redux';
 
 const notificationSlice = createSlice({
   name: 'notification',
-  initialState: { message: '', error: false },
+  initialState: { message: '', error: false, modal: false },
   reducers: {
     addNotification(_state, action: PayloadAction<NotificationState>): NotificationState {
       return action.payload;
     },
     deleteNotification(): NotificationState {
-      return { message: '', error: false };
+      return { message: '', error: false, modal: false };
     }
   }
 });
@@ -26,7 +26,7 @@ ThunkAction<void, RootState, undefined, AnyAction> => (dispatch: AppDispatch): v
   if (timeoutId !== -1) {
     clearTimeout(timeoutId);
   }
-  dispatch(addNotification({ message, error }));
+  dispatch(addNotification({ message, error, modal: false }));
   timeoutId = Number(setTimeout((): void => {
     dispatch(deleteNotification());
   }, 5000));

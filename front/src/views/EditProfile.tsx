@@ -3,6 +3,10 @@ import {
 } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import { useAppDispatch, useAppSelector } from 'hooks/redux';
+import { addUser } from 'reducers/userReducer';
+import { TokenUser } from '@shared/types';
+import useNotification from 'hooks/useNotification';
 import { UserStackScreen } from '../types';
 import { updateUser } from '../services/users';
 import useError from '../hooks/useError';
@@ -35,8 +39,12 @@ const validationSchema = yup.object().shape({
     .required('name is required')
 });
 
-const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => {
+const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX.Element => {
   const error = useError();
+  const dispatch = useAppDispatch();
+  const notification = useNotification();
+  const currentUser = useAppSelector((state): TokenUser => state.user!);
+
   const {
     email, displayName, photoUrl, bio, username, id
   } = route.params;
@@ -49,22 +57,22 @@ const EditProfile = ({ route }: UserStackScreen<'EditProfile'>): JSX.Element => 
     images: [{ uri: photoUrl }]
   };
 
-  type EditProfileProps = typeof initialValues;
-
   const onSubmit = async (
-    { images, ...props }
-    : EditProfileProps
+    { images, ...params }
+    : typeof initialValues
   ): Promise<void> => {
     const image = images[0].uri !== initialValues.images[0].uri ? images[0] : undefined;
-    (Object.keys(props) as Array<keyof Omit<EditProfileProps, 'images'>>).forEach((key): void => {
-      if (props[key] === initialValues[key]) {
-        delete props[key];
+    (Object.keys(params) as Array<keyof Omit<typeof initialValues, 'images'>>).forEach((key): void => {
+      if (params[key] === initialValues[key]) {
+        delete params[key];
       }
     });
     try {
-      await updateUser(id, { ...props, image });
+      const res = await updateUser(id, { ...params, image });
+      dispatch(addUser({ ...currentUser, ...res.data }));
+      navigation.goBack();
     } catch (e) {
-      error(e);
+      notification({ message: 'Failed updating your profile. Please try again', error: false, modal: false });
     }
   };
 

@@ -9,6 +9,7 @@ const api = axios.create({
 api.interceptors.response.use(
   (response): AxiosResponse => response,
   (error: AxiosError<ErrorBody>): Promise<never> | string => {
+    console.log(error);
     if (error.response?.data.error) {
       error.message = error.response.data.error;
     }

@@ -55,7 +55,7 @@ export interface Post extends PostBase {
   condition: Condition;
   postcode: string;
   user: UserBase;
-  category: Category;
+  categories: Category[];
   favoriteId: number | null;
 }
 
@@ -73,6 +73,7 @@ export interface PostPage extends PaginationBase {
 
 export type SharedGetPostsQuery = {
   userId?: string;
+  categoryId?: string;
   favorite?: 'true';
   contains?: string;
 };
@@ -179,8 +180,19 @@ export enum Condition {
   used = 'used'
 }
 
-export interface LoginBody {
+export interface EmailBody {
   email: string;
+}
+
+export interface PasswordResetVerifyBody {
+  oobCode: string;
+}
+
+export interface PasswordResetConfirmationBody extends PasswordResetVerifyBody {
+  newPassword: string;
+}
+
+export interface LoginBody extends EmailBody {
   password: string;
 }
 

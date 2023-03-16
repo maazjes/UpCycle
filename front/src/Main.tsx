@@ -1,7 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
-import {
-  useCallback, useEffect, useRef
-} from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { View } from 'react-native';
 import {
@@ -10,12 +8,11 @@ import {
   OpenSans_500Medium
 } from '@expo-google-fonts/open-sans';
 import { TokenUser } from '@shared/types';
-import Container from 'components/Container';
+import NotificationModal from 'components/NotificationModal';
 import UserTabs from './navigation/UserTabs';
 import LoginStack from './navigation/LoginStack';
 import useAuthStorage from './hooks/useAuthStorage';
-import useAuth from './hooks/useAuth';
-import tokensService from './services/tokens';
+import { refreshIdToken } from './services/tokens';
 import { useAppDispatch, useAppSelector } from './hooks/redux';
 import { addUser } from './reducers/userReducer';
 import socket from './util/socket';
@@ -26,7 +23,6 @@ SplashScreen.preventAutoHideAsync();
 export default (): JSX.Element | null => {
   const authStorage = useAuthStorage();
   const dispatch = useAppDispatch();
-  const { logout } = useAuth();
   const currentUser = useAppSelector((state): TokenUser | null => state.user);
   const ready = useRef(false);
   const handle = useRef<number>();
@@ -41,11 +37,11 @@ export default (): JSX.Element | null => {
       let idToken = '';
       if (user) {
         try {
-          const { data } = await tokensService.refreshIdToken(
+          const { data } = await refreshIdToken(
             { refreshToken: user.refreshToken }
           );
           idToken = data.idToken;
-          user = { ...user, idToken: data.idToken };
+          user = { ...user, idToken };
         } catch (e) {
           ready.current = true;
           dispatch(addUser(null));
@@ -58,13 +54,18 @@ export default (): JSX.Element | null => {
 
         handle.current = setInterval(async (): Promise<void> => {
           if (user) {
-            const { data } = await tokensService.refreshIdToken(
-              { refreshToken: user?.refreshToken }
-            );
-            const newUser = { ...user, idToken: data.idToken };
-            await authStorage.setUser(newUser);
-            api.defaults.headers.common.Authorization = `bearer ${data.idToken}`;
-            dispatch(addUser(newUser));
+            try {
+              const { data } = await refreshIdToken(
+                { refreshToken: user.refreshToken }
+              );
+              const newUser = { ...user, idToken: data.idToken };
+              await authStorage.setUser(newUser);
+              api.defaults.headers.common.Authorization = `bearer ${data.idToken}`;
+              dispatch(addUser(newUser));
+            } catch (e) {
+              ready.current = true;
+              dispatch(addUser(null));
+            }
           }
         }, 3500000);
       }
@@ -99,7 +100,10 @@ export default (): JSX.Element | null => {
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
       <NavigationContainer>
         {currentUser ? (
-          <UserTabs profilePhotoUrl={currentUser.photoUrl} />
+          <>
+            <UserTabs profilePhotoUrl={currentUser.photoUrl} />
+            <NotificationModal />
+          </>
         ) : <LoginStack />}
       </NavigationContainer>
     </View>

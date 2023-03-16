@@ -4,10 +4,12 @@ import { StyleSheet } from 'react-native';
 import { dpw, dph } from 'util/helpers';
 import Button from 'components/Button';
 import { UserStackScreen } from 'types';
+import GridView from 'components/GridView';
+import { useTranslation } from 'react-i18next';
 import usePosts from '../hooks/usePosts';
-import GridView from '../components/GridView';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
+import Scrollable from '../components/Scrollable';
 
 const styles = StyleSheet.create({
   noFavorites: {
@@ -15,15 +17,15 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   noFavoritesText: {
-    marginVertical: dph(0.01),
+    marginVertical: dph(0.015),
     textAlign: 'center'
   }
 });
 
 const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Element => {
   const [posts, fetchPosts] = usePosts({ favorite: 'true' });
-  console.log(posts);
   const { navigate } = navigation;
+  const { t } = useTranslation();
 
   if (!posts) {
     return <Loading />;
@@ -33,16 +35,20 @@ const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Eleme
     return (
       <Container style={styles.noFavorites}>
         <FontAwesome5 name="sad-cry" size={dpw(0.15)} color="black" />
-        <Text style={styles.noFavoritesText} weight="bold" size="subheading">Sinulla ei näytä olevan yhtäkään suosikkia.</Text>
-        <Button text="Lisää suosikkeja" onPress={(): void => navigate('StackHome')} />
+        <Text style={styles.noFavoritesText} weight="bold" size="subheading">{t('You haven\'t added any favorites yet')}</Text>
+        <Button text="Lisää suosikkeja" onPress={(): void => navigate('StackSearch')} />
       </Container>
     );
   }
 
   return (
-    <GridView
-      posts={posts.data}
-    />
+    <Container>
+      <Scrollable
+        onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}
+      >
+        <GridView posts={posts.data} />
+      </Scrollable>
+    </Container>
   );
 };
 

@@ -17,6 +17,4 @@ const updateUser = (userId: string, body: UpdateUserBody): Promise<AxiosResponse
   return api.putForm<EmailUser>(`users/${userId}`, formdata);
 };
 
-export {
-  createUser, getUser, updateUser
-};
+export { createUser, getUser, updateUser };

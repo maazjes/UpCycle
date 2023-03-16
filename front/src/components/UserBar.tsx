@@ -2,10 +2,9 @@ import {
   View, Pressable, StyleSheet, ViewProps
 } from 'react-native';
 import { UserBase } from '@shared/types';
-import { dph, dpw } from 'util/helpers';
+import { dph } from 'util/helpers';
 import Text from './Text';
 import ProfilePhoto from './ProfilePhoto';
-import Container from './Container';
 
 const styles = StyleSheet.create({
   userBar: {
@@ -16,7 +15,6 @@ const styles = StyleSheet.create({
   },
   displayName: {
     flexDirection: 'column',
-    margin: 10,
     alignContent: 'space-around'
   },
   profilePhoto: {
@@ -53,7 +51,7 @@ const UserBar = ({
         uri={user.photoUrl}
       />
       <View style={[styles.displayName, { marginLeft: profilePhotoSize / 3 }]}>
-        <Text style={{ marginBottom: dph(0.01) }} size="subheading">{user.displayName}</Text>
+        <Text size="subheading">{user.displayName}</Text>
         <View style={styles.extra}>
           {extra}
           <View style={{ paddingHorizontal: 4 }} />

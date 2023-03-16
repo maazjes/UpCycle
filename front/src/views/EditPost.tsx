@@ -16,11 +16,11 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
   const error = useError();
 
   useEffect((): void => {
-    const getAndSetPost = async (): Promise<void> => {
-      const res = await getPost({ postId });
+    const initialize = async (): Promise<void> => {
+      const res = await getPost(postId);
       setCurrentPost(res.data);
     };
-    getAndSetPost();
+    initialize();
   });
 
   if (!currentPost) {

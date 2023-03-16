@@ -7,4 +7,4 @@ const refreshIdToken = (body:
 const verifyIdToken = (body: { idToken: string }):
 Promise<AxiosResponse<undefined>> => api.post<undefined>('verifyidtoken', body);
 
-export default { refreshIdToken, verifyIdToken };
+export { refreshIdToken, verifyIdToken };

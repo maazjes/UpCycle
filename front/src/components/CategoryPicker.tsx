@@ -1,47 +1,28 @@
-import {
-  View, Pre, Pressablessable, Pressable, Animated
-} from 'react-native';
+import { View, Pressable, TouchableOpacity } from 'react-native';
 import { Category } from '@shared/types';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getCategories } from 'services/categories';
 import { conditionalUseField } from 'util/helpers';
+import useNotification from 'hooks/useNotification';
 import Modal from './Modal';
 import Line from './Line';
 import Text from './Text';
 
-const animated = new Animated.Value(0);
+interface Props {
+  search?: boolean;
+  createPost?: boolean;
+  setCategory?: React.Dispatch<React.SetStateAction<number | undefined>>;
+}
 
-const CategoryPicker = ({ search = false, createPost = false }:
-{ search?: boolean; createPost?: boolean }): JSX.Element => {
+const CategoryPicker = ({ search = false, createPost = false, setCategory = undefined }: Props)
+: JSX.Element => {
   const [activeCategories, setActiveCategories] = useState<Category[][] | null>(null);
   const [visible, setVisible] = useState(false);
   const selectedCategories = useRef<Category['id'][]>([]);
   const [, , helpers] = conditionalUseField(createPost, 'categories');
   const finalSelection = useRef<string>();
-
-  const fadeIn = () => {
-    Animated.timing(animated, {
-      toValue: 1,
-      duration: 100,
-      useNativeDriver: true
-    }).start();
-  };
-
-  const fadeOut = () => {
-    Animated.timing(animated, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true
-    }).start();
-  };
-
-  const bgStyle = {
-    backgroundColor: animated.interpolate({
-      inputRange: [0, 300],
-      outputRange: ['rgba(255, 0, 0, 0)', 'rgba(0, 255, 0, 1)']
-    })
-  };
+  const notification = useNotification();
 
   useEffect(():void => {
     const initialize = async (): Promise<void> => {
@@ -73,6 +54,8 @@ const CategoryPicker = ({ search = false, createPost = false }:
       finalSelection.current = category.name;
       if (createPost) {
         helpers!.setValue(selectedCategories.current);
+      } else {
+        setCategory!(selectedCategories.current[selectedCategories.current.length - 1]);
       }
       closeModal();
     }
@@ -115,31 +98,32 @@ const CategoryPicker = ({ search = false, createPost = false }:
         onDismiss={onDismiss}
         visible={visible}
       >
-        <Pressable
-          style={{
-            paddingVertical: 7,
-            paddingLeft: 5
-          }}
-          onPress={onBackPress}
+        <View style={{
+          flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginBottom: 10, marginTop: 18
+        }}
         >
-          <Ionicons name="md-chevron-back-sharp" size={26} color="black" />
-        </Pressable>
-        {activeCategories
-          ? activeCategories[activeCategories.length - 1].map((category): JSX.Element => (
-            <Animated.View style={bgStyle}>
-              <Line style={{ borderColor: '#161716' }} />
-              <Pressable
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}
-                onPressIn={fadeIn}
-                onPressOut={fadeOut}
+          <Pressable
+            onPress={onBackPress}
+          >
+            <Ionicons name="md-chevron-back-sharp" size={24} color="black" />
+          </Pressable>
+          <Text size="subheading" weight="bold">Valitse kategoria</Text>
+          <Ionicons name="md-chevron-back-sharp" size={24} color="black" style={{ height: 0 }} />
+        </View>
+        <View style={{ marginVertical: 10 }}>
+          {activeCategories
+            ? activeCategories[activeCategories.length - 1].map((category, i): JSX.Element => (
+              <TouchableOpacity
+                key={category.name}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}
                 onPress={(): void => onCategoryPress(category)}
               >
-                <Text style={{ marginVertical: 13 }} align="center" size="subheading">{category.name}</Text>
-                {category.subcategories.length > 0 ? <AntDesign style={{ position: 'absolute', right: 10 }} name="caretright" size={16} color="black" /> : null}
-              </Pressable>
-
-            </Animated.View>
-          )) : null}
+                <AntDesign style={{ height: 0 }} name="caretright" size={16} color="black" />
+                <Text style={{ marginVertical: 8 }} align="center" size="subheading">{category.name}</Text>
+                <AntDesign style={category.subcategories.length === 0 ? { height: 0 } : null} name="caretright" size={16} color="black" />
+              </TouchableOpacity>
+            )) : null}
+        </View>
       </Modal>
     </View>
   );

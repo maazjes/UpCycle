@@ -17,9 +17,8 @@ const router = express.Router();
 
 router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res): Promise<void> => {
   const {
-    userId, limit, offset, favorite, contains
+    userId, limit, offset, favorite, contains, categoryId
   } = req.query;
-
   const userWhere = userId ? { userId } : undefined;
   const containsWhere = contains
     ? {
@@ -29,7 +28,23 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
       ]
     }
     : {};
+
   const where = userWhere || containsWhere;
+
+  if (categoryId && req.user) {
+    const postCategories = await PostCategory.findAndCountAll({
+      where: { categoryId: Number(categoryId) },
+      include: {
+        model: Post,
+        attributes: PostBaseAttributes,
+        include: PostBaseInclude,
+        where
+      }
+    });
+    const categoryPosts = postCategories.rows.map((c): PostBase => c.dataValues.post! as PostBase);
+    res.json({ totalItems: postCategories.count, offset: Number(offset), data: categoryPosts });
+    return;
+  }
 
   if (favorite && req.user) {
     const favorites = await Favorite.findAndCountAll({
@@ -47,13 +62,16 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
     res.json({ totalItems: favorites.count, offset: Number(offset), data: favoritePosts });
     return;
   }
+
   const posts = await Post.findAndCountAll({
     attributes: PostBaseAttributes,
-    include: PostBaseInclude,
+    include: PostInclude,
     limit: Number(limit),
     offset: Number(offset),
-    where
+    where,
+    distinct: true
   });
+
   res.json({ totalItems: posts.count, offset: Number(offset), data: posts.rows } as PostPage);
 });
 

@@ -6,7 +6,7 @@ import { UserStackScreen } from 'types';
 import Loading from 'components/Loading';
 import TextInput from '../components/TextInput';
 import socket from '../util/socket';
-import messagesService from '../services/messages';
+import { getMessages, createMessage } from '../services/messages';
 import { useAppSelector } from '../hooks/redux';
 import Text from '../components/Text';
 import Button from '../components/Button';
@@ -36,10 +36,10 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
   useEffect((): void => {
     const getAndSetMessages = async (): Promise<void> => {
       try {
-        const response = await messagesService.getMessages({
+        const res = await getMessages({
           userId1: currentUser.id, userId2: userId, page: 0, size: 5
         });
-        setMessages(response.data.messages);
+        setMessages(res.data);
       } catch (e) {
         console.log(e);
       }
@@ -54,7 +54,7 @@ const SingleChat = ({ route }: UserStackScreen<'SingleChat'>): JSX.Element => {
   }, [chatId]);
 
   const onNewMessage = async (): Promise<void> => {
-    const { data: newMessage } = await messagesService.createMessage(
+    const { data: newMessage } = await createMessage(
       { content: message, receiverId: userId }
     );
     socket.emit('message', { content: message, chatId: newMessage.chatId, createdAt: newMessage.createdAt });

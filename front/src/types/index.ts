@@ -7,6 +7,12 @@ import {
   FollowBase, UserBase, PaginationBase, EmailUser
 } from '@shared/types';
 
+declare module 'i18next' {
+  interface CustomTypeOptions {
+    returnNull: false;
+  }
+}
+
 export interface UpdateUserBody extends SharedUpdateUserBody {
   image?: { uri: string };
 }
@@ -16,6 +22,8 @@ export interface NewUserBody extends SharedNewUserBody {
 }
 
 export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;
+
+export type SearchPostsQuery = Pick<SharedGetPostsQuery, 'contains' | 'categoryId'>;
 
 export interface NewPostBody extends SharedNewPostBody {
   categories: number[];
@@ -43,6 +51,7 @@ export type PaginationQuery = {
 export interface NotificationState {
   message: string;
   error: boolean;
+  modal: boolean;
 }
 
 // React Native Navigation
@@ -50,6 +59,7 @@ export interface NotificationState {
 export type LoginStackParams = {
   'Login': undefined;
   'SignUp': undefined;
+  'ResetPassword': undefined;
 };
 
 export type UserStackParams = {
@@ -83,6 +93,9 @@ export type LoginStackNavigation = NativeStackNavigationProp<LoginStackParams>;
 
 export type UserStackScreen<S extends keyof UserStackParams> =
 NativeStackScreenProps<UserStackParams, S>;
+
+export type LoginStackScreen<S extends keyof LoginStackParams> =
+NativeStackScreenProps<LoginStackParams, S>;
 
 // SocketIO
 

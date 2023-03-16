@@ -5,21 +5,20 @@ import {
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Post } from '@shared/types';
+import useNotification from 'hooks/useNotification';
+// @ts-ignore
+import * as postcodes from 'datasets-fi-postalcodes';
 import { addFavorite, removeFavorite } from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
-import useError from '../hooks/useError';
 
 const styles = StyleSheet.create({
-  titleAndPrice: {
-    flexDirection: 'column'
-  },
   infoBox: {
     flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 18,
     paddingTop: 8,
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    flex: 1
   },
   container: {
   },
@@ -35,7 +34,7 @@ interface GridPostProps {
 const SinglePostCard = ({
   post, containerStyle = {}
 }: GridPostProps): JSX.Element => {
-  const error = useError();
+  const notification = useNotification();
   const [favoriteId, setFavoriteId] = useState<null | number>(post.favoriteId);
 
   const onaddFavorite = async (): Promise<void> => {
@@ -43,7 +42,7 @@ const SinglePostCard = ({
       const favorite = await addFavorite({ postId: post.id });
       setFavoriteId(favorite.data.id);
     } catch (e) {
-      error(e);
+      notification({ message: 'Adding favorite failed. Please try again.', error: true, modal: true });
     }
   };
 
@@ -54,7 +53,7 @@ const SinglePostCard = ({
         setFavoriteId(null);
       }
     } catch (e) {
-      error(e);
+      notification({ message: 'Removing favorite failed. Please try again.', error: true, modal: true });
     }
   };
 
@@ -69,14 +68,20 @@ const SinglePostCard = ({
         images={post.images}
       />
       <View style={styles.infoBox}>
-        <View style={styles.titleAndPrice}>
+        <View>
           <Text size="subheading" weight="bold">{post.title}</Text>
+          <Text>{post.condition}</Text>
           <Text size="subheading" weight="bold" color="green">{post.price}</Text>
-          <Text style={{ marginTop: 5 }}>{post.description}</Text>
+          <Text style={{ marginTop: 10 }}>{post.description}</Text>
         </View>
-        <Pressable onPress={handleFavorite}>
-          {favoriteIcon}
-        </Pressable>
+        <View style={{ justifyContent: 'space-between' }}>
+          <Text>{postcodes[post.postcode]}</Text>
+          <Pressable onPress={handleFavorite}>
+            {favoriteIcon}
+          </Pressable>
+          <View />
+          <View />
+        </View>
       </View>
     </ScrollView>
   );

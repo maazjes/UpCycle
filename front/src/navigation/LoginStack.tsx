@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import ResetPassword from 'views/ResetPassword';
 import { LoginStackParams } from '../types';
 import Login from '../views/Login';
 import SignUp from '../views/SignUp';
@@ -9,6 +10,7 @@ const LoginStack = (): JSX.Element => (
   <Stack.Navigator>
     <Stack.Screen name="Login" component={Login} options={{ title: 'Log in      ' }} />
     <Stack.Screen name="SignUp" component={SignUp} options={{ title: 'Sign up' }} />
+    <Stack.Screen name="ResetPassword" component={ResetPassword} options={{ title: 'Sign up' }} />
   </Stack.Navigator>
 );
 

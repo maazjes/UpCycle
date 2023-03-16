@@ -11,4 +11,4 @@ const getMessages = (query: GetMessagesQuery): Promise<AxiosResponse<MessagePage
   return api.get<MessagePage>(finalQuery);
 };
 
-export default { createMessage, getMessages };
+export { createMessage, getMessages };

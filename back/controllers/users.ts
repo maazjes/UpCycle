@@ -4,7 +4,6 @@ import {
   EmailUser, SharedNewUserBody, SharedUpdateUserBody,
   User as SharedUser
 } from '@shared/types';
-import { Op } from 'sequelize';
 import { userExtractor } from '../util/middleware.js';
 import { User, Follow } from '../models/index.js';
 import firebase from '../util/firebase.js';
@@ -17,19 +16,16 @@ router.get<{ userId: string }, SharedUser>('/:userId', userExtractor, async (req
   if (!req.user) {
     throw new Error('authentication required');
   }
+
   const { userId } = req.params;
   const user = await User.findOne({
     where: { id: userId },
     attributes: { exclude: ['createdAt', 'updatedAt'] }
   });
+
   const followers = await Follow.count({ where: { followingId: userId } });
   const following = await Follow.count({ where: { followerId: userId } });
-  const follow = await Follow.findOne({
-    where: {
-      [Op.and]:
-    [{ followerId: req.user.id }, { followingId: userId }]
-    }
-  });
+  const follow = await Follow.findOne({ where: { followerId: req.user.id, followingId: userId } });
   const followId = follow ? follow.id : null;
 
   if (!user) {

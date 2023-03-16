@@ -20,7 +20,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F2F2',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: 10
+    marginVertical: 10,
+    marginHorizontal: 5
   },
   imageBoxes: {
     flexDirection: 'row',
