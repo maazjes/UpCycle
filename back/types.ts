@@ -2,7 +2,7 @@ import { Request as ExpressRequest } from 'express';
 import { IncomingHttpHeaders } from 'http';
 import {
   SharedGetMessagesQuery, SharedGetPostsQuery,
-  UserBase, SharedNewPostBody
+  UserBase, SharedNewPostBody, TypedImage
 } from '@shared/types';
 import { User } from './models';
 
@@ -71,15 +71,18 @@ export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
-  message: ({ content, createdAt }: { content: string; createdAt: Date }) => void;
+  message: ({ text, createdAt, images }:
+  { text: string; createdAt: Date; images?: TypedImage[] }) => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
-  message: ({ content, chatId, createdAt }:
-  { content: string; chatId: number; createdAt: Date }) => void;
-  join: (chatId: number) => void;
-  leave: (chatId: number) => void;
+  message: ({
+    text, userId, createdAt, images
+  }:
+  { text: string; userId: string; createdAt: Date; images: TypedImage[] }) => void;
+  join: (userId: string) => void;
+  leave: (userId: string) => void;
 }
 
 export interface InterServerEvents {

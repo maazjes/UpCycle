@@ -23,9 +23,7 @@ const Follows = ({ route }: UserStackScreen<'Follows'>): JSX.Element => {
   if (follows.data.length === 0) {
     return (
       <Text>
-        {role === 'follower'
-          ? 'No followers to show'
-          : 'No followings to show'}
+        {role === 'follower' ? 'No followers to show' : 'No followings to show'}
       </Text>
     );
   }
@@ -38,20 +36,21 @@ const Follows = ({ route }: UserStackScreen<'Follows'>): JSX.Element => {
         renderItem={({ item }): JSX.Element => {
           const following = item.followerId === currentUser.id;
           const onPress = ():
-          Promise<AxiosResponse<Follow>> |
-          Promise<AxiosResponse<undefined>> => (following
-            ? removeFollow(item.id)
-            : createFollow({ userId }));
+            | Promise<AxiosResponse<Follow>>
+            | Promise<AxiosResponse<undefined>> =>
+            following ? removeFollow(item.id) : createFollow({ userId });
           const buttonText = following ? 'Unfollow' : 'Follow';
-          const itemRight = (item.following?.id || item.follower?.id) === currentUser.id
-            ? undefined
-            : <Button o={following} size="small" onPress={onPress} text={buttonText} />;
-          return (
-            <UserBar
-              itemRight={itemRight}
-              user={item[role]!}
-            />
-          );
+          const itemRight =
+            (item.following?.id || item.follower?.id) ===
+            currentUser.id ? undefined : (
+              <Button
+                o={following}
+                size="small"
+                onPress={onPress}
+                text={buttonText}
+              />
+            );
+          return <UserBar itemRight={itemRight} user={item[role]!} />;
         }}
         onEndReached={fetchFollows}
         onEndReachedThreshold={0.2}

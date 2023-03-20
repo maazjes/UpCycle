@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
   posts: {
     flexWrap: 'wrap',
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-evenly'
   },
   onePost: {
     justifyContent: 'flex-start'
@@ -25,13 +25,15 @@ interface Props extends ViewProps {
 
 const GridView = ({ posts, style }: Props): JSX.Element => (
   <View style={[styles.posts, posts.length === 1 ? styles.onePost : {}, style]}>
-    {posts.map((post, i): JSX.Element => (
-      <PostCard
-        key={post.id}
-        containerStyle={i < posts.length - 2 ? styles.postCard : styles.lastPostCard}
-        post={post}
-      />
-    ))}
+    {posts.map(
+      (post, i): JSX.Element => (
+        <PostCard
+          key={post.id}
+          containerStyle={i < posts.length - 2 ? styles.postCard : styles.lastPostCard}
+          post={post}
+        />
+      )
+    )}
   </View>
 );
 

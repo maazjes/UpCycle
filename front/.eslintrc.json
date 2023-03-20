@@ -1,19 +1,19 @@
 {
-  "plugins": ["react", "react-native", "import"],
+  "plugins": ["react", "react-native", "import", "unused-imports", "prettier"],
   "settings": {
     "react": {
       "version": "detect"
     }
   },
-  "extends": ["airbnb", "airbnb-typescript"],
+  "extends": ["airbnb", "airbnb-typescript", "prettier"],
   "env": {
     "react-native/react-native": true
   },
   "rules": {
+    "prettier/prettier": "error",
     "react/prop-types": "off",
-    "indent": ["error", 2],
+    "indent": "off",
     "@typescript-eslint/react/react-in-jsx": "off",
-    "@typescript-eslint/comma-dangle": ["error", "never"],
     "@typescript-eslint/no-redeclare": 0,
     "@typescript-eslint/no-explicit-any": 1,
     "react/react-in-jsx-scope": "off",
@@ -30,6 +30,8 @@
     "no-param-reassign": 0,
     "no-nested-ternary": "off",
     "global-require":"off",
+    "unused-imports/no-unused-imports": "error",
+    "max-len": ["error", {"code": 100}],
     "react/require-default-props": [
       2,
       {
@@ -41,8 +43,7 @@
       {
         "allowTypedFunctionExpressions": false
       }
-    ],
-    "@typescript-eslint/member-delimiter-style": "error"
+    ]
   },
   "parser": "@typescript-eslint/parser",
   "parserOptions": {

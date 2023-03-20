@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import express from 'express';
 import cors from 'cors';
 import 'express-async-errors';
@@ -45,28 +46,25 @@ io.use((socket, next): void => {
 });
 
 io.on('connection', async (socket): Promise<void> => {
+  console.log('connected');
   const { userId } = socket.handshake.auth;
   if (!userId || !isString(userId)) {
     throw new Error('invalid username');
   }
   socket.join(userId);
 
-  socket.on('message', ({ content, chatId, createdAt }): void => {
-    const chatIdString = String(chatId);
-    if (!socket.rooms.has(chatIdString)) {
-      socket.join(chatIdString);
-    }
-    socket.broadcast.to(chatIdString).emit('message', { content, createdAt });
+  socket.on('message', ({
+    text, userId, createdAt, images
+  }): void => {
+    socket.broadcast.to(userId).emit('message', { text, createdAt, images });
   });
 
-  socket.on('join', (chatId): void => {
-    const chatIdString = String(chatId);
-    socket.join(chatIdString);
+  socket.on('join', (userId): void => {
+    socket.join(userId);
   });
 
-  socket.on('leave', (chatId): void => {
-    const chatIdString = String(chatId);
-    socket.leave(chatIdString);
+  socket.on('leave', (userId): void => {
+    socket.leave(userId);
   });
 });
 

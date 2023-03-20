@@ -7,21 +7,20 @@ import { FirebaseLoginRes } from '../types.js';
 
 const router = express.Router();
 
-router.post<{}, TokenUser, LoginBody>('/', async (
-  req,
-  res
-): Promise<void> => {
+router.post<{}, TokenUser, LoginBody>('/', async (req, res): Promise<void> => {
   const { email, password } = req.body;
-  const user = await got.post(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
-    {
-      json: {
-        email,
-        password,
-        returnSecureToken: true
+  const user = await got
+    .post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FIREBASE_API_KEY}`,
+      {
+        json: {
+          email,
+          password,
+          returnSecureToken: true
+        }
       }
-    }
-  ).json<FirebaseLoginRes>();
+    )
+    .json<FirebaseLoginRes>();
   if (!user.registered) {
     throw new Error('invalid username');
   }

@@ -22,15 +22,21 @@ const CreatePost = (): JSX.Element => {
   const onSubmit = async (values: NewPostBody): Promise<void> => {
     try {
       await createPost({ ...values, price: `${values.price}€` });
-      notification({ message: 'Post created successfully.', error: false, modal: false });
+      notification({
+        message: 'Post created successfully.',
+        error: false,
+        modal: false
+      });
     } catch (e) {
-      notification({ message: 'Failed creating the post. Please try again.', error: true, modal: false });
+      notification({
+        message: 'Failed creating the post. Please try again.',
+        error: true,
+        modal: false
+      });
     }
   };
 
-  return (
-    <PostForm onSubmit={onSubmit} initialValues={initialValues} />
-  );
+  return <PostForm onSubmit={onSubmit} initialValues={initialValues} />;
 };
 
 export default CreatePost;

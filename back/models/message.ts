@@ -2,7 +2,7 @@ import {
   Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
-import { User, Chat } from './index.js';
+import { User, Chat, Image } from './index.js';
 
 class Message extends Model<
 InferAttributes<Message>, InferCreationAttributes<Message>
@@ -15,11 +15,13 @@ InferAttributes<Message>, InferCreationAttributes<Message>
 
   declare chatId: ForeignKey<Chat['id']>;
 
-  declare content: string;
+  declare text: string;
 
   declare createdAt: CreationOptional<Date>;
 
   declare updatedAt: CreationOptional<Date>;
+
+  declare images?: Image[];
 }
 
 Message.init(
@@ -44,7 +46,7 @@ Message.init(
       allowNull: false,
       references: { model: 'chats', key: 'id' }
     },
-    content: {
+    text: {
       type: DataTypes.STRING,
       allowNull: false
     },

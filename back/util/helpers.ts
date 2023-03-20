@@ -6,8 +6,9 @@ import firebase from './firebase.js';
 import { FIREBASE_BUCKET_URL } from './config.js';
 
 export const saveImages = async (
-  postId: number,
-  imageUrls: string[]
+  imageUrls: string[],
+  postId?: number,
+  messageId?: number
 ): Promise<Image[]> => {
   const dimensionPromises = imageUrls.map((url): Promise<ProbeResult> => probe(url));
   const dimensions = await Promise.all(dimensionPromises);
@@ -18,7 +19,8 @@ export const saveImages = async (
     uri: image.url,
     width: image.width,
     height: image.height,
-    postId
+    postId,
+    messageId
   }));
   const images = await Promise.all(imagePromises);
   if (!images) {

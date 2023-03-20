@@ -1,5 +1,8 @@
 import {
-  View, StyleSheet, GestureResponderEvent, Pressable,
+  View,
+  StyleSheet,
+  GestureResponderEvent,
+  Pressable,
   Image
 } from 'react-native';
 import { Formik } from 'formik';
@@ -57,7 +60,10 @@ const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
     passwordConfirmation: ''
   };
 
-  const onSubmit = async ({ email, password }: {
+  const onSubmit = async ({
+    email,
+    password
+  }: {
     email: string;
     password: string;
     passwordConfirmation: string;
@@ -75,24 +81,46 @@ const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
     <Container style={styles.loginForm}>
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
       <Image style={styles.logo} source={require('../../assets/logo.png')} />
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={onSubmit}
+      >
         {({ handleSubmit }): JSX.Element => (
           <View>
             <FormikTextInput name="email" placeholder="email" />
-            <FormikTextInput secureTextEntry name="password" placeholder="Password" />
+            <FormikTextInput
+              secureTextEntry
+              name="password"
+              placeholder="Password"
+            />
             <Button
               style={styles.loginButton}
-              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              onPress={
+                handleSubmit as unknown as (
+                  event: GestureResponderEvent
+                ) => void
+              }
               text="Login"
             />
           </View>
         )}
       </Formik>
-      <Pressable style={styles.signUpButton} onPress={(): void => navigate('SignUp')}>
-        <Text weight="bold" color="green">Sign up</Text>
+      <Pressable
+        style={styles.signUpButton}
+        onPress={(): void => navigate('SignUp')}
+      >
+        <Text weight="bold" color="green">
+          Sign up
+        </Text>
       </Pressable>
-      <Pressable style={styles.signUpButton} onPress={(): void => navigate('ResetPassword')}>
-        <Text weight="bold" color="green">Reset password</Text>
+      <Pressable
+        style={styles.signUpButton}
+        onPress={(): void => navigate('ResetPassword')}
+      >
+        <Text weight="bold" color="green">
+          Reset password
+        </Text>
       </Pressable>
     </Container>
   );

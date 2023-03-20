@@ -1,4 +1,6 @@
-import { View, Pressable, TouchableOpacity } from 'react-native';
+import {
+  View, Pressable, TouchableOpacity, ViewProps
+} from 'react-native';
 import { Category } from '@shared/types';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
@@ -9,13 +11,18 @@ import Modal from './Modal';
 import Line from './Line';
 import Text from './Text';
 
-interface Props {
+interface Props extends ViewProps {
   search?: boolean;
   createPost?: boolean;
   setCategory?: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-const CategoryPicker = ({ search = false, createPost = false, setCategory = undefined }: Props)
+const CategoryPicker = ({
+  search = false,
+  createPost = false,
+  setCategory = undefined,
+  ...props
+}: Props)
 : JSX.Element => {
   const [activeCategories, setActiveCategories] = useState<Category[][] | null>(null);
   const [visible, setVisible] = useState(false);
@@ -38,6 +45,9 @@ const CategoryPicker = ({ search = false, createPost = false, setCategory = unde
 
   const onDismiss = (): void => {
     finalSelection.current = undefined;
+    if (setCategory) {
+      setCategory(undefined);
+    }
     closeModal();
   };
 
@@ -82,7 +92,7 @@ const CategoryPicker = ({ search = false, createPost = false, setCategory = unde
   };
 
   return (
-    <View>
+    <View {...props}>
       <Pressable
         style={{
           flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 20
@@ -99,29 +109,32 @@ const CategoryPicker = ({ search = false, createPost = false, setCategory = unde
         visible={visible}
       >
         <View style={{
-          flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', marginBottom: 10, marginTop: 18
+          flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', paddingVertical: 12
         }}
         >
-          <Pressable
+          <TouchableOpacity
             onPress={onBackPress}
           >
             <Ionicons name="md-chevron-back-sharp" size={24} color="black" />
-          </Pressable>
+          </TouchableOpacity>
           <Text size="subheading" weight="bold">Valitse kategoria</Text>
           <Ionicons name="md-chevron-back-sharp" size={24} color="black" style={{ height: 0 }} />
         </View>
-        <View style={{ marginVertical: 10 }}>
+        <View>
           {activeCategories
             ? activeCategories[activeCategories.length - 1].map((category, i): JSX.Element => (
-              <TouchableOpacity
-                key={category.name}
-                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}
-                onPress={(): void => onCategoryPress(category)}
-              >
-                <AntDesign style={{ height: 0 }} name="caretright" size={16} color="black" />
-                <Text style={{ marginVertical: 8 }} align="center" size="subheading">{category.name}</Text>
-                <AntDesign style={category.subcategories.length === 0 ? { height: 0 } : null} name="caretright" size={16} color="black" />
-              </TouchableOpacity>
+              <View>
+                <Line />
+                <TouchableOpacity
+                  key={category.name}
+                  style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly' }}
+                  onPress={(): void => onCategoryPress(category)}
+                >
+                  <AntDesign style={{ height: 0 }} name="caretright" size={16} color="black" />
+                  <Text style={{ marginVertical: 12 }} align="center" size="subheading">{category.name}</Text>
+                  <AntDesign style={category.subcategories.length === 0 ? { height: 0 } : null} name="caretright" size={16} color="black" />
+                </TouchableOpacity>
+              </View>
             )) : null}
         </View>
       </Modal>

@@ -1,12 +1,12 @@
-import {
-  StyleSheet, Image, View, Pressable, ViewStyle
-} from 'react-native';
+import { StyleSheet, Image, View, Pressable, ViewStyle } from 'react-native';
 import { useField } from 'formik';
-import * as ImagePicker from 'expo-image-picker';
+import { MediaTypeOptions } from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
 import { TypedImage } from '@shared/types';
-import { dpw } from 'util/helpers';
+import { dpw, pickImage } from 'util/helpers';
+import { useState } from 'react';
 import Text from './Text';
+import MenuModal from './MenuModal';
 
 const styles = StyleSheet.create({
   errorText: {
@@ -31,7 +31,8 @@ const styles = StyleSheet.create({
   addedImage: {
     width: dpw(0.3),
     height: dpw(0.3),
-    marginVertical: 10
+    marginVertical: 10,
+    marginHorizontal: 5
   }
 });
 
@@ -43,81 +44,84 @@ interface FormikImageInputProps {
 }
 
 const FormikImageInput = ({
-  name, amount, circle = false, containerStyle = {}
+  name,
+  amount,
+  circle = false,
+  containerStyle = {}
 }: FormikImageInputProps): JSX.Element => {
   const [field, meta, helpers] = useField<TypedImage[]>(name);
+  const [modalVisible, setModalVisible] = useState(false);
   const showError = meta.touched;
   const { error } = meta;
 
-  const pickImage = async (): Promise<TypedImage | null> => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [1, 1],
-      allowsEditing: true,
-      quality: 1
-    });
-    if (result.canceled) {
-      return null;
-    }
-    const { width, height, uri } = result.assets[0];
-    const aspectRatio = width / height;
-    const image = {
-      width, height, uri, id: aspectRatio * Math.random()
-    };
-    return image;
+  const imagePickerOptions = {
+    mediaTypes: MediaTypeOptions.Images,
+    aspect: [1, 1] as [number, number],
+    allowsEditing: true,
+    quality: 1
   };
 
-  const addImage = async (): Promise<void> => {
-    const image = await pickImage();
+  const addImage = async (from: 'gallery' | 'camera'): Promise<void> => {
+    const image = await pickImage({
+      ...imagePickerOptions,
+      from
+    });
+    setModalVisible(false);
     if (image) {
       helpers.setValue(field.value.concat(image));
     }
   };
 
-  const deleteAndAddImage = async (imageId: number): Promise<void> => {
-    let filtered = field.value.filter((image): boolean => image.id !== imageId);
-    const image = await pickImage();
-    if (image) {
-      filtered = filtered.concat(image);
-    }
+  const deleteImage = async (imageId: number): Promise<void> => {
+    const filtered = field.value.filter((image): boolean => image.id !== imageId);
     helpers.setValue(filtered);
+  };
+
+  const menuModalItems = {
+    Gallery: (): Promise<void> => addImage('gallery'),
+    Camera: (): Promise<void> => addImage('camera')
   };
 
   const addedImageStyle = circle
     ? [styles.addedImage, { borderRadius: dpw(0.15) }]
     : styles.addedImage;
 
-  const imageBoxStyle = circle
-    ? [styles.imageBox, { borderRadius: dpw(0.15) }]
-    : styles.imageBox;
+  const imageBoxStyle = circle ? [styles.imageBox, { borderRadius: dpw(0.15) }] : styles.imageBox;
 
   return (
     <>
       <View style={[styles.imageBoxes, containerStyle]}>
-        {(Array(amount).fill(0)).map((_, i): JSX.Element => {
-          const currentImage = field.value[i];
-          if (currentImage) {
+        {Array(amount)
+          .fill(0)
+          .map((_, i): JSX.Element => {
+            const currentImage = field.value[i];
+            if (currentImage) {
+              return (
+                <Pressable
+                  key={currentImage.id || currentImage.uri}
+                  onPress={(): Promise<void> => deleteImage(currentImage.id)}
+                >
+                  <Image style={addedImageStyle} source={{ uri: currentImage.uri }} />
+                </Pressable>
+              );
+            }
             return (
               <Pressable
-                key={currentImage.id || currentImage.uri}
-                onPress={(): Promise<void> => deleteAndAddImage(currentImage.id)}
+                // eslint-disable-next-line react/no-array-index-key
+                key={i * -1}
+                onPress={(): void => setModalVisible(true)}
+                style={imageBoxStyle}
               >
-                <Image
-                  style={addedImageStyle}
-                  source={{ uri: currentImage.uri }}
-                />
-
+                <MaterialIcons name="add-photo-alternate" size={30} color="black" />
               </Pressable>
             );
-          }
-          return (
-            // eslint-disable-next-line react/no-array-index-key
-            <Pressable key={i * -1} onPress={addImage} style={imageBoxStyle}>
-              <MaterialIcons name="add-photo-alternate" size={30} color="black" />
-            </Pressable>
-          );
-        })}
+          })}
       </View>
+      <MenuModal
+        items={menuModalItems}
+        visible={modalVisible}
+        onDismiss={(): void => setModalVisible(false)}
+      />
       {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </>
   );

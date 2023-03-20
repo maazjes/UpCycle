@@ -2,10 +2,11 @@ import {
   StyleSheet, View, ViewStyle, ScrollView,
   Pressable
 } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Post } from '@shared/types';
 import useNotification from 'hooks/useNotification';
+
 // @ts-ignore
 import * as postcodes from 'datasets-fi-postalcodes';
 import { addFavorite, removeFavorite } from '../services/favorites';
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
   infoBox: {
     flexDirection: 'row',
     paddingHorizontal: 18,
-    paddingTop: 8,
+    paddingTop: 10,
     justifyContent: 'space-between',
     flex: 1
   },
@@ -69,19 +70,18 @@ const SinglePostCard = ({
       />
       <View style={styles.infoBox}>
         <View>
-          <Text size="subheading" weight="bold">{post.title}</Text>
-          <Text>{post.condition}</Text>
-          <Text size="subheading" weight="bold" color="green">{post.price}</Text>
-          <Text style={{ marginTop: 10 }}>{post.description}</Text>
-        </View>
-        <View style={{ justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text size="subheading" weight="bold">{post.title}</Text>
+            <Entypo name="dot-single" size={20} color="black" />
+            <Text>{post.condition}</Text>
+          </View>
           <Text>{postcodes[post.postcode]}</Text>
-          <Pressable onPress={handleFavorite}>
-            {favoriteIcon}
-          </Pressable>
-          <View />
-          <View />
+          <Text size="subheading" weight="bold" color="green">{post.price}</Text>
+          <Text style={{ marginTop: 5 }}>{post.description}</Text>
         </View>
+        <Pressable style={{ marginTop: 4 }} onPress={handleFavorite}>
+          {favoriteIcon}
+        </Pressable>
       </View>
     </ScrollView>
   );

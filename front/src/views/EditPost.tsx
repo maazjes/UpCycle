@@ -17,6 +17,7 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
+      console.log('asd', postId);
       const res = await getPost(postId);
       setCurrentPost(res.data);
     };
@@ -24,18 +25,15 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
   });
 
   if (!currentPost) {
-    return (
-      <Loading />
-    );
+    return <Loading />;
   }
 
   const onSubmit = async ({ images, ...values }: NewPostBody): Promise<void> => {
     try {
       const valuesToAdd = { ...values, price: `${values.price}€` };
-      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostBody, 'images'>>)
-        .forEach(
-          (key): boolean => (values[key] === currentPost[key]) && delete valuesToAdd[key]
-        );
+      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostBody, 'images'>>).forEach(
+        (key): boolean => values[key] === currentPost[key] && delete valuesToAdd[key]
+      );
       const imageUris: string[] = [];
       images.forEach((newImage): void => {
         currentPost.images.forEach((currentImage): void => {
@@ -44,12 +42,13 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
           }
         });
       });
-      const imagesToAdd = ([...images])
-        .filter((image): boolean => !imageUris.includes(image.uri));
-      const imagesToDelete = ([...currentPost.images])
-        .filter((image): boolean => !imageUris.includes(image.uri));
-      const imagePromises = imagesToDelete
-        .map((image): Promise<AxiosResponse<undefined>> => deleteImage(image.id));
+      const imagesToAdd = [...images].filter((image): boolean => !imageUris.includes(image.uri));
+      const imagesToDelete = [...currentPost.images].filter(
+        (image): boolean => !imageUris.includes(image.uri)
+      );
+      const imagePromises = imagesToDelete.map(
+        (image): Promise<AxiosResponse<undefined>> => deleteImage(image.id)
+      );
       await Promise.all(imagePromises);
       const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
       await updatePost(Number(postId), finalValuesToAdd);
@@ -61,9 +60,7 @@ const EditPost = ({ route }: UserStackScreen<'EditPost'>): JSX.Element => {
     }
   };
 
-  return (
-    <PostForm onSubmit={onSubmit} initialValues={currentPost} />
-  );
+  return <PostForm onSubmit={onSubmit} initialValues={currentPost} />;
 };
 
 export default EditPost;

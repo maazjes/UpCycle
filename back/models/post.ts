@@ -31,7 +31,7 @@ InferAttributes<Post>, InferCreationAttributes<Post>
 
   declare user?: User;
 
-  declare category?: Category;
+  declare categories?: Category[];
 }
 
 Post.init(

@@ -1,6 +1,4 @@
-import {
-  View, StyleSheet, Text, ViewProps
-} from 'react-native';
+import { View, StyleSheet, Text, ViewProps } from 'react-native';
 import { useAppSelector } from '../hooks/redux';
 import { NotificationState } from '../types';
 
@@ -34,9 +32,7 @@ const Notification = (props: ViewProps): JSX.Element => {
 
   return (
     <View style={styles.container} {...props}>
-      <Text style={error ? styles.error : styles.success}>
-        {message}
-      </Text>
+      <Text style={error ? styles.error : styles.success}>{message}</Text>
     </View>
   );
 };

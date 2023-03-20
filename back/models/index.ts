@@ -18,6 +18,8 @@ Post.belongsTo(User, { foreignKey: 'userId' });
 
 Post.hasMany(Image, { foreignKey: 'postId' });
 Image.belongsTo(Post, { foreignKey: 'postId' });
+Message.hasMany(Image, { foreignKey: 'messageId' });
+Image.belongsTo(Message, { foreignKey: 'messageId' });
 
 Post.hasMany(Favorite, { foreignKey: 'postId' });
 Favorite.belongsTo(Post, { foreignKey: 'postId' });
@@ -27,6 +29,9 @@ Chat.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
 Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
+
+Message.hasOne(Chat, { foreignKey: 'lastMessageId', as: 'lastMessage' });
+Chat.belongsTo(Message, { foreignKey: 'lastMessageId', as: 'lastMessage' });
 
 Follow.belongsTo(User, { foreignKey: 'followingId', as: 'following' });
 Follow.belongsTo(User, { foreignKey: 'followerId', as: 'follower' });

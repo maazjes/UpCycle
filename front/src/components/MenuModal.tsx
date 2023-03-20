@@ -11,7 +11,7 @@ interface Props extends Omit<ModalProps, 'children'> {
 const MenuModal = ({ items, ...props }: Props): JSX.Element => (
   <Modal {...props}>
     {Object.keys(items).map((key, i): JSX.Element => (
-      <View>
+      <View key={key}>
         {i > 0 ? <Line style={{ borderColor: '#161716' }} /> : null}
         <TouchableOpacity onPress={items[key]}>
           <Text

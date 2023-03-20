@@ -13,10 +13,7 @@ const styles = StyleSheet.create({
 
 const Modal = ({ style, ...props }: ModalProps): JSX.Element => (
   <Portal>
-    <PaperModal
-      contentContainerStyle={styles.modal}
-      {...props}
-    />
+    <PaperModal contentContainerStyle={styles.modal} {...props} />
   </Portal>
 );
 

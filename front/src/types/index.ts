@@ -75,6 +75,7 @@ export type UserStackParams = {
   'SingleChat': { userId: string };
   'Follows': { userId: string; role: 'follower' | 'following' };
   'SelectCategory': { selectedCategories: React.MutableRefObject<string[]> };
+  'LightBox': { images?: TypedImage[]; index?: number };
 };
 
 export type UserTabsParams = {
@@ -83,6 +84,7 @@ export type UserTabsParams = {
   'Profile': undefined;
   'CreatePost': undefined;
   'Chat': undefined;
+  'LightBox': { images?: TypedImage[] };
 };
 
 export type UserStackNavigation =
@@ -100,12 +102,15 @@ NativeStackScreenProps<LoginStackParams, S>;
 // SocketIO
 
 export interface ServerToClientEvents {
-  message: ({ content, createdAt }: { content: string; createdAt: string }) => void;
+  message: ({ text, createdAt, images }:
+  { text: string; createdAt: Date; images: TypedImage[] }) => void;
 }
 
 export interface ClientToServerEvents {
-  message: ({ content, chatId, createdAt }:
-  { content: string; chatId: number; createdAt: string }) => void;
+  message: ({
+    text, receiverId, createdAt, images
+  }:
+  { text: string; receiverId: string; createdAt: Date; images: TypedImage[] }) => void;
   join: (chatId: number) => void;
   leave: (chatId: number) => void;
 

@@ -11,10 +11,7 @@ import useNotification from 'hooks/useNotification';
 import useError from 'hooks/useError';
 
 const validationSchema = yup.object().shape({
-  email: yup
-    .string()
-    .email()
-    .required('Email is required')
+  email: yup.string().email().required('Email is required')
 });
 
 const initialValues = {
@@ -28,9 +25,17 @@ const ResetPassword = (): JSX.Element => {
   const onSubmit = async ({ email }: EmailBody): Promise<void> => {
     try {
       await sendPasswordResetEmail({ email });
-      notification({ message: 'password reset link sent to your email', error: false, modal: false });
+      notification({
+        message: 'password reset link sent to your email',
+        error: false,
+        modal: false
+      });
     } catch (e) {
-      notification({ message: 'user not found with this email address', error: true, modal: false });
+      notification({
+        message: 'user not found with this email address',
+        error: true,
+        modal: false
+      });
     }
   };
 

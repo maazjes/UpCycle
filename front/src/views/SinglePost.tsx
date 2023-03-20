@@ -83,12 +83,12 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
 
   const menuModalItems = {
     'Delete post': (): Promise<void> => onPostDelete(postId),
-    'Edit post': onPostEdit
+    'Edit post': (): void => onPostEdit(postId)
   };
 
   const itemRight = currentUser.id === post.user.id
     ? (
-      <Pressable onPress={(): void => notification({ message: 'Error creating a post', error: false, modal: true })}>
+      <Pressable onPress={(): void => setModalVisible(true)}>
         <Entypo style={{ marginTop: 1 }} name="dots-three-horizontal" size={21} color="black" />
       </Pressable>
     )

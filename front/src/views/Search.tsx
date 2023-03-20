@@ -4,7 +4,6 @@ import useDebounce from 'hooks/useDebounce';
 import CategoryPicker from 'components/CategoryPicker';
 import Scrollable from 'components/Scrollable';
 import GridView from 'components/GridView';
-import Container from 'components/Container';
 import { SearchPostsQuery } from 'types';
 import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
@@ -27,12 +26,14 @@ const Search = (): JSX.Element => {
       if (category) {
         query = { ...query, categoryId: String(category) };
       }
-      if (query) {
-        try {
-          await fetchPosts(query);
-        } catch (e) {
-          notification({ message: 'Something went wrong. Please try again.', error: true, modal: true });
-        }
+      try {
+        await fetchPosts(query);
+      } catch (e) {
+        notification({
+          message: 'Something went wrong. Please try again.',
+          error: true,
+          modal: true
+        });
       }
       searchParams.current = query;
     };
@@ -46,21 +47,10 @@ const Search = (): JSX.Element => {
   }
 
   return (
-    <Scrollable
-      onEndReached={(): Promise<void> => fetchPosts(searchParams.current)}
-    >
-      <Searchbar
-        placeholder="Search"
-        onChangeText={onChangeSearch}
-        value={searchQuery || ''}
-      />
-      <CategoryPicker
-        search
-        setCategory={setCategory}
-      />
-      <Container>
-        <GridView posts={posts.data} />
-      </Container>
+    <Scrollable onEndReached={(): Promise<void> => fetchPosts(searchParams.current)}>
+      <Searchbar placeholder="Search" onChangeText={onChangeSearch} value={searchQuery || ''} />
+      <CategoryPicker style={{ paddingVertical: 10 }} search setCategory={setCategory} />
+      <GridView posts={posts.data} />
     </Scrollable>
   );
 };

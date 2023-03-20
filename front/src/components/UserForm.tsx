@@ -1,6 +1,4 @@
-import {
-  View, StyleSheet, GestureResponderEvent, Dimensions
-} from 'react-native';
+import { View, StyleSheet, GestureResponderEvent, Dimensions } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { TypedImage } from '@shared/types';
@@ -45,7 +43,8 @@ const validationSchema = yup.object().shape({
     .min(1, 'Minimum length of password is 1')
     .max(50, 'Maximum length of password is 4')
     .required('password is required'),
-  passwordConfirmation: yup.string()
+  passwordConfirmation: yup
+    .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
     .required('password confirmation is required')
 });
@@ -65,7 +64,10 @@ const UserForm = (): JSX.Element => {
   };
 
   const onSubmit = async ({
-    images, email, password, ...props
+    images,
+    email,
+    password,
+    ...props
   }: {
     email: string;
     displayName: string;
@@ -78,7 +80,10 @@ const UserForm = (): JSX.Element => {
     const image = images[0];
     try {
       await createUser({
-        ...props, image, email, password
+        ...props,
+        image,
+        email,
+        password
       });
       await login({ email, password });
     } catch (e) {
@@ -94,12 +99,26 @@ const UserForm = (): JSX.Element => {
             <FormikImageInput circle name="images" amount={1} />
             <View style={{ flexDirection: 'column', width: screenWidth - 140 }}>
               <FormikTextInput name="email" placeholder="Email" />
-              <FormikTextInput style={{ marginBottom: 0 }} name="displayName" placeholder="Display name" />
+              <FormikTextInput
+                style={{ marginBottom: 0 }}
+                name="displayName"
+                placeholder="Display name"
+              />
             </View>
           </View>
-          <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
+          <FormikTextInput
+            multiline
+            textAlignVertical="top"
+            style={styles.bioField}
+            name="bio"
+            placeholder="Bio"
+          />
           <FormikTextInput secureTextEntry name="password" placeholder="Password" />
-          <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
+          <FormikTextInput
+            secureTextEntry
+            name="passwordConfirmation"
+            placeholder="Password confirmation"
+          />
           <Button
             onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
             text="Sign up"

@@ -1,11 +1,7 @@
-import {
-  StyleSheet, Image
-} from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { StyleSheet, Image } from 'react-native';
 
 const styles = StyleSheet.create({
   profilePhoto: {
-    backgroundColor: 'blue',
     alignItems: 'center',
     justifyContent: 'center'
   }
@@ -16,12 +12,11 @@ const ProfilePhoto = ({
 }: {
   uri: string | null; size?: number; }):
 JSX.Element => (
-  uri ? (
-    <Image
-      style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
-      source={{ uri }}
-    />
-  ) : <AntDesign style={{ marginTop: 3 }} name="user" size={size - 3} color="white" />
+  <Image
+    style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
+    source={{ uri: uri ? `${uri}_100x100` : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png' }}
+  />
+
 );
 
 export default ProfilePhoto;

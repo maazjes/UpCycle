@@ -20,10 +20,6 @@ module.exports = {
           type: DataTypes.STRING,
           allowNull: false,
           references: { model: 'users', key: 'id' }
-        },
-        last_message: {
-          type: DataTypes.STRING,
-          allowNull: false
         }
       },
       { uniqueKeys: { uniqueIds: { fields: ['creator_id', 'user_id'] } } }
@@ -49,10 +45,6 @@ module.exports = {
         allowNull: false,
         references: { model: 'users', key: 'id' }
       },
-      content: {
-        type: DataTypes.STRING,
-        allowNull: false
-      },
       created_at: {
         type: DataTypes.DATE
       },
@@ -60,8 +52,14 @@ module.exports = {
         type: DataTypes.DATE
       }
     });
+    await queryInterface.addColumn('chats', 'last_message_id', {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: 'messages', key: 'id' }
+    });
   },
   down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+    await queryInterface.removeColumn('chats', 'last_message_id');
     await queryInterface.dropTable('messages');
     await queryInterface.dropTable('chats');
   }

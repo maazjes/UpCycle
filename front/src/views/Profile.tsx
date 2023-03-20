@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
   info: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: dph(0.017)
+    paddingVertical: dph(0.014)
   },
   infoItem: {
     flexDirection: 'column',
@@ -36,9 +36,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const Profile = ({ route, navigation }:
-UserStackScreen<'StackProfile'>):
-JSX.Element => {
+const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.Element => {
   const currentUser = useAppSelector((state): TokenUser => state.user!);
   const [user, setUser] = useState<User | null>();
   const [modalVisible, setModalVisible] = useState(false);
@@ -68,7 +66,11 @@ JSX.Element => {
       const res = await createFollow({ userId });
       setUser({ ...user, followId: res.data.id, followers: user.followers + 1 });
     } catch (e) {
-      notification({ message: 'Following user failed. Please try again.', error: true, modal: true });
+      notification({
+        message: 'Following user failed. Please try again.',
+        error: true,
+        modal: true
+      });
     }
   };
 
@@ -77,12 +79,21 @@ JSX.Element => {
       await removeFollow(user.followId!);
       setUser({ ...user, followId: null, followers: user.followers - 1 });
     } catch (e) {
-      notification({ message: 'Unfollowing user failed. Please try again.', error: true, modal: true });
+      notification({
+        message: 'Unfollowing user failed. Please try again.',
+        error: true,
+        modal: true
+      });
     }
   };
 
   const onEditProfile = (): void => {
-    navigate('EditProfile', user);
+    navigate('EditProfile', {
+      ...user,
+      photoUrl:
+        user.photoUrl ||
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png'
+    });
     setModalVisible(false);
   };
 
@@ -96,27 +107,24 @@ JSX.Element => {
     'log out': onLogout
   };
 
-  const extraSecond = currentUser.id === userId
-    ? undefined
-    : user.followId
-      ? <Button o text="Unfollow" size="small" onPress={onUnfollow} />
-      : <Button text="Follow" size="small" onPress={onFollow} />;
+  const extraSecond =
+    currentUser.id === userId ? undefined : user.followId ? (
+      <Button o text="Unfollow" size="small" onPress={onUnfollow} />
+    ) : (
+      <Button text="Follow" size="small" onPress={onFollow} />
+    );
 
-  const extra = currentUser.id === userId
-    ? <Button text="options" size="small" onPress={(): void => setModalVisible(true)} />
-    : <Button onPress={(): null => null} size="small" text="Message" />;
+  const extra =
+    currentUser.id === userId ? (
+      <Button text="options" size="small" onPress={(): void => setModalVisible(true)} />
+    ) : (
+      <Button onPress={(): void => navigate('StackChat')} size="small" text="Message" />
+    );
 
   return (
     <Container>
-      <Scrollable
-        onEndReached={(): Promise<void> => fetchPosts({ userId })}
-      >
-        <UserBar
-          user={user}
-          profilePhotoSize={70}
-          extra={extra}
-          extraSecond={extraSecond}
-        />
+      <Scrollable onEndReached={(): Promise<void> => fetchPosts({ userId })}>
+        <UserBar user={user} profilePhotoSize={70} extra={extra} extraSecond={extraSecond} />
         <View style={styles.bio}>
           <Text weight="bold">{user.displayName}</Text>
           <Text>{user.bio}</Text>

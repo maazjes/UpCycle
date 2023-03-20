@@ -28,11 +28,11 @@ interface Props extends TextInputProps {
 const FormikTextInput = ({ name, style, ...props }: Props): JSX.Element => {
   const [field, meta, helpers] = useField<string>(name);
   const { error, touched } = meta;
-  const showError = (touched && error !== undefined);
+  const showError = touched && error !== undefined;
   return (
     <>
       <TextInput
-        style={StyleSheet.flatten([styles.inputField, style])}
+        style={[styles.inputField, style]}
         onChangeText={(value: string): void => helpers.setValue(value)}
         onBlur={(): void => helpers.setTouched(true)}
         value={field.value}

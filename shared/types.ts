@@ -94,14 +94,16 @@ export interface Message {
   receiverId: string;
   senderId: string;
   chatId: number;
-  content: string;
+  text: string;
+  images: TypedImage[]
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface MessageBody {
   receiverId: string;
-  content: string;
+  text: string;
+  images?: TypedImage[]
 }
 
 export interface MessagePage extends PaginationBase {
@@ -144,7 +146,7 @@ export interface FollowerPage extends PaginationBase {
 
 export interface Chat {
   id: number;
-  lastMessage: string;
+  lastMessage: Message;
   user: UserBase;
 }
 
@@ -166,6 +168,12 @@ export interface Favorite {
   id: number;
   postId: number;
   userId: string;
+}
+
+// Images
+
+export interface ImageBody {
+
 }
 
 // Misc

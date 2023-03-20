@@ -24,8 +24,14 @@ const styles = StyleSheet.create({
   red: {
     color: theme.textColors.red
   },
+  grey: {
+    color: theme.textColors.grey
+  },
   fontSizeSubheading: {
     fontSize: theme.fontSizes.subheading
+  },
+  fontSizeHeading: {
+    fontSize: theme.fontSizes.heading
   },
   fontWeightBold: {
     fontWeight: theme.fontWeights.bold
@@ -43,11 +49,11 @@ const Text = ({
   style = {},
   ...props
 }: {
-  color?: 'secondary' | 'primary' | 'blue' | 'green' | 'red';
-  size?: 'subheading' | 'body';
+  color?: 'secondary' | 'primary' | 'blue' | 'green' | 'red' | 'grey';
+  size?: 'subheading' | 'body' | 'heading';
   weight?: 'bold' | 'normal';
   align?: 'left' | 'center';
-  style?: TextStyle;
+  style?: TextStyle | TextStyle[];
   children?: string;
 }): JSX.Element => {
   const textStyle = [
@@ -57,7 +63,9 @@ const Text = ({
     color === 'blue' && styles.blue,
     color === 'green' && styles.green,
     color === 'red' && styles.red,
+    color === 'grey' && styles.grey,
     size === 'subheading' && styles.fontSizeSubheading,
+    size === 'heading' && styles.fontSizeHeading,
     weight === 'bold' && styles.fontWeightBold,
     align === 'center' && styles.textAlignCenter,
     style

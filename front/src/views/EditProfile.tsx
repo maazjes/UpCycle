@@ -1,6 +1,4 @@
-import {
-  View, StyleSheet, GestureResponderEvent, ScrollView
-} from 'react-native';
+import { View, StyleSheet, GestureResponderEvent, ScrollView } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useAppDispatch, useAppSelector } from 'hooks/redux';
@@ -45,9 +43,7 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
   const notification = useNotification();
   const currentUser = useAppSelector((state): TokenUser => state.user!);
 
-  const {
-    email, displayName, photoUrl, bio, username, id
-  } = route.params;
+  const { email, displayName, photoUrl, bio, username, id } = route.params;
 
   const initialValues = {
     email,
@@ -57,22 +53,25 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
     images: [{ uri: photoUrl }]
   };
 
-  const onSubmit = async (
-    { images, ...params }
-    : typeof initialValues
-  ): Promise<void> => {
+  const onSubmit = async ({ images, ...params }: typeof initialValues): Promise<void> => {
     const image = images[0].uri !== initialValues.images[0].uri ? images[0] : undefined;
-    (Object.keys(params) as Array<keyof Omit<typeof initialValues, 'images'>>).forEach((key): void => {
-      if (params[key] === initialValues[key]) {
-        delete params[key];
+    (Object.keys(params) as Array<keyof Omit<typeof initialValues, 'images'>>).forEach(
+      (key): void => {
+        if (params[key] === initialValues[key]) {
+          delete params[key];
+        }
       }
-    });
+    );
     try {
       const res = await updateUser(id, { ...params, image });
       dispatch(addUser({ ...currentUser, ...res.data }));
       navigation.goBack();
     } catch (e) {
-      notification({ message: 'Failed updating your profile. Please try again', error: false, modal: false });
+      notification({
+        message: 'Failed updating your profile. Please try again',
+        error: false,
+        modal: false
+      });
     }
   };
 
@@ -87,7 +86,13 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
             <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
             <FormikTextInput name="displayName" placeholder="Display name" />
             <FormikTextInput name="email" placeholder="Email" />
-            <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
+            <FormikTextInput
+              multiline
+              textAlignVertical="top"
+              style={styles.bioField}
+              name="bio"
+              placeholder="Bio"
+            />
             <Button
               onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Save changes"

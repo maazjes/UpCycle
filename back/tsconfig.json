@@ -23,9 +23,7 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "util/*": ["util/*"],
-      "types": ["types.ts"]
+      "@shared/*": ["../shared/*"]
     }
   },
   "include": ["./", "../shared"],

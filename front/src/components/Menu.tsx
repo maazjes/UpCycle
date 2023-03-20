@@ -30,7 +30,11 @@ const Menu = (): JSX.Element => {
       <PaperMenu
         visible={visible}
         onDismiss={closeMenu}
-        anchor={<Pressable onPress={openMenu}><Entypo name="menu" size={35} color="black" /></Pressable>}
+        anchor={
+          <Pressable onPress={openMenu}>
+            <Entypo name="menu" size={35} color="black" />
+          </Pressable>
+        }
       >
         <PaperMenu.Item onPress={logout} title="Logout" />
       </PaperMenu>

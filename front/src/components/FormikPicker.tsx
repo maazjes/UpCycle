@@ -34,11 +34,7 @@ const FormikPicker = ({ name, items }: Props): JSX.Element => {
       >
         {items.map(
           (item): JSX.Element => (
-            <Picker.Item
-              key={item}
-              label={item}
-              value={item}
-            />
+            <Picker.Item key={item} label={item} value={item} />
           )
         )}
       </Picker>

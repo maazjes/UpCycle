@@ -2,8 +2,11 @@ import {
   FieldHelperProps,
   FieldInputProps, FieldMetaProps, isString, useField
 } from 'formik';
-import { PaginationBase } from '@shared/types';
+import {
+  Category, MessageBody, PaginationBase, TypedImage
+} from '@shared/types';
 import { Dimensions, PixelRatio } from 'react-native';
+import { ImagePickerOptions, launchImageLibraryAsync, launchCameraAsync } from 'expo-image-picker';
 import { UpdatePostBody, UpdateUserBody } from '../types';
 
 type IndexSignature = string | number | symbol;
@@ -35,7 +38,7 @@ export const formatImages = (images: { uri: string }[]): Blob[] => {
   return formattedImages;
 };
 
-type CreateFormDataParams = UpdatePostBody & UpdateUserBody;
+type CreateFormDataParams = UpdatePostBody & UpdateUserBody & MessageBody;
 
 export const createFormData = (params: CreateFormDataParams): FormData => {
   const keys = Object.keys(params) as Array<keyof CreateFormDataParams>;
@@ -55,7 +58,7 @@ export const createFormData = (params: CreateFormDataParams): FormData => {
       formdata.append('categories', JSON.stringify(params[key]));
     }
     const value = params[key];
-    if (value && isString(value)) {
+    if (isString(value)) {
       formdata.append(key, value);
     }
   });
@@ -99,3 +102,31 @@ export const deepEqual = (x: object, y: object): boolean => {
   ) : (x === y);
 };
 export const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
+
+interface PickImageParams extends ImagePickerOptions {
+  from: 'gallery' | 'camera';
+}
+export const pickImage = async ({
+  from, ...params
+}: PickImageParams): Promise<TypedImage[] | null> => {
+  const result = from === 'gallery'
+    ? await launchImageLibraryAsync(params)
+    : await launchCameraAsync(params);
+  if (result.canceled) {
+    return null;
+  }
+  const images = result.assets.map(({ width, height, uri }): TypedImage => ({
+    width, height, uri, id: (width / height) * Math.random()
+  }));
+  return images;
+};
+
+export const formatDate = (date: Date): string => {
+  const created = new Date(date);
+  const current = new Date();
+  current.setDate(current.getDate() - 2);
+  return created > new Date(current.getDate() - 1)
+    ? created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : created > new Date(current.getDate() - 2)
+      ? 'Eilen'
+      : created.toDateString();
+};

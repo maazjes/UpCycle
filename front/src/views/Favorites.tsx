@@ -35,7 +35,9 @@ const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Eleme
     return (
       <Container style={styles.noFavorites}>
         <FontAwesome5 name="sad-cry" size={dpw(0.15)} color="black" />
-        <Text style={styles.noFavoritesText} weight="bold" size="subheading">{t('You haven\'t added any favorites yet')}</Text>
+        <Text style={styles.noFavoritesText} weight="bold" size="subheading">
+          {t("You haven't added any favorites yet")}
+        </Text>
         <Button text="Lisää suosikkeja" onPress={(): void => navigate('StackSearch')} />
       </Container>
     );
@@ -43,9 +45,7 @@ const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Eleme
 
   return (
     <Container>
-      <Scrollable
-        onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}
-      >
+      <Scrollable onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}>
         <GridView posts={posts.data} />
       </Scrollable>
     </Container>

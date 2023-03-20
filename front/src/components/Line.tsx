@@ -8,6 +8,7 @@ const styles = StyleSheet.create({
 });
 
 const Line = ({ style, ...props }: ViewProps): JSX.Element => (
-  <View style={[styles.line, style]} {...props} />);
+  <View style={[styles.line, style]} {...props} />
+);
 
 export default Line;
