@@ -1,5 +1,9 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 
@@ -10,7 +14,9 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 
   declare username: string;
 
-  declare photoUrl: string;
+  declare email: string;
+
+  declare photoUrl: CreationOptional<string> | null;
 
   declare bio: string;
 
@@ -41,6 +47,14 @@ User.init(
     username: {
       type: DataTypes.STRING,
       allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+      validate: {
+        isEmail: true
+      }
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE

@@ -2,7 +2,7 @@ import { StyleSheet, View, ViewProps } from 'react-native';
 
 const styles = StyleSheet.create({
   line: {
-    borderColor: 'black',
+    borderColor: '#DBDBDB',
     borderWidth: StyleSheet.hairlineWidth
   }
 });

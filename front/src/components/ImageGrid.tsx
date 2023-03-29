@@ -20,11 +20,8 @@ const ImageGrid = ({ images }: { images: TypedImage[] }): JSX.Element => {
   return images.length > 1 ? (
     <View style={styles.images}>
       {images.map(
-        (image, index): JSX.Element => (
-          <Pressable
-            key={image.id}
-            onPress={(): void => navigate('LightBox', { images, index })}
-          >
+        (image): JSX.Element => (
+          <Pressable key={image.id} onPress={(): void => navigate('LightBox', { uri: image.uri })}>
             <Image
               style={{
                 aspectRatio: 1,
@@ -41,7 +38,7 @@ const ImageGrid = ({ images }: { images: TypedImage[] }): JSX.Element => {
   ) : (
     <Pressable
       style={{ width: '100%', aspectRatio: 1 }}
-      onPress={(): void => navigate('LightBox', { images, index: 0 })}
+      onPress={(): void => navigate('LightBox', { uri: images[0].uri })}
     >
       <Image
         style={{

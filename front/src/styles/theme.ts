@@ -5,7 +5,7 @@ const theme = {
     blue: '#347deb',
     green: '#4ad34a',
     red: 'red',
-    grey: 'grey'
+    grey: '#bdb9b9'
   },
   backgroundColors: {
     primary: '#7bc17e',
@@ -17,7 +17,8 @@ const theme = {
     heading: 20
   },
   fonts: {
-    main: 'OpenSans_500Medium'
+    main: 'OpenSans_500Medium',
+    bold: 'OpenSans_700Bold'
   },
   fontWeights: {
     normal: '400' as '400',

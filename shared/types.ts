@@ -4,7 +4,7 @@ export interface UserBase {
   id: string;
   displayName: string;
   username: string;
-  photoUrl: string;
+  photoUrl: string | null;
 }
 
 export interface BioUser extends UserBase {
@@ -24,22 +24,20 @@ export interface PostsUser extends UserBase {
   posts: PostBase[];
 }
 
-export interface TokenUser extends EmailUser {
-  idToken: string;
-  refreshToken: string;
-}
-
 export interface User extends EmailUser {
   followers: number;
   following: number;
   followId: number | null;
 }
 
+export interface TokenUser extends User {
+  idToken: string;
+  refreshToken: string;
+}
+
 export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl'> {
   password: string;
 }
-
-export interface SharedUpdateUserBody extends Partial<SharedNewUserBody> {}
 
 // Posts
 
@@ -52,8 +50,9 @@ export interface PostBase {
 
 export interface Post extends PostBase {
   description: string;
-  condition: Condition;
-  postcode: string;
+  condition: string;
+  postcode: number;
+  city: string;
   user: UserBase;
   categories: Category[];
   favoriteId: number | null;
@@ -63,8 +62,9 @@ export interface SharedNewPostBody {
   title: string;
   description: string;
   price: string;
-  condition: Condition;
-  postcode: string;
+  condition: string;
+  postcode: number;
+  city: string;
 }
 
 export interface PostPage extends PaginationBase {
@@ -76,13 +76,13 @@ export type SharedGetPostsQuery = {
   categoryId?: string;
   favorite?: 'true';
   contains?: string;
+  condition?: string;
+  city?: string;
 };
 
 // Images
 
 export interface TypedImage {
-  width: number;
-  height: number;
   uri: string;
   id: number;
 }
@@ -100,7 +100,7 @@ export interface Message {
   updatedAt: Date;
 }
 
-export interface MessageBody {
+export interface NewMessageBody {
   receiverId: string;
   text: string;
   images?: TypedImage[]
@@ -148,10 +148,22 @@ export interface Chat {
   id: number;
   lastMessage: Message;
   user: UserBase;
+  archived: boolean;
+}
+
+export interface RawChat {
+  id: number;
+  creatorId: number;
+  userId: number;
+  archived: boolean;
 }
 
 export interface ChatPage extends PaginationBase {
   data: Chat[];
+}
+
+export interface UpdateChatBody {
+  archived: boolean;
 }
 
 // Categories
@@ -170,25 +182,15 @@ export interface Favorite {
   userId: string;
 }
 
-// Images
-
-export interface ImageBody {
-
-}
-
 // Misc
 
 export interface ErrorBody {
   error: string;
 }
 
-export enum Condition {
-  new = 'new',
-  slightlyUsed = 'slightly used',
-  used = 'used'
-}
+export type Condition = 'new' | 'slightly used' | 'used';
 
-export interface EmailBody {
+export interface PasswordResetBody {
   email: string;
 }
 
@@ -200,7 +202,9 @@ export interface PasswordResetConfirmationBody extends PasswordResetVerifyBody {
   newPassword: string;
 }
 
-export interface LoginBody extends EmailBody {
+export interface LoginBody {
+  email?: string
+  username?: string;
   password: string;
 }
 

@@ -15,13 +15,7 @@ import LightBox from 'views/LightBox';
 
 const Stack = createNativeStackNavigator<UserStackParams>();
 
-const UserStack = ({
-  initialRoute,
-  profileParams = undefined
-}: {
-  initialRoute: keyof UserStackParams;
-  profileParams?: { userId: string; username: string };
-}): JSX.Element => (
+const UserStack = ({ initialRoute }: { initialRoute: keyof UserStackParams }): JSX.Element => (
   <Stack.Navigator
     initialRouteName={initialRoute}
     screenOptions={{ contentStyle: { backgroundColor: '#FFFFFF' } }}
@@ -37,7 +31,7 @@ const UserStack = ({
     <Stack.Screen name="StackChat" component={Chats} options={{ title: 'Viestit' }} />
     <Stack.Screen name="SingleChat" component={SingleChat} />
     <Stack.Screen name="SinglePost" component={SinglePost} options={{ title: 'Ilmoitus' }} />
-    <Stack.Screen name="StackProfile" component={Profile} initialParams={profileParams} />
+    <Stack.Screen name="StackProfile" component={Profile} />
     <Stack.Screen name="EditPost" component={EditPost} options={{ title: 'Muokkaa ilmoitusta' }} />
     <Stack.Screen
       name="EditProfile"

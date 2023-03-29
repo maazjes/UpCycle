@@ -21,24 +21,20 @@ router.post<{}, SharedFavorite, { postId: number }>(
   }
 );
 
-router.delete<{ id: string }>(
-  '/:id',
-  userExtractor,
-  async (req, res): Promise<void> => {
-    if (!req.user) {
-      throw new Error('Authentication required');
-    }
-    const { id } = req.params;
-    const favorite = await Favorite.findOne({ where: { id } });
-    if (!favorite) {
-      throw new Error('couldnt find favorite by id');
-    }
-    if (favorite.userId !== req.user.id) {
-      throw new Error('Authentication required');
-    }
-    await favorite.destroy();
-    res.status(204).send();
+router.delete<{ id: string }>('/:id', userExtractor, async (req, res): Promise<void> => {
+  if (!req.user) {
+    throw new Error('Authentication required');
   }
-);
+  const { id } = req.params;
+  const favorite = await Favorite.findOne({ where: { id } });
+  if (!favorite) {
+    throw new Error('couldnt find favorite by id');
+  }
+  if (favorite.userId !== req.user.id) {
+    throw new Error('Authentication required');
+  }
+  await favorite.destroy();
+  res.status(204).send();
+});
 
 export default router;

@@ -4,7 +4,7 @@ import { emptyPage } from 'util/constants';
 import { getChats } from 'services/chats';
 import { concatPages } from 'util/helpers';
 
-const useChats = (): [ChatPage | null, typeof fetchChats] => {
+const useChats = (): [ChatPage | null, typeof setChats, typeof fetchChats] => {
   const [chats, setChats] = useState<ChatPage | null>(null);
   const offset = useRef(0);
 
@@ -24,7 +24,7 @@ const useChats = (): [ChatPage | null, typeof fetchChats] => {
     initialize();
   }, []);
 
-  return [chats, fetchChats];
+  return [chats, setChats, fetchChats];
 };
 
 export default useChats;

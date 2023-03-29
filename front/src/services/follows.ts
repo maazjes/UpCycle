@@ -4,9 +4,8 @@ import { PaginationQuery } from 'types';
 import { addQuery } from 'util/helpers';
 import api from '../util/axiosInstance';
 
-const createFollow = (body: {
-  userId: string;
-}): Promise<AxiosResponse<Follow>> => api.post<Follow>('follows', body);
+const createFollow = (body: { userId: string }): Promise<AxiosResponse<Follow>> =>
+  api.post<Follow>('follows', body);
 
 const removeFollow = (followId: number): Promise<AxiosResponse<undefined>> =>
   api.delete<undefined>(`follows/${followId}`);

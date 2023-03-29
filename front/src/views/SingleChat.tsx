@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { TokenUser, TypedImage } from '@shared/types';
-import { UserStackScreen } from 'types';
+import { TypedImage } from '@shared/types';
+import { ProfileProps, UserStackScreen } from 'types';
 import { dpw, formatDate, pickImage } from 'util/helpers';
 import MenuModal from 'components/MenuModal';
 import { MediaTypeOptions } from 'expo-image-picker';
@@ -17,6 +17,10 @@ import Text from '../components/Text';
 import Button from '../components/Button';
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#fcf4ea',
+    flex: 1
+  },
   addedImage: {
     width: '80%'
   },
@@ -25,23 +29,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 5,
+    marginRight: 5,
     marginVertical: 3,
+    marginHorizontal: dpw(0.055 / 3),
     maxWidth: '50%'
   },
   messageWithImage: {
     maxWidth: '80%'
   },
-  messageRight: {
+  bubble: {
     position: 'absolute',
     backgroundColor: '#9BFF66',
     width: 25,
     height: 25,
     bottom: 0,
-    borderBottomLeftRadius: 0,
-    right: -10,
-    zIndex: -1
+    borderBottomLeftRadius: 0
   },
-  messageRightOverlap: {
+  bubbleRight: {
+    right: -10
+  },
+  bubbleLeft: {
+    left: -10
+  },
+  bubbleRightOverlap: {
     position: 'absolute',
     backgroundColor: '#fcf4ea',
     width: 20,
@@ -50,17 +60,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 12,
     right: -20
   },
-  messageLeft: {
-    position: 'absolute',
-    backgroundColor: '#9BFF66',
-    width: 25,
-    height: 25,
-    bottom: 0,
-    borderBottomRightRadius: 0,
-    left: -10,
-    zIndex: -1
-  },
-  messageLeftOverlap: {
+  bubbleLeftOverlap: {
     position: 'absolute',
     backgroundColor: '#fcf4ea',
     width: 20,
@@ -69,7 +69,47 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 12,
     left: -20
   },
-  shadow: {
+  sendImageControls: {
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    width: '100%'
+  },
+  sendImageText: {
+    marginTop: 15,
+    marginBottom: 10
+  },
+  sendImageInput: {
+    borderWidth: 0,
+    fontSize: 18,
+    margin: 0,
+    paddingLeft: 0
+  },
+  addPhotoIcon: {
+    position: 'absolute',
+    right: 11,
+    justifyContent: 'center',
+    alignItems: 'center',
+    top: 0,
+    bottom: 0
+  },
+  controls: {
+    maxHeight: dpw(0.125),
+    marginBottom: dpw(0.055 / 3),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    marginTop: 'auto'
+  },
+  textInputContainer: {
+    width: '82%'
+  },
+  textInput: {
+    height: '100%',
+    backgroundColor: 'white',
+    borderWidth: 0,
+    borderRadius: 15,
     elevation: 2,
     shadowColor: '#000',
     shadowRadius: 1.41,
@@ -81,20 +121,23 @@ const styles = StyleSheet.create({
   }
 });
 
-const SingleChat = ({
-  route,
-  navigation
-}: UserStackScreen<'SingleChat'>): JSX.Element => {
+const imagePickerOptions = {
+  mediaTypes: MediaTypeOptions.Images,
+  aspect: [1, 1] as [number, number],
+  allowsMultipleSelection: true,
+  quality: 1
+};
+
+const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.Element => {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<TypedImage[]>([]);
   const [pickImageModalVisible, setPickImageModalVisible] = useState(false);
   const { userId } = route.params;
-  const currentUser = useAppSelector((state): TokenUser => state.user!);
+  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
   const [messages, setMessages, fetchMessages] = useMessages({
-    userId1: currentUser.id,
+    userId1: currentUserId,
     userId2: userId
   });
-  console.log(messages?.data);
 
   useEffect((): (() => void) => {
     const parent = navigation.getParent();
@@ -103,23 +146,21 @@ const SingleChat = ({
       tabBarStyle: { display: 'none' }
     });
 
+    socket.on('message', (data): void => {
+      setMessages({
+        ...data,
+        senderId: currentUserId,
+        receiverId: userId
+      });
+    });
+
     return (): void =>
       parent?.setOptions({
         tabBarStyle: { display: 'flex' }
       });
   }, []);
 
-  socket.on('message', (data): void => {
-    console.log('asd');
-    setMessages({
-      ...data,
-      senderId: currentUser.id,
-      receiverId: userId
-    });
-  });
-
   const onNewMessage = async (): Promise<void> => {
-    console.log('asd', message);
     const { data } = await createMessage({
       text: message,
       receiverId: userId,
@@ -127,7 +168,7 @@ const SingleChat = ({
     });
     socket.emit('message', {
       text: message,
-      receiverId: currentUser.id,
+      receiverId: currentUserId,
       createdAt: data.createdAt,
       images: data.images
     });
@@ -136,19 +177,12 @@ const SingleChat = ({
     setMessages(data);
   };
 
-  const imagePickerOptions = {
-    mediaTypes: MediaTypeOptions.Images,
-    aspect: [1, 1] as [number, number],
-    allowsMultipleSelection: true,
-    quality: 1
-  };
-
   const addImage = async (from: 'gallery' | 'camera'): Promise<void> => {
-    setPickImageModalVisible(false);
     const pickedImages = await pickImage({
       ...imagePickerOptions,
       from
     });
+    setPickImageModalVisible(false);
     if (pickedImages) {
       setImages(images.concat(pickedImages));
     }
@@ -160,74 +194,34 @@ const SingleChat = ({
   };
 
   const controls = (): JSX.Element => (
-    <View style={{ marginTop: 2 }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingBottom: '2%'
-        }}
-      >
-        <View
-          style={[
-            {
-              height: dpw(0.125),
-              width: '85%'
-            }
-          ]}
-        >
-          <TextInput
-            value={message}
-            style={[
-              {
-                flex: 1,
-                backgroundColor: 'white',
-                borderWidth: 0,
-                borderRadius: 15
-              },
-              styles.shadow
-            ]}
-            onChangeText={(value): void => setMessage(value)}
-            error={false}
-          />
-          <View
-            style={{
-              position: 'absolute',
-              right: 11,
-              justifyContent: 'center',
-              alignItems: 'center',
-              top: 0,
-              bottom: 0
-            }}
-          >
-            <Pressable onPress={(): void => setPickImageModalVisible(true)}>
-              <MaterialIcons
-                name="add-photo-alternate"
-                size={27}
-                color="grey"
-              />
-            </Pressable>
-          </View>
-        </View>
-        <Button
-          circle
-          onPress={onNewMessage}
-          element={<Ionicons name="send" size={21} color="white" />}
+    <View style={styles.controls}>
+      <View style={styles.textInputContainer}>
+        <TextInput
+          value={message}
+          style={styles.textInput}
+          onChangeText={(value): void => setMessage(value)}
+          error={false}
         />
+        <View style={styles.addPhotoIcon}>
+          <Pressable onPress={(): void => setPickImageModalVisible(true)}>
+            <MaterialIcons name="add-photo-alternate" size={dpw(0.09)} color="grey" />
+          </Pressable>
+        </View>
       </View>
+      <Button
+        style={{ marginTop: 1 }}
+        circle
+        onPress={onNewMessage}
+        element={<Ionicons name="send" size={dpw(0.06)} color="white" />}
+      />
     </View>
   );
 
   return (
-    <View
-      style={{
-        backgroundColor: '#fcf4ea',
-        flex: 1,
-        paddingHorizontal: '2%'
-      }}
-    >
+    <View style={styles.container}>
       {messages && (
         <FlatList
+          contentContainerStyle={{ padding: dpw(0.055 / 3) }}
           overScrollMode="never"
           showsVerticalScrollIndicator={false}
           inverted
@@ -236,7 +230,7 @@ const SingleChat = ({
           renderItem={({ item }): JSX.Element => (
             <View
               style={[
-                item.senderId === currentUser?.id
+                item.senderId === currentUserId
                   ? { alignSelf: 'flex-end' }
                   : { alignSelf: 'flex-start' },
                 styles.message,
@@ -244,24 +238,23 @@ const SingleChat = ({
               ]}
             >
               {item.images.length > 0 && <ImageGrid images={item.images} />}
-              <Text>{item.text}</Text>
+              {item.text ? <Text>{item.text}</Text> : <View style={{ marginTop: 5 }} />}
+              <View
+                style={[
+                  styles.bubble,
+                  item.senderId === currentUserId ? styles.bubbleRight : styles.bubbleLeft
+                ]}
+              />
+              <View
+                style={
+                  item.senderId === currentUserId
+                    ? styles.bubbleRightOverlap
+                    : styles.bubbleLeftOverlap
+                }
+              />
               <Text color="grey" style={{ fontSize: 13 }}>
                 {formatDate(item.createdAt)}
               </Text>
-              <View
-                style={
-                  item.senderId === currentUser.id
-                    ? styles.messageRight
-                    : styles.messageLeft
-                }
-              />
-              <View
-                style={
-                  item.senderId === currentUser.id
-                    ? styles.messageRightOverlap
-                    : styles.messageLeftOverlap
-                }
-              />
             </View>
           )}
           onEndReached={fetchMessages}
@@ -275,44 +268,18 @@ const SingleChat = ({
         onDismiss={(): void => setPickImageModalVisible(false)}
       />
       <Modal visible={images.length > 0} onDismiss={(): void => setImages([])}>
-        {images.length > 0 ? (
+        {images.length > 0 && (
           <View style={{ alignItems: 'center' }}>
-            <Text
-              weight="bold"
-              style={{
-                marginTop: 15,
-                marginBottom: 10
-              }}
-              size="heading"
-              align="center"
-            >
-              {images.length === 1
-                ? 'Send image'
-                : `Send ${images.length} images`}
+            <Text weight="bold" style={styles.sendImageText} size="heading" align="center">
+              {images.length === 1 ? 'Send image' : `Send ${images.length} images`}
             </Text>
             <Image
               source={{ uri: images[0].uri }}
-              style={[
-                styles.addedImage,
-                { aspectRatio: images[0].height / images[0].width }
-              ]}
+              style={[styles.addedImage, { aspectRatio: images[0].height / images[0].width }]}
             />
-            <View
-              style={{
-                padding: 10,
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-evenly',
-                width: '100%'
-              }}
-            >
+            <View style={styles.sendImageControls}>
               <TextInput
-                style={{
-                  borderWidth: 0,
-                  fontSize: 18,
-                  margin: 0,
-                  paddingLeft: 0
-                }}
+                style={styles.sendImageInput}
                 onChangeText={(value): void => setMessage(value)}
                 error={false}
                 placeholder="Add a caption..."
@@ -329,7 +296,7 @@ const SingleChat = ({
               />
             </View>
           </View>
-        ) : null}
+        )}
       </Modal>
     </View>
   );

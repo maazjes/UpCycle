@@ -12,7 +12,7 @@
     "max-len": ["error", {"code": 100}],
     "@typescript-eslint/comma-dangle": ["error", "never"],
     "@typescript-eslint/no-redeclare": 0,
-    "@typescript-eslint/no-explicit-any": 2,
+    "@typescript-eslint/no-explicit-any": 1,
     "@typescript-eslint/no-unsafe-argument": "error",
     //"@typescript-eslint/no-unsafe-assignment": "error",
     //"@typescript-eslint/no-unsafe-call": "error",

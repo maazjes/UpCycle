@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, View, Dimensions } from 'react-native';
+import { StyleSheet, View, Dimensions, FlatList, FlatListProps } from 'react-native';
 import { useEffect, useState } from 'react';
 import { PostBase } from '@shared/types';
 import PostCard from './PostCard';
@@ -14,18 +14,23 @@ const styles = StyleSheet.create({
   gridPostImage: {}
 });
 
-interface MasonryListProps {
+interface MasonryListProps
+  extends Omit<
+    FlatListProps<PostBase>,
+    'data' | 'keyExtractor' | 'renderItem' | 'showsVerticalScrollIndicator'
+  > {
   posts: Array<PostBase>;
 }
 
 const { width } = Dimensions.get('window');
 
-const MasonryList = ({ posts }: MasonryListProps): JSX.Element => {
+const MasonryList = ({ posts, ...props }: MasonryListProps): JSX.Element => {
   const COLUMN_WIDTH = width / 2;
   const IMAGE_SPACING = COLUMN_WIDTH * 0.01;
   const COL_WIDTH = COLUMN_WIDTH - IMAGE_SPACING / 2;
 
   const [columns, setColumns] = useState<null | JSX.Element[][]>(null);
+
   const createMasonryLists = (newPosts: PostBase[], amount: number): void => {
     const postLists = Array(amount)
       .fill(-1)
@@ -37,25 +42,14 @@ const MasonryList = ({ posts }: MasonryListProps): JSX.Element => {
       const postCard = (
         <PostCard
           post={post}
-          imageStyle={[
-            styles.gridPostImage,
-            { aspectRatio: imageWidth / imageHeight }
-          ]}
+          imageStyle={[styles.gridPostImage, { aspectRatio: imageWidth / imageHeight }]}
           containerStyle={{ marginVertical: 5 }}
         />
       );
-
       const sorted = postLists.sort((a, b): number => a[0] - b[0]);
-      if (post.images) {
-        sorted[0] = [
-          sorted[0][0] + post.images[0].height,
-          sorted[0][1].concat(postCard)
-        ];
-      }
+      sorted[0] = [sorted[0][0] + post.images[0].height, sorted[0][1].concat(postCard)];
     });
-    const finalPostLists = postLists.map(
-      (postList): JSX.Element[] => postList[1]
-    );
+    const finalPostLists = postLists.map((postList): JSX.Element[] => postList[1]);
     setColumns(finalPostLists);
   };
 
@@ -68,16 +62,14 @@ const MasonryList = ({ posts }: MasonryListProps): JSX.Element => {
   }
 
   return (
-    <ScrollView removeClippedSubviews>
-      <View style={styles.container}>
-        <View style={{ width: '50%', paddingLeft: 12, paddingRight: 5 }}>
-          {columns[0]}
-        </View>
-        <View style={{ width: '50%', paddingLeft: 6, paddingRight: 12 }}>
-          {columns[1]}
-        </View>
-      </View>
-    </ScrollView>
+    <FlatList
+      {...props}
+      numColumns={2}
+      data={posts}
+      keyExtractor={({ id }): string => String(id)}
+      renderItem={({ item }): JSX.Element => <PostCard post={item} />}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 

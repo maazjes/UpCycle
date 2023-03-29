@@ -32,6 +32,7 @@
     "global-require":"off",
     "unused-imports/no-unused-imports": "error",
     "max-len": ["error", {"code": 100}],
+    "no-empty":"off",
     "react/require-default-props": [
       2,
       {

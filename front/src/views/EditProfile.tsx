@@ -1,13 +1,14 @@
-import { View, StyleSheet, GestureResponderEvent, ScrollView } from 'react-native';
+import { View, StyleSheet, GestureResponderEvent, ScrollView, Image } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useAppDispatch, useAppSelector } from 'hooks/redux';
-import { addUser } from 'reducers/userReducer';
-import { TokenUser } from '@shared/types';
+import { useAppSelector } from 'hooks/redux';
 import useNotification from 'hooks/useNotification';
-import { UserStackScreen } from '../types';
-import { updateUser } from '../services/users';
-import useError from '../hooks/useError';
+import ProfilePhoto from 'components/ProfilePhoto';
+import { dpw } from 'util/helpers';
+import { updateUser } from 'services/users';
+import { defaultProfilePhoto } from 'util/constants';
+import { useState } from 'react';
+import { ProfileProps, UserStackScreen } from '../types';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import FormikImageInput from '../components/FormikImageInput';
@@ -30,20 +31,32 @@ const styles = StyleSheet.create({
 });
 
 const validationSchema = yup.object().shape({
+  email: yup.string().email().required('email is required'),
+  username: yup
+    .string()
+    .min(2, 'Minimum length of name is 2')
+    .max(15, 'Maximum length of name is 15')
+    .required('username is required'),
+  bio: yup
+    .string()
+    .min(1, 'Minimum length of name is 2')
+    .max(150, 'Maximum length of name is 150')
+    .required('username is required'),
   displayName: yup
     .string()
-    .min(5, 'Minimum length of name is 5')
-    .max(10, 'Maximum length of name is 10')
+    .min(1, 'Minimum length of name is 2')
+    .max(15, 'Maximum length of name is 15')
     .required('name is required')
 });
 
-const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX.Element => {
-  const error = useError();
-  const dispatch = useAppDispatch();
-  const notification = useNotification();
-  const currentUser = useAppSelector((state): TokenUser => state.user!);
+const profileIcon = (uri: string): JSX.Element => <ProfilePhoto uri={uri} size={dpw(0.08)} />;
 
-  const { email, displayName, photoUrl, bio, username, id } = route.params;
+const EditProfile = ({ navigation, route }: UserStackScreen<'EditProfile'>): JSX.Element => {
+  const notification = useNotification();
+  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
+  const [loading, setLoading] = useState(false);
+
+  const { email, displayName, bio, username, photoUrl } = route.params;
 
   const initialValues = {
     email,
@@ -54,7 +67,7 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
   };
 
   const onSubmit = async ({ images, ...params }: typeof initialValues): Promise<void> => {
-    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : undefined;
+    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : { uri: null };
     (Object.keys(params) as Array<keyof Omit<typeof initialValues, 'images'>>).forEach(
       (key): void => {
         if (params[key] === initialValues[key]) {
@@ -62,15 +75,25 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
         }
       }
     );
+    if (!image.uri && Object.keys(params).length === 0) {
+      return;
+    }
     try {
-      const res = await updateUser(id, { ...params, image });
-      dispatch(addUser({ ...currentUser, ...res.data }));
-      navigation.goBack();
+      setLoading(true);
+      const res = await updateUser(currentUserId, { ...params, image: image?.uri });
+      const newUser = { ...route.params, ...res.data };
+      if (image?.uri) {
+        navigation
+          .getParent()
+          ?.setOptions({ tabBarIcon: (): JSX.Element => profileIcon(image.uri!) });
+      }
+      navigation.navigate('StackProfile', newUser);
     } catch (e) {
+      setLoading(false);
       notification({
-        message: 'Failed updating your profile. Please try again',
+        message: e.message,
         error: false,
-        modal: false
+        modal: true
       });
     }
   };
@@ -81,7 +104,19 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
         {({ handleSubmit }): JSX.Element => (
           <View style={styles.SignupForm}>
             <View style={styles.photo}>
-              <FormikImageInput circle name="images" amount={1} />
+              <FormikImageInput
+                circle
+                name="images"
+                amount={1}
+                initialImage={
+                  <Image
+                    style={{ width: dpw(0.3), height: dpw(0.3) }}
+                    source={{
+                      uri: defaultProfilePhoto
+                    }}
+                  />
+                }
+              />
             </View>
             <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
             <FormikTextInput name="displayName" placeholder="Display name" />
@@ -94,6 +129,7 @@ const EditProfile = ({ route, navigation }: UserStackScreen<'EditProfile'>): JSX
               placeholder="Bio"
             />
             <Button
+              loading={loading}
               onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Save changes"
             />

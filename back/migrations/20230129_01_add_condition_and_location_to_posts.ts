@@ -11,7 +11,7 @@ module.exports = {
       }
     });
     await queryInterface.addColumn('posts', 'postcode', {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         len: [5, 5]

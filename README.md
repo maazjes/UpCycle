@@ -25,7 +25,9 @@
 | Started retyping the whole project so I could share types between backend and frontend. Almost done. | 8 hours |
 | Continued making the types shared between backend and frontend. Had to configure metro and babel configs to do it which took a long time. Also made some progress on adding following function. | 20 hours |
 | Restructured categories in the backend, made a custom category picker modal component and started making the search view for searching posts. | 20 hours |
+| Added support for sending image messages. Implemented search further. | 30 hours |
+| Finished chat. Started polishing the app and cleaning up all the code. Spent a lot of time getting the "next" button on forms to work and probably did a bunch of other stuff too. | 40 hours |
 
-**Total: 215 hours**
+**Total: 285 hours**
 
 plus many more additional hours on stupid mistakes...

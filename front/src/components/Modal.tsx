@@ -1,20 +1,38 @@
-import { ModalProps, Modal as PaperModal, Portal } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
+import {
+  Modal as NativeModal,
+  StyleSheet,
+  View,
+  TouchableWithoutFeedback,
+  ModalProps
+} from 'react-native';
 
-const styles = StyleSheet.create({
-  modal: {
-    backgroundColor: 'white',
-    alignSelf: 'center',
-    justifyContent: 'flex-start',
-    borderRadius: 10,
-    width: '70%'
-  }
-});
+const styles = StyleSheet.create({});
 
-const Modal = ({ style, ...props }: ModalProps): JSX.Element => (
-  <Portal>
-    <PaperModal contentContainerStyle={styles.modal} {...props} />
-  </Portal>
+const Modal = ({ style, children, ...props }: ModalProps): JSX.Element => (
+  <NativeModal transparent {...props}>
+    <TouchableWithoutFeedback onPressOut={props.onDismiss}>
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)'
+        }}
+      >
+        <View
+          style={{
+            flexShrink: 1,
+            backgroundColor: 'white',
+            width: '80%',
+            maxHeight: '60%',
+            borderRadius: 10
+          }}
+        >
+          {children}
+        </View>
+      </View>
+    </TouchableWithoutFeedback>
+  </NativeModal>
 );
 
 export default Modal;

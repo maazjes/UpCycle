@@ -11,17 +11,27 @@ module.exports = {
       },
       title: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          len: [3, 50]
+        }
       },
       price: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          // eslint-disable-next-line prettier/prettier, no-useless-escape
+          is: ['^\d+€$'],
+          len: [2, 7]
+        }
       },
       created_at: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
+        allowNull: false
       },
       updated_at: {
-        type: DataTypes.DATE
+        type: DataTypes.DATE,
+        allowNull: false
       }
     });
     await queryInterface.createTable('users', {
@@ -31,15 +41,24 @@ module.exports = {
       },
       display_name: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          len: [2, 30]
+        }
       },
       bio: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          len: [0, 150]
+        }
       },
       photo_url: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
+        validate: {
+          isUrl: true
+        }
       },
       created_at: {
         type: DataTypes.DATE

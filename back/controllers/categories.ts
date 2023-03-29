@@ -6,21 +6,27 @@ const router = express.Router();
 
 router.get<{}, SharedCategory[]>('/', async (_req, res): Promise<void> => {
   const categories = await Category.findAll({
-    include: [{
-      model: Category,
-      as: 'subcategories',
-      attributes: { exclude: ['parentCategoryId'] },
-      include: [{
+    include: [
+      {
         model: Category,
         as: 'subcategories',
         attributes: { exclude: ['parentCategoryId'] },
-        include: [{
-          model: Category,
-          as: 'subcategories',
-          attributes: { exclude: ['parentCategoryId'] }
-        }]
-      }]
-    }],
+        include: [
+          {
+            model: Category,
+            as: 'subcategories',
+            attributes: { exclude: ['parentCategoryId'] },
+            include: [
+              {
+                model: Category,
+                as: 'subcategories',
+                attributes: { exclude: ['parentCategoryId'] }
+              }
+            ]
+          }
+        ]
+      }
+    ],
     attributes: { exclude: ['parentCategoryId'] },
     where: { parentCategoryId: null }
   });

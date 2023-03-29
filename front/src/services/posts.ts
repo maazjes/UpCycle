@@ -15,6 +15,7 @@ const createPost = (body: NewPostBody): Promise<AxiosResponse<Post>> => {
 
 const getPosts = (query: GetPostsQuery): Promise<AxiosResponse<PostPage>> => {
   const finalQuery = addQuery('posts', query);
+  console.log('finalquery', finalQuery);
   return api.get<PostPage>(finalQuery);
 };
 
@@ -28,10 +29,7 @@ const deletePost = (postId: number): Promise<AxiosResponse<PostBase>> => {
   return api.delete<PostBase>(query);
 };
 
-const updatePost = (
-  postId: number,
-  body: UpdatePostBody
-): Promise<AxiosResponse<Post>> => {
+const updatePost = (postId: number, body: UpdatePostBody): Promise<AxiosResponse<Post>> => {
   const formData = createFormData(body);
   return api.putForm<Post>(`posts/${postId}`, formData);
 };

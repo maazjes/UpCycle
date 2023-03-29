@@ -1,15 +1,13 @@
-import {
-  StyleSheet, Dimensions, ScrollView, Pressable, Alert
-} from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { TokenUser, Post } from '@shared/types';
+import { Post } from '@shared/types';
 import MenuModal from 'components/MenuModal';
 import { Entypo } from '@expo/vector-icons';
 import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
-import { UserStackScreen } from '../types';
+import { ProfileProps, UserStackScreen } from '../types';
 import { useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { deletePost, getPost } from '../services/posts';
@@ -30,12 +28,11 @@ const styles = StyleSheet.create({
   }
 });
 
-const SinglePost = ({ route, navigation }:
-UserStackScreen<'SinglePost'>): JSX.Element => {
+const SinglePost = ({ route, navigation }: UserStackScreen<'SinglePost'>): JSX.Element => {
   const { postId } = route.params;
   const [post, setPost] = useState<null | Post>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const currentUser = useAppSelector((state): TokenUser => state.user!);
+  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
   const notification = useNotification();
   const { navigate } = navigation;
 
@@ -52,7 +49,9 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
   }
 
   const onUserBarPress = (): void => {
-    navigate('StackProfile', { userId: post.user.id, username: post.user.username });
+    navigation
+      .getParent()
+      ?.navigate('Profile', { userId: post.user.id, username: post.user.username });
   };
 
   const onMessage = (): void => {
@@ -63,18 +62,11 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
     try {
       await deletePost(id);
     } catch (e) {
-
+      notification({ error: true, modal: true, message: 'Error deleting post. Please try again.' });
     }
+    navigation.goBack();
     setModalVisible(false);
   };
-
-  const createTwoButtonAlert = () => Alert.alert('Alert Title', 'My Alert Msg', [
-    {
-      text: 'Cancel',
-      onPress: () => console.log('Cancel Pressed'),
-      style: 'cancel'
-    }
-  ]);
 
   const onPostEdit = (id: number): void => {
     navigate('EditPost', { postId: id });
@@ -86,13 +78,17 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
     'Edit post': (): void => onPostEdit(postId)
   };
 
-  const itemRight = currentUser.id === post.user.id
-    ? (
-      <Pressable onPress={(): void => setModalVisible(true)}>
+  const itemRight =
+    currentUserId === post.user.id ? (
+      <Pressable
+        onPress={(): void => setModalVisible(true)}
+        hitSlop={{ top: 20, bottom: 20, right: 10, left: 10 }}
+      >
         <Entypo style={{ marginTop: 1 }} name="dots-three-horizontal" size={21} color="black" />
       </Pressable>
-    )
-    : <Button onPress={onMessage} size="small" text="Message" />;
+    ) : (
+      <Button onPress={onMessage} size="small" text="Message" />
+    );
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
@@ -102,10 +98,7 @@ UserStackScreen<'SinglePost'>): JSX.Element => {
         user={post.user}
         itemRight={itemRight}
       />
-      <SinglePostCard
-        post={post}
-        containerStyle={styles.container}
-      />
+      <SinglePostCard post={post} containerStyle={styles.container} />
       <MenuModal
         items={menuModalItems}
         visible={modalVisible}

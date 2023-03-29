@@ -1,11 +1,11 @@
 import {
   StyleSheet,
-  Pressable,
-  PressableProps,
-  GestureResponderEvent
+  GestureResponderEvent,
+  TouchableOpacity,
+  TouchableOpacityProps
 } from 'react-native';
 import { dpw } from 'util/helpers';
-import theme from 'styles/theme';
+import { ActivityIndicator } from 'react-native-paper';
 import Text from './Text';
 
 const styles = StyleSheet.create({
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   }
 });
 
-interface Props extends PressableProps {
+interface Props extends TouchableOpacityProps {
   text?: string;
   element?: JSX.Element;
   onPress: (event: GestureResponderEvent) => void;
@@ -44,6 +44,8 @@ interface Props extends PressableProps {
   o?: boolean;
   circle?: boolean;
   fontSize?: number;
+  loading?: boolean;
+  highlight?: boolean;
 }
 
 const Button = ({
@@ -53,8 +55,9 @@ const Button = ({
   size = 'regular',
   o = false,
   style,
-  fontSize = undefined,
   circle = false,
+  loading = false,
+  highlight = true,
   ...props
 }: Props): JSX.Element => {
   const buttonStyle = [
@@ -65,8 +68,9 @@ const Button = ({
   ];
 
   return (
-    <Pressable
-      style={StyleSheet.flatten(
+    <TouchableOpacity
+      activeOpacity={!highlight ? 1 : undefined}
+      style={
         !circle
           ? [buttonStyle, style]
           : [
@@ -78,17 +82,15 @@ const Button = ({
               },
               style
             ]
-      )}
+      }
       {...props}
       onPress={onPress}
     >
-      {text ? (
+      {loading ? (
+        <ActivityIndicator color="white" size="small" />
+      ) : text ? (
         <Text
-          style={
-            size === 'small'
-              ? { fontSize: theme.fontSizes.body }
-              : { fontSize: theme.fontSizes.subheading }
-          }
+          size={size === 'small' ? 'body' : 'subheading'}
           weight="bold"
           color={o ? 'primary' : 'secondary'}
         >
@@ -97,7 +99,7 @@ const Button = ({
       ) : (
         element
       )}
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 

@@ -1,18 +1,15 @@
-import {
-  FieldHelperProps,
-  FieldInputProps, FieldMetaProps, isString, useField
-} from 'formik';
-import {
-  Category, MessageBody, PaginationBase, TypedImage
-} from '@shared/types';
+import { FieldHelperProps, FieldInputProps, FieldMetaProps, isString, useField } from 'formik';
+import { NewMessageBody, PaginationBase, TypedImage } from '@shared/types';
 import { Dimensions, PixelRatio } from 'react-native';
 import { ImagePickerOptions, launchImageLibraryAsync, launchCameraAsync } from 'expo-image-picker';
 import { UpdatePostBody, UpdateUserBody } from '../types';
 
-type IndexSignature = string | number | symbol;
-
-export const addQuery = (query: string, params: {
-  [key:IndexSignature]:string | number; }): string => {
+export const addQuery = (
+  query: string,
+  params: {
+    [key: string]: string | number;
+  }
+): string => {
   Object.keys(params).forEach((key, i): void => {
     if (i === 0) {
       query += `?${key}=${params[key]}`;
@@ -23,13 +20,13 @@ export const addQuery = (query: string, params: {
   return query;
 };
 
-export const formatImages = (images: { uri: string }[]): Blob[] => {
+export const formatImages = (imageUris: string[]): Blob[] => {
   const formattedImages = [] as Blob[];
-  images.forEach((image): void => {
-    const split = image.uri.split('.');
+  imageUris.forEach((uri): void => {
+    const split = uri.split('.');
     const extension = split[split.length - 1];
     const formattedImage = {
-      uri: image.uri,
+      uri,
       name: 'image',
       type: `image/${extension}`
     } as unknown as Blob;
@@ -38,7 +35,7 @@ export const formatImages = (images: { uri: string }[]): Blob[] => {
   return formattedImages;
 };
 
-type CreateFormDataParams = UpdatePostBody & UpdateUserBody & MessageBody;
+type CreateFormDataParams = UpdatePostBody & UpdateUserBody & Partial<NewMessageBody>;
 
 export const createFormData = (params: CreateFormDataParams): FormData => {
   const keys = Object.keys(params) as Array<keyof CreateFormDataParams>;
@@ -65,8 +62,7 @@ export const createFormData = (params: CreateFormDataParams): FormData => {
   return formdata;
 };
 
-export const concatPages = (oldPage: PaginationBase, newPage: PaginationBase):
-PaginationBase => ({
+export const concatPages = (oldPage: PaginationBase, newPage: PaginationBase): PaginationBase => ({
   totalItems: newPage.totalItems,
   offset: newPage.offset,
   data: oldPage.data.concat(newPage.data)
@@ -82,8 +78,10 @@ export const dph = (heightPercent: number): number => {
   return PixelRatio.roundToNearestPixel(screenHeight * heightPercent);
 };
 
-export const conditionalUseField = (r: boolean, name: string):
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const conditionalUseField = (
+  r: boolean,
+  name: string
+): // eslint-disable-next-line @typescript-eslint/no-explicit-any
 [FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>] | [] => {
   if (r) {
     return useField(name);
@@ -92,32 +90,35 @@ export const conditionalUseField = (r: boolean, name: string):
 };
 
 export const deepEqual = (x: object, y: object): boolean => {
-  const ok = Object.keys; const tx = typeof x; const
-    ty = typeof y;
-  return x && y && tx === 'object' && tx === ty ? (
-    ok(x).length === ok(y).length
-      // @ts-ignore
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      && ok(x).every((key): boolean => deepEqual(x[key], y[key]))
-  ) : (x === y);
+  const ok = Object.keys;
+  const tx = typeof x;
+  const ty = typeof y;
+  return x && y && tx === 'object' && tx === ty
+    ? ok(x).length === ok(y).length &&
+        // @ts-ignore
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        ok(x).every((key): boolean => deepEqual(x[key], y[key]))
+    : x === y;
 };
-export const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => layoutMeasurement.height + contentOffset.y >= contentSize.height - 20;
 
 interface PickImageParams extends ImagePickerOptions {
   from: 'gallery' | 'camera';
 }
 export const pickImage = async ({
-  from, ...params
+  from,
+  ...params
 }: PickImageParams): Promise<TypedImage[] | null> => {
-  const result = from === 'gallery'
-    ? await launchImageLibraryAsync(params)
-    : await launchCameraAsync(params);
+  const result =
+    from === 'gallery' ? await launchImageLibraryAsync(params) : await launchCameraAsync(params);
   if (result.canceled) {
     return null;
   }
-  const images = result.assets.map(({ width, height, uri }): TypedImage => ({
-    width, height, uri, id: (width / height) * Math.random()
-  }));
+  const images = result.assets.map(
+    ({ uri }): TypedImage => ({
+      uri,
+      id: `${uri}${Math.random()}`
+    })
+  );
   return images;
 };
 
@@ -126,7 +127,8 @@ export const formatDate = (date: Date): string => {
   const current = new Date();
   current.setDate(current.getDate() - 2);
   return created > new Date(current.getDate() - 1)
-    ? created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : created > new Date(current.getDate() - 2)
-      ? 'Eilen'
-      : created.toDateString();
+    ? created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : created > new Date(current.getDate() - 2)
+    ? 'Eilen'
+    : created.toDateString();
 };

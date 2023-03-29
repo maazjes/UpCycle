@@ -1,40 +1,35 @@
 import { PostBase } from '@shared/types';
-import { StyleSheet, View, ViewProps } from 'react-native';
+import { FlatList, FlatListProps, StyleSheet } from 'react-native';
+import { dpw } from 'util/helpers';
 import PostCard from './PostCard';
 
 const styles = StyleSheet.create({
   posts: {
-    flexWrap: 'wrap',
-    flexDirection: 'row',
-    justifyContent: 'space-evenly'
-  },
-  onePost: {
-    justifyContent: 'flex-start'
+    justifyContent: 'space-between',
+    paddingHorizontal: dpw(0.1 / 3),
+    paddingBottom: dpw(0.1 / 3)
   },
   postCard: {
     marginBottom: 20
   },
   lastPostCard: {
-    marginBottom: 10
+    alignSelf: 'flex-end'
   }
 });
 
-interface Props extends ViewProps {
+interface Props extends Omit<FlatListProps<PostBase>, 'data' | 'keyExtractor' | 'renderItem'> {
   posts: PostBase[];
 }
 
-const GridView = ({ posts, style }: Props): JSX.Element => (
-  <View style={[styles.posts, posts.length === 1 ? styles.onePost : {}, style]}>
-    {posts.map(
-      (post, i): JSX.Element => (
-        <PostCard
-          key={post.id}
-          containerStyle={i < posts.length - 2 ? styles.postCard : styles.lastPostCard}
-          post={post}
-        />
-      )
-    )}
-  </View>
+const GridView = ({ posts, columnWrapperStyle, ...props }: Props): JSX.Element => (
+  <FlatList
+    {...props}
+    columnWrapperStyle={[styles.posts, columnWrapperStyle]}
+    data={posts}
+    keyExtractor={({ id }): string => String(id)}
+    numColumns={2}
+    renderItem={({ item }): JSX.Element => <PostCard post={item} />}
+  />
 );
 
 export default GridView;

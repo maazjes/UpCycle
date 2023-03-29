@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { useCallback, useRef, useState } from 'react';
 import { TypedImage } from '@shared/types';
-import ReactNativeZoomableView from '@openspacelabs/react-native-zoomable-view/src/ReactNativeZoomableView';
 
 const { width: windowWidth } = Dimensions.get('window');
 
@@ -42,11 +41,9 @@ const styles = StyleSheet.create({
 
 const Carousel = ({
   images,
-  zoomable = false,
   dots = false
 }: {
   images: TypedImage[];
-  zoomable?: boolean;
   dots?: boolean;
 }): JSX.Element => {
   const [index, setIndex] = useState(0);
@@ -83,15 +80,9 @@ const Carousel = ({
       <FlatList
         contentContainerStyle={styles.flatListContainer}
         data={images}
-        renderItem={({ item }): JSX.Element =>
-          zoomable ? (
-            <ReactNativeZoomableView maxZoom={30} contentWidth={300} contentHeight={150}>
-              <Image style={styles.singleImage} source={{ uri: item.uri }} />
-            </ReactNativeZoomableView>
-          ) : (
-            <Image style={styles.singleImage} source={{ uri: item.uri }} />
-          )
-        }
+        renderItem={({ item }): JSX.Element => (
+          <Image style={styles.singleImage} source={{ uri: item.uri }} />
+        )}
         pagingEnabled
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -102,4 +93,5 @@ const Carousel = ({
     </View>
   );
 };
+
 export default Carousel;

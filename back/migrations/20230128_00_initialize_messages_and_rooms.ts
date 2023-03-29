@@ -20,6 +20,10 @@ module.exports = {
           type: DataTypes.STRING,
           allowNull: false,
           references: { model: 'users', key: 'id' }
+        },
+        archived: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false
         }
       },
       { uniqueKeys: { uniqueIds: { fields: ['creator_id', 'user_id'] } } }
@@ -50,6 +54,13 @@ module.exports = {
       },
       updated_at: {
         type: DataTypes.DATE
+      },
+      text: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        validate: {
+          len: [1, 1000]
+        }
       }
     });
     await queryInterface.addColumn('chats', 'last_message_id', {

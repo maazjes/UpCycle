@@ -1,6 +1,7 @@
-import { View, StyleSheet, Text, ViewProps } from 'react-native';
+import { View, StyleSheet, ViewProps } from 'react-native';
 import { useAppSelector } from '../hooks/redux';
 import { NotificationState } from '../types';
+import Text from './Text';
 
 const styles = StyleSheet.create({
   container: {

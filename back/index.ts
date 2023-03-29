@@ -19,7 +19,10 @@ import followsRouter from './controllers/follows.js';
 import passwordResetRouter from './controllers/passwordReset.js';
 import { errorHandler } from './util/middleware.js';
 import {
-  ClientToServerEvents, ServerToClientEvents, SocketData, InterServerEvents
+  ClientToServerEvents,
+  ServerToClientEvents,
+  SocketData,
+  InterServerEvents
 } from './types.js';
 
 const app = express();
@@ -29,12 +32,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
 const server = http.createServer(app);
-const io = new Server<
-ClientToServerEvents,
-ServerToClientEvents,
-InterServerEvents,
-SocketData
->(server, { path: '/api/chat', cors: {} });
+const io = new Server<ClientToServerEvents, ServerToClientEvents, InterServerEvents, SocketData>(
+  server,
+  { path: '/api/chat', cors: {} }
+);
 
 io.use((socket, next): void => {
   const { userId } = socket.handshake.auth;
@@ -53,9 +54,7 @@ io.on('connection', async (socket): Promise<void> => {
   }
   socket.join(userId);
 
-  socket.on('message', ({
-    text, userId, createdAt, images
-  }): void => {
+  socket.on('message', ({ text, userId, createdAt, images }): void => {
     socket.broadcast.to(userId).emit('message', { text, createdAt, images });
   });
 

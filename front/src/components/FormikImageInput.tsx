@@ -1,27 +1,19 @@
 import { StyleSheet, Image, View, Pressable, ViewStyle } from 'react-native';
 import { useField } from 'formik';
 import { MediaTypeOptions } from 'expo-image-picker';
-import { MaterialIcons } from '@expo/vector-icons';
 import { TypedImage } from '@shared/types';
 import { dpw, pickImage } from 'util/helpers';
 import { useState } from 'react';
-import Text from './Text';
+import { MaterialIcons } from '@expo/vector-icons';
 import MenuModal from './MenuModal';
 
 const styles = StyleSheet.create({
-  errorText: {
-    color: 'red',
-    marginBottom: '10%',
-    marginTop: 2
-  },
   imageBox: {
     height: dpw(0.3),
     width: dpw(0.3),
     backgroundColor: '#F2F2F2',
     alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 10,
-    marginHorizontal: 5
+    justifyContent: 'center'
   },
   imageBoxes: {
     flexDirection: 'row',
@@ -30,9 +22,7 @@ const styles = StyleSheet.create({
   },
   addedImage: {
     width: dpw(0.3),
-    height: dpw(0.3),
-    marginVertical: 10,
-    marginHorizontal: 5
+    height: dpw(0.3)
   }
 });
 
@@ -41,18 +31,21 @@ interface FormikImageInputProps {
   amount: number;
   containerStyle?: ViewStyle;
   circle?: boolean;
+  initialImage?: JSX.Element;
 }
 
 const FormikImageInput = ({
   name,
   amount,
   circle = false,
-  containerStyle = {}
+  containerStyle = {},
+  initialImage = <MaterialIcons name="add-photo-alternate" size={30} color="black" />
 }: FormikImageInputProps): JSX.Element => {
-  const [field, meta, helpers] = useField<TypedImage[]>(name);
-  const [modalVisible, setModalVisible] = useState(false);
-  const showError = meta.touched;
-  const { error } = meta;
+  const [field, , helpers] = useField<TypedImage[]>(name);
+  const [imagePickerAction, setImagePickerAction] = useState<
+    [boolean, 'camera' | 'gallery' | undefined]
+  >([false, undefined]);
+  const [delModalVisible, setDelModalVisible] = useState(false);
 
   const imagePickerOptions = {
     mediaTypes: MediaTypeOptions.Images,
@@ -66,20 +59,23 @@ const FormikImageInput = ({
       ...imagePickerOptions,
       from
     });
-    setModalVisible(false);
     if (image) {
       helpers.setValue(field.value.concat(image));
     }
   };
 
-  const deleteImage = async (imageId: number): Promise<void> => {
+  const onDeleteImage = (imageId: number): void => {
     const filtered = field.value.filter((image): boolean => image.id !== imageId);
     helpers.setValue(filtered);
+    setDelModalVisible(false);
   };
 
-  const menuModalItems = {
-    Gallery: (): Promise<void> => addImage('gallery'),
-    Camera: (): Promise<void> => addImage('camera')
+  const addImageItems = {
+    Gallery: async (): Promise<void> => {
+      await addImage('gallery');
+      setImagePickerAction([false, 'gallery']);
+    },
+    Camera: (): void => setImagePickerAction([true, 'camera'])
   };
 
   const addedImageStyle = circle
@@ -94,35 +90,42 @@ const FormikImageInput = ({
         {Array(amount)
           .fill(0)
           .map((_, i): JSX.Element => {
-            const currentImage = field.value[i];
-            if (currentImage) {
-              return (
-                <Pressable
-                  key={currentImage.id || currentImage.uri}
-                  onPress={(): Promise<void> => deleteImage(currentImage.id)}
-                >
-                  <Image style={addedImageStyle} source={{ uri: currentImage.uri }} />
+            const { uri, id } = field.value[i] ? field.value[i] : { uri: null, id: null };
+            const deleteImageItems = uri && {
+              Delete: (): void => onDeleteImage(id)
+            };
+            console.log(field.value);
+            return deleteImageItems ? (
+              <View key={id || uri}>
+                <Pressable onPress={(): void => setDelModalVisible(true)}>
+                  <Image
+                    style={addedImageStyle}
+                    source={{ uri: uri.startsWith('file') ? uri : `${uri}_100x100?alt=media` }}
+                  />
                 </Pressable>
-              );
-            }
-            return (
+                <MenuModal
+                  items={deleteImageItems}
+                  visible={delModalVisible}
+                  onDismiss={(): void => setDelModalVisible(false)}
+                />
+              </View>
+            ) : (
               <Pressable
                 // eslint-disable-next-line react/no-array-index-key
                 key={i * -1}
-                onPress={(): void => setModalVisible(true)}
+                onPress={(): void => setImagePickerAction([true, undefined])}
                 style={imageBoxStyle}
               >
-                <MaterialIcons name="add-photo-alternate" size={30} color="black" />
+                {initialImage}
               </Pressable>
             );
           })}
       </View>
       <MenuModal
-        items={menuModalItems}
-        visible={modalVisible}
-        onDismiss={(): void => setModalVisible(false)}
+        items={addImageItems}
+        visible={imagePickerAction[0]}
+        onDismiss={(): void => setImagePickerAction([false, undefined])}
       />
-      {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </>
   );
 };

@@ -9,13 +9,9 @@ const createUser = (body: NewUserBody): Promise<AxiosResponse<EmailUser>> => {
   return api.postForm<EmailUser>('users', formdata);
 };
 
-const getUser = (userId: string): Promise<AxiosResponse<User>> =>
-  api.get<User>(`users/${userId}`);
+const getUser = (userId: string): Promise<AxiosResponse<User>> => api.get<User>(`users/${userId}`);
 
-const updateUser = (
-  userId: string,
-  body: UpdateUserBody
-): Promise<AxiosResponse<EmailUser>> => {
+const updateUser = (userId: string, body: UpdateUserBody): Promise<AxiosResponse<EmailUser>> => {
   const formdata = createFormData(body);
   return api.putForm<EmailUser>(`users/${userId}`, formdata);
 };

@@ -1,15 +1,15 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { TokenUser } from '@shared/types';
+import { ProfileProps } from 'types';
 
 const userSlice = createSlice({
-  name: 'token',
-  initialState: null as TokenUser | null,
+  name: 'userId',
+  initialState: null as null | ProfileProps,
   reducers: {
-    addUser(_state, action: PayloadAction<TokenUser | null>): TokenUser | null {
+    setProfileProps(_state, action: PayloadAction<ProfileProps | null>): ProfileProps | null {
       return action.payload;
     }
   }
 });
 
 export default userSlice.reducer;
-export const { addUser } = userSlice.actions;
+export const { setProfileProps } = userSlice.actions;

@@ -1,10 +1,4 @@
-import {
-  View,
-  StyleSheet,
-  GestureResponderEvent,
-  Pressable,
-  Image
-} from 'react-native';
+import { View, StyleSheet, GestureResponderEvent, Pressable, Image } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import Container from 'components/Container';
@@ -21,7 +15,7 @@ const styles = StyleSheet.create({
   logo: {
     width: dpw(0.6),
     height: dpw((903 / 2134) * 0.6),
-    marginBottom: dph(0.02),
+    marginBottom: dph(0.05),
     alignSelf: 'center'
   },
   loginForm: {
@@ -29,19 +23,20 @@ const styles = StyleSheet.create({
   },
   signUpButton: {
     alignSelf: 'center',
-    marginTop: dph(0.03)
+    marginTop: dph(0.05)
   },
-  loginButton: {
-    marginTop: dph(0.015)
+  resetPasswordButton: {
+    alignSelf: 'center',
+    marginTop: dph(0.03)
   }
 });
 
 const validationSchema = yup.object().shape({
-  email: yup
+  emailOrUsername: yup
     .string()
     .min(3, 'Minimum length of email is 1')
     .max(30, 'Maximum length of email is 30')
-    .required('email is required'),
+    .required('Email or username is required'),
   password: yup
     .string()
     .min(1, 'Minimum length of password is 1')
@@ -55,70 +50,58 @@ const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
   const { navigate } = navigation;
 
   const initialValues = {
-    email: '',
+    emailOrUsername: '',
     password: '',
     passwordConfirmation: ''
   };
 
   const onSubmit = async ({
-    email,
+    emailOrUsername,
     password
   }: {
-    email: string;
+    emailOrUsername: string;
     password: string;
     passwordConfirmation: string;
   }): Promise<void> => {
     try {
-      await login({ email, password });
+      const loginBody = emailOrUsername.includes('@')
+        ? { email: emailOrUsername, password }
+        : { username: emailOrUsername, password };
+      await login(loginBody);
     } catch (e) {
       if (isAxiosError(e)) {
-        notification({ message: e.message, error: true, modal: false });
+        notification({ message: e.message, error: true, modal: true });
       }
     }
   };
 
   return (
-    <Container style={styles.loginForm}>
+    <Container size="small" scrollable style={styles.loginForm}>
       {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
       <Image style={styles.logo} source={require('../../assets/logo.png')} />
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={onSubmit}
-      >
+      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {({ handleSubmit }): JSX.Element => (
           <View>
-            <FormikTextInput name="email" placeholder="email" />
             <FormikTextInput
-              secureTextEntry
-              name="password"
-              placeholder="Password"
+              returnKeyType="next"
+              name="emailOrUsername"
+              placeholder="Email or username"
             />
+            <FormikTextInput secureTextEntry name="password" placeholder="Password" />
             <Button
-              style={styles.loginButton}
-              onPress={
-                handleSubmit as unknown as (
-                  event: GestureResponderEvent
-                ) => void
-              }
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Login"
             />
           </View>
         )}
       </Formik>
-      <Pressable
-        style={styles.signUpButton}
-        onPress={(): void => navigate('SignUp')}
-      >
-        <Text weight="bold" color="green">
+      <Pressable style={styles.signUpButton} onPress={(): void => navigate('SignUp')}>
+        <Text size="subheading" weight="bold" color="green">
           Sign up
         </Text>
       </Pressable>
-      <Pressable
-        style={styles.signUpButton}
-        onPress={(): void => navigate('ResetPassword')}
-      >
-        <Text weight="bold" color="green">
+      <Pressable style={styles.resetPasswordButton} onPress={(): void => navigate('ResetPassword')}>
+        <Text weight="bold" size="subheading" color="green">
           Reset password
         </Text>
       </Pressable>

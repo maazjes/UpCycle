@@ -1,8 +1,9 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useField } from 'formik';
 // @ts-ignore
 import * as postcodes from 'datasets-fi-postalcodes';
-import { useEffect, useState } from 'react';
+import { dph } from 'util/helpers';
+import { FormikTextInputProps } from 'types';
 import TextInput from './TextInput';
 import Text from './Text';
 
@@ -13,13 +14,9 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginLeft: 2
   },
-  view: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly'
-  },
   postcodeInput: {
     width: '100%',
-    marginBottom: 10
+    marginBottom: dph(0.01)
   },
   cityField: {
     marginBottom: 10,
@@ -27,58 +24,46 @@ const styles = StyleSheet.create({
   }
 });
 
-interface Location {
-  city: string;
-  postcode: string;
-}
-
-const PostCodeInput = ({ name }: { name: string }): JSX.Element => {
+const PostCodeInput = ({
+  name,
+  inputRef = undefined,
+  ...props
+}: FormikTextInputProps): JSX.Element => {
   const [field, meta, helpers] = useField<string>(name);
-  const [location, setLocation] = useState<Location>({ city: '', postcode: field.value });
+  const [cityField, , cityHelpers] = useField<string>('city');
 
-  const handleOnChange = ({ postcode }: Location): void => {
+  const handleOnChange = (postcode: string): void => {
     let cityToAdd = '';
-    let postcodeToAdd = '';
-    if (postcode.length === 5) {
-      // eslint-disable-next-line max-len
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      const cityByCode = postcodes[postcode];
-      if (cityByCode && typeof cityByCode === 'string') {
-        cityToAdd = cityByCode;
-        postcodeToAdd = postcode;
-      }
+    helpers.setValue(postcode);
+    // eslint-disable-next-line max-len
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const cityByCode = postcodes.heavy[postcode]?.municipal_name_fi;
+    if (cityByCode && typeof cityByCode === 'string') {
+      cityToAdd = cityByCode;
     }
-    helpers.setValue(postcodeToAdd);
-    setLocation({ postcode, city: cityToAdd });
+    cityHelpers.setValue(cityToAdd);
   };
 
-  useEffect((): void => {
-    if (field.value) {
-      handleOnChange(location);
-    }
-  }, []);
-
   const { error, touched } = meta;
-  const showError = touched && error !== undefined;
-  const cityFieldValue = location.city;
+  const showError = touched && error !== undefined && !cityField.value;
 
   return (
-    <View>
-      <View style={styles.view}>
-        <TextInput
-          onChangeText={(postcode: string): void => handleOnChange({ ...location, postcode })}
-          onBlur={(): void => helpers.setTouched(true)}
-          value={location.postcode}
-          error={showError}
-          placeholder="Postcode"
-          style={styles.postcodeInput}
-        />
-      </View>
-      {showError
-        ? <Text style={styles.errorText}>{error}</Text> : cityFieldValue
-          ? <Text style={styles.cityField}>{cityFieldValue}</Text>
-          : undefined}
-    </View>
+    <>
+      <TextInput
+        inputRef={inputRef}
+        onChangeText={(postcode: string): void => handleOnChange(postcode)}
+        onBlur={(): void => helpers.setTouched(true)}
+        value={field.value}
+        error={showError}
+        style={styles.postcodeInput}
+        {...props}
+      />
+      {showError ? (
+        <Text style={styles.errorText}>{error}</Text>
+      ) : cityField.value ? (
+        <Text style={styles.cityField}>{cityField.value}</Text>
+      ) : undefined}
+    </>
   );
 };
 

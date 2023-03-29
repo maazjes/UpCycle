@@ -1,22 +1,27 @@
-import { View, StyleSheet, GestureResponderEvent } from 'react-native';
+import { StyleSheet, GestureResponderEvent } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { TypedImage } from '@shared/types';
-import { dpw } from 'util/helpers';
+import { dph, dpw } from 'util/helpers';
 import Container from 'components/Container';
+import { LoginStackScreen } from 'types';
+import FormikImageInput from 'components/FormikImageInput';
+import Text from 'components/Text';
+import { Fontisto } from '@expo/vector-icons';
+import LinkedInputs from 'components/LinkedInputs';
 import { createUser } from '../services/users';
 import useAuth from '../hooks/useAuth';
 import useError from '../hooks/useError';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
-import FormikImageInput from '../components/FormikImageInput';
 
 const styles = StyleSheet.create({
   bioField: {
-    height: '20%',
-    paddingTop: 13
+    height: 100,
+    paddingTop: 13,
+    flex: 1
   },
-  bioAndPhoto: {
+  photo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -29,35 +34,42 @@ const styles = StyleSheet.create({
     marginBottom: 0
   },
   displayName: {
-    marginTop: 10
+    marginTop: 0
   }
-
 });
 
 const validationSchema = yup.object().shape({
-  email: yup
+  email: yup.string().email().required('email is required'),
+  username: yup
     .string()
-    .min(3, 'Minimum length of username is 1')
-    .max(30, 'Maximum length of username is 30')
-    .required('username is required'),
+    .min(2, 'Minimum length of name is 2')
+    .max(15, 'Maximum length of name is 15')
+    .required('Username is required'),
+  bio: yup
+    .string()
+    .min(1, 'Minimum length of name is 2')
+    .max(150, 'Maximum length of name is 150')
+    .required('Username is required'),
   displayName: yup
     .string()
-    .min(5, 'Minimum length of name is 5')
-    .max(10, 'Maximum length of name is 10')
-    .required('name is required'),
+    .min(1, 'Minimum length of name is 2')
+    .max(15, 'Maximum length of name is 15')
+    .required('Name is required'),
   password: yup
     .string()
-    .min(1, 'Minimum length of password is 1')
-    .max(50, 'Maximum length of password is 4')
-    .required('password is required'),
-  passwordConfirmation: yup.string()
+    .min(5, 'Minimum length of password is 5')
+    .max(20, 'Maximum length of password is 20')
+    .required('Password is required'),
+  passwordConfirmation: yup
+    .string()
     .oneOf([yup.ref('password'), null], 'Passwords must match')
-    .required('password confirmation is required')
+    .required('Password confirmation is required')
 });
 
-const SignUp = (): JSX.Element => {
+const SignUp = ({ navigation, route }: LoginStackScreen<'SignUp'>): JSX.Element => {
   const { login } = useAuth();
   const error = useError();
+  const { nextPage } = route.params || false;
 
   const initialValues = {
     email: '',
@@ -70,7 +82,10 @@ const SignUp = (): JSX.Element => {
   };
 
   const onSubmit = async ({
-    images, email, password, ...props
+    images,
+    email,
+    password,
+    ...props
   }: {
     email: string;
     displayName: string;
@@ -80,10 +95,13 @@ const SignUp = (): JSX.Element => {
     passwordConfirmation: string;
     images: TypedImage[];
   }): Promise<void> => {
-    const image = images[0];
     try {
+      console.log(props);
       await createUser({
-        ...props, image, email, password
+        ...props,
+        image: images[0]?.uri ?? null,
+        email,
+        password
       });
       await login({ email, password });
     } catch (e) {
@@ -94,22 +112,64 @@ const SignUp = (): JSX.Element => {
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ handleSubmit }): JSX.Element => (
-        <Container>
-          <View style={styles.bioAndPhoto}>
-            <FormikImageInput circle name="images" amount={1} />
-            <View style={styles.emailAndUsername}>
-              <FormikTextInput name="email" placeholder="Email" />
-              <FormikTextInput style={styles.username} name="username" placeholder="Username" />
-            </View>
-          </View>
-          <FormikTextInput style={styles.displayName} name="displayName" placeholder="Display name" />
-          <FormikTextInput multiline textAlignVertical="top" style={styles.bioField} name="bio" placeholder="Bio" />
-          <FormikTextInput secureTextEntry name="password" placeholder="Password" />
-          <FormikTextInput secureTextEntry name="passwordConfirmation" placeholder="Password confirmation" />
-          <Button
-            onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Sign up"
-          />
+        <Container size="small" scrollable>
+          <>
+            <Fontisto
+              style={{ marginBottom: dph(0.012), alignSelf: 'center' }}
+              name="email"
+              size={70}
+              color="black"
+            />
+            <Text align="center" style={{ marginBottom: dph(0.012) }} size="heading" weight="bold">
+              Enter your email
+            </Text>
+            <Text color="grey" style={{ marginBottom: dph(0.03) }}>
+              Enter your email below and well send you an email to verify your account.
+            </Text>
+            <FormikTextInput name="email" placeholder="Email" />
+            <Button
+              style={{ marginTop: dph(0.02) }}
+              onPress={(): void => {
+                navigation.push('SignUp', { nextPage: true });
+              }}
+              text="Next"
+            />
+          </>
+          <>
+            <LinkedInputs>
+              <FormikImageInput
+                containerStyle={{ marginBottom: dph(0.02) }}
+                circle
+                name="images"
+                amount={1}
+              />
+              <FormikTextInput name="username" placeholder="Username" />
+              <FormikTextInput
+                style={styles.displayName}
+                name="displayName"
+                placeholder="Display name"
+              />
+              <FormikTextInput
+                multiline
+                blurOnSubmit
+                textAlignVertical="top"
+                style={styles.bioField}
+                name="bio"
+                placeholder="Bio"
+              />
+              <FormikTextInput secureTextEntry name="password" placeholder="Password" />
+              <FormikTextInput
+                secureTextEntry
+                name="passwordConfirmation"
+                placeholder="Password confirmation"
+              />
+            </LinkedInputs>
+            <Button
+              style={{ marginTop: dph(0.0) }}
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Sign up"
+            />
+          </>
         </Container>
       )}
     </Formik>

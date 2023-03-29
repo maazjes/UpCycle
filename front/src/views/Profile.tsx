@@ -1,7 +1,5 @@
-import * as React from 'react';
 import { useEffect, useState } from 'react';
-import Container from 'components/Container';
-import { TokenUser, User } from '@shared/types';
+import { User } from '@shared/types';
 import usePosts from 'hooks/usePosts';
 import { View, StyleSheet, Pressable } from 'react-native';
 import { dph } from 'util/helpers';
@@ -14,16 +12,14 @@ import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import GridView from '../components/GridView';
-import { UserStackScreen } from '../types';
+import { ProfileProps, UserStackScreen } from '../types';
 import { useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { getUser } from '../services/users';
-import Scrollable from '../components/Scrollable';
 
 const styles = StyleSheet.create({
   bio: {
-    marginTop: dph(0.03),
-    marginBottom: dph(0.025)
+    marginTop: dph(0.03)
   },
   info: {
     flexDirection: 'row',
@@ -37,25 +33,31 @@ const styles = StyleSheet.create({
 });
 
 const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.Element => {
-  const currentUser = useAppSelector((state): TokenUser => state.user!);
-  const [user, setUser] = useState<User | null>();
+  const profileParams = useAppSelector((state): ProfileProps => state.profileProps!);
+  const currentUserId = profileParams.id;
+  const [user, setUser] = useState<User>();
   const [modalVisible, setModalVisible] = useState(false);
   const { navigate } = navigation;
   const { logout } = useAuth();
   const notification = useNotification();
-  const title = route.params?.username || currentUser.username;
-  const userId = route.params?.userId || currentUser.id;
-
+  const title = route.params?.username || profileParams.username;
+  const { id: userId } = route.params || profileParams;
   const [posts, fetchPosts] = usePosts({ userId });
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
-      navigation.setOptions({ title });
       const res = await getUser(userId);
       setUser(res.data);
     };
+    navigation.setOptions({ title });
     initialize();
-  }, []);
+  }, [userId]);
+
+  useEffect((): void => {
+    if (user) {
+      setUser(route.params as User);
+    }
+  }, [route.params]);
 
   if (!user || !posts) {
     return <Loading />;
@@ -88,12 +90,7 @@ const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.El
   };
 
   const onEditProfile = (): void => {
-    navigate('EditProfile', {
-      ...user,
-      photoUrl:
-        user.photoUrl ||
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png'
-    });
+    navigate('EditProfile', user);
     setModalVisible(false);
   };
 
@@ -108,55 +105,76 @@ const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.El
   };
 
   const extraSecond =
-    currentUser.id === userId ? undefined : user.followId ? (
+    currentUserId === userId ? undefined : user.followId ? (
       <Button o text="Unfollow" size="small" onPress={onUnfollow} />
     ) : (
       <Button text="Follow" size="small" onPress={onFollow} />
     );
 
   const extra =
-    currentUser.id === userId ? (
-      <Button text="options" size="small" onPress={(): void => setModalVisible(true)} />
+    currentUserId === userId ? (
+      <Button
+        highlight={false}
+        text="options"
+        size="small"
+        onPress={(): void => setModalVisible(true)}
+      />
     ) : (
-      <Button onPress={(): void => navigate('StackChat')} size="small" text="Message" />
+      <Button
+        onPress={(): void => navigation.getParent()?.navigate('Chat')}
+        size="small"
+        text="Message"
+      />
     );
 
-  return (
-    <Container>
-      <Scrollable onEndReached={(): Promise<void> => fetchPosts({ userId })}>
+  const header = (): JSX.Element => (
+    <View style={{ marginBottom: 20 }}>
+      <View style={{ padding: '5%' }}>
         <UserBar user={user} profilePhotoSize={70} extra={extra} extraSecond={extraSecond} />
         <View style={styles.bio}>
           <Text weight="bold">{user.displayName}</Text>
           <Text>{user.bio}</Text>
         </View>
-        <Line />
-        <View style={styles.info}>
-          <View style={styles.infoItem}>
-            <Text weight="bold">{posts.totalItems.toString()}</Text>
-            <Text>posts</Text>
-          </View>
-          <Pressable onPress={(): void => navigate('Follows', { userId, role: 'follower' })}>
-            <View style={styles.infoItem}>
-              <Text weight="bold">{user.followers.toString()}</Text>
-              <Text>followers</Text>
-            </View>
-          </Pressable>
-          <Pressable onPress={(): void => navigate('Follows', { userId, role: 'following' })}>
-            <View style={styles.infoItem}>
-              <Text weight="bold">{user.following.toString()}</Text>
-              <Text>following</Text>
-            </View>
-          </Pressable>
+      </View>
+      <Line />
+      <View style={styles.info}>
+        <View style={styles.infoItem}>
+          <Text>{posts.totalItems.toString()}</Text>
+          <Text color="grey">posts</Text>
         </View>
-        <Line />
-        <GridView style={{ marginTop: 20 }} posts={posts.data} />
-      </Scrollable>
-      <MenuModal
-        items={menuModalItems}
-        visible={modalVisible}
-        onDismiss={(): void => setModalVisible(false)}
-      />
-    </Container>
+        <Pressable onPress={(): void => navigate('Follows', { userId, role: 'follower' })}>
+          <View style={styles.infoItem}>
+            <Text>{user.followers.toString()}</Text>
+            <Text color="grey">followers</Text>
+          </View>
+        </Pressable>
+        <Pressable onPress={(): void => navigate('Follows', { userId, role: 'following' })}>
+          <View style={styles.infoItem}>
+            <Text>{user.following.toString()}</Text>
+            <Text color="grey">following</Text>
+          </View>
+        </Pressable>
+      </View>
+      <Line />
+    </View>
+  );
+
+  const footer = (): JSX.Element => (
+    <MenuModal
+      items={menuModalItems}
+      visible={modalVisible}
+      onDismiss={(): void => setModalVisible(false)}
+    />
+  );
+
+  return (
+    <GridView
+      ListHeaderComponent={header}
+      posts={posts.data}
+      onEndReached={(): Promise<void> => fetchPosts()}
+      onEndReachedThreshold={0.3}
+      ListFooterComponent={footer}
+    />
   );
 };
 

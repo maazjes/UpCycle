@@ -1,8 +1,7 @@
-import { StyleSheet, View } from 'react-native';
-import { useState } from 'react';
-import { Picker } from '@react-native-picker/picker';
+import { StyleSheet, View, ViewProps } from 'react-native';
 import { useField } from 'formik';
 import Text from './Text';
+import Picker from './Picker';
 
 const styles = StyleSheet.create({
   errorText: {
@@ -12,32 +11,26 @@ const styles = StyleSheet.create({
   }
 });
 
-interface Props {
+interface Props extends ViewProps {
   name: string;
   items: string[];
+  initialValue: string;
 }
 
-const FormikPicker = ({ name, items }: Props): JSX.Element => {
-  const [selectedItem, setSelectedItem] = useState('category');
-  const [, meta, helpers] = useField<string>(name);
+const FormikPicker = ({ name, items, initialValue, ...props }: Props): JSX.Element => {
+  const [field, meta, helpers] = useField<string>(name);
   const showError = meta.touched;
   const { error } = meta;
-
+  console.log(field.value);
   return (
-    <View>
+    <View {...props}>
       <Picker
-        selectedValue={selectedItem}
-        onValueChange={(itemValue): void => {
-          helpers.setValue(itemValue);
-          setSelectedItem(itemValue);
+        items={items}
+        selectedValue={field.value || initialValue}
+        onValueChange={(value): void => {
+          helpers.setValue(value!);
         }}
-      >
-        {items.map(
-          (item): JSX.Element => (
-            <Picker.Item key={item} label={item} value={item} />
-          )
-        )}
-      </Picker>
+      />
       {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );

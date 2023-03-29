@@ -1,4 +1,4 @@
-import { View, Pressable, StyleSheet, ViewProps, TextStyle } from 'react-native';
+import { View, StyleSheet, ViewProps, TextStyle, TouchableOpacity } from 'react-native';
 import { UserBase } from '@shared/types';
 import { dph } from 'util/helpers';
 import Text from './Text';
@@ -27,8 +27,10 @@ interface UserBarProps extends ViewProps {
   profilePhotoSize?: number;
   extra?: JSX.Element;
   extraSecond?: JSX.Element;
-  onPress?: () => void;
+  itemRight?: JSX.Element;
   displayNameStyle?: TextStyle;
+  onPress?: () => void;
+  onLongPress?: () => void;
 }
 
 const UserBar = ({
@@ -36,19 +38,27 @@ const UserBar = ({
   textRight = undefined,
   extraSecond = undefined,
   style,
+  itemRight = undefined,
   profilePhotoSize = 32,
   extra = undefined,
-  onPress = (): null => null,
-  displayNameStyle = {}
+  displayNameStyle = {},
+  onPress = undefined,
+  onLongPress = undefined
 }: UserBarProps): JSX.Element => (
-  <Pressable style={[styles.userBar, style]} onPress={onPress}>
-    <ProfilePhoto size={profilePhotoSize} uri={user.photoUrl} />
+  <TouchableOpacity
+    activeOpacity={!onLongPress ? 1 : undefined}
+    onLongPress={onLongPress}
+    delayLongPress={400}
+    style={[styles.userBar, style]}
+    onPress={onPress}
+  >
+    <ProfilePhoto uri={user.photoUrl} size={profilePhotoSize} />
     <View style={{ marginLeft: profilePhotoSize / 3, marginRight: 'auto' }}>
       <Text
         style={[extra || extraSecond ? { marginBottom: dph(0.01) } : {}, displayNameStyle]}
         size="subheading"
       >
-        {user.displayName}
+        {user.username}
       </Text>
       <View style={styles.extra}>
         {extra}
@@ -65,7 +75,8 @@ const UserBar = ({
       </Text>
       <Text />
     </View>
-  </Pressable>
+    {itemRight}
+  </TouchableOpacity>
 );
 
 export default UserBar;

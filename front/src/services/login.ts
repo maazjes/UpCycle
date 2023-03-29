@@ -5,4 +5,4 @@ import api from '../util/axiosInstance';
 const login = (body: LoginBody): Promise<AxiosResponse<TokenUser>> =>
   api.post<TokenUser>('login', body);
 
-export default { login };
+export { login };

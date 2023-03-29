@@ -1,8 +1,12 @@
 import { Request as ExpressRequest } from 'express';
 import { IncomingHttpHeaders } from 'http';
 import {
-  SharedGetMessagesQuery, SharedGetPostsQuery,
-  UserBase, SharedNewPostBody, TypedImage
+  SharedGetMessagesQuery,
+  SharedGetPostsQuery,
+  UserBase,
+  SharedNewPostBody,
+  TypedImage,
+  SharedNewUserBody
 } from '@shared/types';
 import { User } from './models';
 
@@ -19,6 +23,8 @@ export interface NewPostBody extends SharedNewPostBody {
 }
 
 export interface UpdatePostBody extends Partial<NewPostBody> {}
+
+export interface UpdateUserBody extends Partial<SharedNewUserBody> {}
 
 export interface DecodedToken {
   username: string;
@@ -61,9 +67,8 @@ export type GetFollowsQuery = PaginationQuery;
 
 export interface UserBaseKeys extends Array<keyof UserBase> {}
 
-export interface RequestWithHeader<
-P, ResBody, ReqBody, ReqQuery, ReqHeaders
-> extends ExpressRequest<P, ResBody, ReqBody, ReqQuery> {
+export interface RequestWithHeader<P, ResBody, ReqBody, ReqQuery, ReqHeaders>
+  extends ExpressRequest<P, ResBody, ReqBody, ReqQuery> {
   headers: IncomingHttpHeaders & ReqHeaders;
 }
 
@@ -71,16 +76,30 @@ export interface ServerToClientEvents {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
-  message: ({ text, createdAt, images }:
-  { text: string; createdAt: Date; images?: TypedImage[] }) => void;
+  message: ({
+    text,
+    createdAt,
+    images
+  }: {
+    text: string;
+    createdAt: Date;
+    images?: TypedImage[];
+  }) => void;
 }
 
 export interface ClientToServerEvents {
   hello: () => void;
   message: ({
-    text, userId, createdAt, images
-  }:
-  { text: string; userId: string; createdAt: Date; images: TypedImage[] }) => void;
+    text,
+    userId,
+    createdAt,
+    images
+  }: {
+    text: string;
+    userId: string;
+    createdAt: Date;
+    images: TypedImage[];
+  }) => void;
   join: (userId: string) => void;
   leave: (userId: string) => void;
 }

@@ -3,11 +3,7 @@ import { ErrorBody } from '@shared/types.js';
 import firebase from './firebase.js';
 import { User } from '../models/index.js';
 
-const userExtractor = async (
-  req: Request,
-  _res: Response,
-  next: NextFunction
-): Promise<void> => {
+const userExtractor = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
   const authorization = req.get('authorization');
   if (!(authorization && authorization.toLowerCase().startsWith('bearer '))) {
     return next();
@@ -29,7 +25,7 @@ const errorHandler = async (
   next: NextFunction
 ): Promise<void> => {
   const msg = error.message;
-  console.log(msg);
+  console.log(error);
   if (msg === 'invalid username') {
     res.status(401).json({ error: 'This username does not exist.' });
   } else if (msg === 'invalid password') {
@@ -40,7 +36,11 @@ const errorHandler = async (
     res.status(404).json({ error: 'User not found.' });
   } else if (msg === 'category not found') {
     res.status(400).json({ error: 'Invalid category. Please choose another one.' });
-  } else if (msg === 'images missing from request' || msg === 'saving images failed' || msg === 'getting image dimensions failed') {
+  } else if (
+    msg === 'images missing from request' ||
+    msg === 'saving images failed' ||
+    msg === 'getting image dimensions failed'
+  ) {
     res.status(500).json({ error: 'Image upload failed. Please try again.' });
   } else if (msg === 'invalid token') {
     res.status(401).json({ error: 'Authentication failed.' });

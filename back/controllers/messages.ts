@@ -1,8 +1,8 @@
 import express from 'express';
 import { Op } from 'sequelize';
-import { Message as SharedMessage, MessageBody, MessagePage } from '@shared/types.js';
+import { Message as SharedMessage, NewMessageBody, MessagePage } from '@shared/types.js';
 import multer from 'multer';
-import { saveImages, uploadImages } from '../util/helpers.js';
+import { saveImages, uploadPostImages } from '../util/helpers.js';
 import { Chat, Message, Image } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
 import { GetMessagesQuery } from '../types.js';
@@ -10,7 +10,7 @@ import { GetMessagesQuery } from '../types.js';
 const router = express.Router();
 const upload = multer();
 
-router.post<{}, SharedMessage, MessageBody>(
+router.post<{}, SharedMessage, NewMessageBody>(
   '/',
   upload.array('images'),
   userExtractor,
@@ -20,7 +20,6 @@ router.post<{}, SharedMessage, MessageBody>(
       throw new Error('Authentication required');
     }
     const { receiverId, text } = req.body;
-    console.log(text);
     const [chat] = await Chat.findOrCreate({
       where: {
         [Op.or]: [
@@ -28,7 +27,7 @@ router.post<{}, SharedMessage, MessageBody>(
           { userId: receiverId, creatorId: user.id }
         ]
       },
-      defaults: { creatorId: user.id, userId: receiverId }
+      defaults: { creatorId: user.id, userId: receiverId, archived: false }
     });
     const message = await Message.create({
       text,
@@ -38,7 +37,7 @@ router.post<{}, SharedMessage, MessageBody>(
     });
     await chat.update({ lastMessageId: message.id });
     if (req.files && Array.isArray(req.files)) {
-      const imageUrls = await uploadImages(req.files);
+      const imageUrls = await uploadPostImages(req.files);
       const images = await saveImages(imageUrls, undefined, message.id);
       message.setDataValue('images', images);
     }

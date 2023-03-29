@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import usePosts from '../hooks/usePosts';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
-import Scrollable from '../components/Scrollable';
 
 const styles = StyleSheet.create({
   noFavorites: {
@@ -24,7 +23,6 @@ const styles = StyleSheet.create({
 
 const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Element => {
   const [posts, fetchPosts] = usePosts({ favorite: 'true' });
-  const { navigate } = navigation;
   const { t } = useTranslation();
 
   if (!posts) {
@@ -38,17 +36,23 @@ const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Eleme
         <Text style={styles.noFavoritesText} weight="bold" size="subheading">
           {t("You haven't added any favorites yet")}
         </Text>
-        <Button text="Lisää suosikkeja" onPress={(): void => navigate('StackSearch')} />
+        <Button
+          text="Find new items"
+          onPress={(): void => {
+            navigation.replace('StackSearch');
+          }}
+        />
       </Container>
     );
   }
 
   return (
-    <Container>
-      <Scrollable onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}>
-        <GridView posts={posts.data} />
-      </Scrollable>
-    </Container>
+    <GridView
+      contentContainerStyle={{ paddingVertical: dpw(0.1 / 3) }}
+      onEndReachedThreshold={0.2}
+      onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}
+      posts={posts.data}
+    />
   );
 };
 

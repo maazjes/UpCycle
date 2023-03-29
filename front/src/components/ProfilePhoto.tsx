@@ -7,16 +7,20 @@ const styles = StyleSheet.create({
   }
 });
 
-const ProfilePhoto = ({
-  uri, size = 30
-}: {
-  uri: string | null; size?: number; }):
-JSX.Element => (
+const ProfilePhoto = ({ uri, size = 30 }: { uri: string | null; size?: number }): JSX.Element => (
   <Image
     style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
-    source={{ uri: uri ? `${uri}_100x100` : 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/1200px-Default_pfp.svg.png' }}
+    source={{
+      uri:
+        uri && uri.startsWith('file')
+          ? uri
+          : uri
+          ? `${uri}_100x100?alt=media`
+          : // eslint-disable-next-line max-len
+            'https://firebasestorage.googleapis.com/v0/b/second-hand-c2a91.appspot.com/o/image_1679940077229_100x100?alt=media',
+      cache: 'force-cache'
+    }}
   />
-
 );
 
 export default ProfilePhoto;

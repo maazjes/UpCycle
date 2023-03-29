@@ -9,9 +9,7 @@ const createMessage = (body: MessageBody): Promise<AxiosResponse<Message>> => {
   return api.postForm<Message>('messages', formData);
 };
 
-const getMessages = (
-  query: GetMessagesQuery
-): Promise<AxiosResponse<MessagePage>> => {
+const getMessages = (query: GetMessagesQuery): Promise<AxiosResponse<MessagePage>> => {
   const finalQuery = addQuery('messages', query);
   return api.get<MessagePage>(finalQuery);
 };

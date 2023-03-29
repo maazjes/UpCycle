@@ -1,5 +1,10 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 import { Post } from './index.js';
@@ -9,13 +14,9 @@ class Image extends Model<InferAttributes<Image>, InferCreationAttributes<Image>
 
   declare uri: string;
 
-  declare width: number;
+  declare postId?: ForeignKey<Post['id']>;
 
-  declare height: number;
-
-  declare postId: ForeignKey<Post['id']>;
-
-  declare messageId: ForeignKey<Image['id']>;
+  declare messageId?: ForeignKey<Image['id']>;
 }
 
 Image.init(
@@ -32,14 +33,6 @@ Image.init(
       validate: {
         isUrl: true
       }
-    },
-    width: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    height: {
-      type: DataTypes.INTEGER,
-      allowNull: false
     },
     postId: {
       type: DataTypes.INTEGER,

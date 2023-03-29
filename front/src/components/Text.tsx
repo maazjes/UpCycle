@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     fontSize: theme.fontSizes.heading
   },
   fontWeightBold: {
-    fontWeight: theme.fontWeights.bold
+    fontFamily: theme.fonts.bold
   },
   textAlignCenter: {
     textAlign: 'center'

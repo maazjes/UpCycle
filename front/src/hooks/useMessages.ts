@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { getMessages } from 'services/messages';
-import {
-  Message, MessagePage, SharedGetMessagesQuery
-} from '@shared/types';
+import { Message, MessagePage, SharedGetMessagesQuery } from '@shared/types';
 import { concatPages } from '../util/helpers';
 import { emptyPage } from '../util/constants';
 
@@ -16,9 +14,10 @@ interface PartialMessagePage extends Omit<MessagePage, 'data'> {
   data: PartialMessage[];
 }
 
-const useMessages = (query: SharedGetMessagesQuery):
-[PartialMessagePage | null, typeof setMessages, typeof fetchMessages] => {
-  const [messagePage, setMessagePage] = useState<PartialMessagePage | null>(null);
+const useMessages = (
+  query: SharedGetMessagesQuery
+): [PartialMessagePage | null, typeof setMessages, typeof fetchMessages] => {
+  const [messagePage, setMessagePage] = useState<PartialMessagePage>({ ...emptyPage });
   const offset = useRef(0);
   const endReached = useRef(false);
 
@@ -36,12 +35,12 @@ const useMessages = (query: SharedGetMessagesQuery):
   };
 
   const setMessages = async (message: PartialMessage): Promise<void> => {
-    setMessagePage(({
+    setMessagePage({
       ...messagePage!,
       totalItems: messagePage!.totalItems + 1,
       offset: messagePage!.offset + 1,
       data: [message, ...messagePage!.data]
-    }));
+    });
     offset.current += 1;
   };
 
