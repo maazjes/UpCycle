@@ -3,8 +3,6 @@ import { Formik } from 'formik';
 import * as yup from 'yup';
 import Container from 'components/Container';
 import { dph, dpw } from 'util/helpers';
-import useNotification from 'hooks/useNotification';
-import { isAxiosError } from 'axios';
 import useAuth from '../hooks/useAuth';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
@@ -46,7 +44,6 @@ const validationSchema = yup.object().shape({
 
 const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
   const { login } = useAuth();
-  const notification = useNotification();
   const { navigate } = navigation;
 
   const initialValues = {
@@ -68,11 +65,7 @@ const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
         ? { email: emailOrUsername, password }
         : { username: emailOrUsername, password };
       await login(loginBody);
-    } catch (e) {
-      if (isAxiosError(e)) {
-        notification({ message: e.message, error: true, modal: true });
-      }
-    }
+    } catch (e) {}
   };
 
   return (
@@ -95,7 +88,7 @@ const Login = ({ navigation }: LoginStackScreen<'Login'>): JSX.Element => {
           </View>
         )}
       </Formik>
-      <Pressable style={styles.signUpButton} onPress={(): void => navigate('SignUp')}>
+      <Pressable style={styles.signUpButton} onPress={(): void => navigate('VerifyEmail')}>
         <Text size="subheading" weight="bold" color="green">
           Sign up
         </Text>

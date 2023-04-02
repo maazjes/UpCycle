@@ -33,8 +33,6 @@ const UserTabs = ({ photoUrl }: { photoUrl: string }): JSX.Element => {
   );
   const profileIcon = (): JSX.Element => <ProfilePhoto uri={photoUrl} size={dpw(0.08)} />;
 
-  console.log('asder');
-
   return (
     <Tab.Navigator
       screenOptions={{

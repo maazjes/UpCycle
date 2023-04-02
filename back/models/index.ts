@@ -7,6 +7,7 @@ import Message from './message.js';
 import Chat from './chat.js';
 import Follow from './follow.js';
 import PostCategory from './postCategory.js';
+import ChatInfo from './chatInfo.js';
 
 Category.hasMany(Category, { foreignKey: 'parentCategoryId', as: 'subcategories' });
 Category.belongsTo(Category, { foreignKey: 'parentCategoryId' });
@@ -38,14 +39,6 @@ Follow.belongsTo(User, { foreignKey: 'followerId', as: 'follower' });
 
 PostCategory.belongsTo(Post);
 
-export {
-  Post,
-  User,
-  Category,
-  Image,
-  Favorite,
-  Chat,
-  Message,
-  Follow,
-  PostCategory
-};
+Chat.hasOne(ChatInfo, { foreignKey: 'chatId', as: 'info' });
+
+export { Post, User, Category, Image, Favorite, Chat, Message, Follow, PostCategory, ChatInfo };

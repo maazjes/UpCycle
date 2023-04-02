@@ -1,12 +1,7 @@
 import { View, StyleSheet, ViewProps } from 'react-native';
-import { useAppSelector } from '../hooks/redux';
-import { NotificationState } from '../types';
 import Text from './Text';
 
 const styles = StyleSheet.create({
-  container: {
-    marginVertical: 10
-  },
   success: {
     color: 'green',
     backgroundColor: 'lightgrey',
@@ -23,19 +18,16 @@ const styles = StyleSheet.create({
   }
 });
 
-const Notification = (props: ViewProps): JSX.Element => {
-  const notification = useAppSelector((state): NotificationState => state.notification);
-  const { message, error, modal } = notification;
+interface NotificationProps extends ViewProps {
+  text: string;
+  error?: boolean;
+}
 
-  if (!message || modal) {
-    return <View />;
-  }
-
-  return (
-    <View style={styles.container} {...props}>
-      <Text style={error ? styles.error : styles.success}>{message}</Text>
+const Notification = ({ error, text, ...props }: NotificationProps): JSX.Element | null =>
+  text ? (
+    <View {...props}>
+      <Text style={error ? styles.error : styles.success}>{text}</Text>
     </View>
-  );
-};
+  ) : null;
 
 export default Notification;

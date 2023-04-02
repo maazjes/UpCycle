@@ -2,9 +2,9 @@ import { AxiosResponse } from 'axios';
 import { PostPage, PostBase, Post } from '@shared/types';
 import api from '../util/axiosInstance';
 import { addQuery, createFormData } from '../util/helpers';
-import { GetPostsQuery, UpdatePostBody, NewPostBody } from '../types';
+import { GetPostsQuery, UpdatePostBody, FinalNewPostBody } from '../types';
 
-const createPost = (body: NewPostBody): Promise<AxiosResponse<Post>> => {
+const createPost = (body: FinalNewPostBody): Promise<AxiosResponse<Post>> => {
   const formdata = createFormData(body);
   return api.postForm<Post>('posts', formdata, {
     headers: {
@@ -15,7 +15,6 @@ const createPost = (body: NewPostBody): Promise<AxiosResponse<Post>> => {
 
 const getPosts = (query: GetPostsQuery): Promise<AxiosResponse<PostPage>> => {
   const finalQuery = addQuery('posts', query);
-  console.log('finalquery', finalQuery);
   return api.get<PostPage>(finalQuery);
 };
 

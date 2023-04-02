@@ -16,7 +16,8 @@ const styles = StyleSheet.create({
   },
   postcodeInput: {
     width: '100%',
-    marginBottom: dph(0.01)
+    marginBottom: dph(0.018),
+    height: dph(0.09)
   },
   cityField: {
     marginBottom: 10,

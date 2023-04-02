@@ -2,13 +2,14 @@ import { View, StyleSheet, GestureResponderEvent, ScrollView, Image } from 'reac
 import { Formik } from 'formik';
 import * as yup from 'yup';
 import { useAppSelector } from 'hooks/redux';
-import useNotification from 'hooks/useNotification';
 import ProfilePhoto from 'components/ProfilePhoto';
 import { dpw } from 'util/helpers';
 import { updateUser } from 'services/users';
 import { defaultProfilePhoto } from 'util/constants';
 import { useState } from 'react';
-import { ProfileProps, UserStackScreen } from '../types';
+import LinkedInputs from 'components/LinkedInputs';
+import KeyboardAvoidingView from 'components/KeyboardAvoidingView';
+import { ProfileProps, UserScreen } from '../types';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import FormikImageInput from '../components/FormikImageInput';
@@ -51,8 +52,7 @@ const validationSchema = yup.object().shape({
 
 const profileIcon = (uri: string): JSX.Element => <ProfilePhoto uri={uri} size={dpw(0.08)} />;
 
-const EditProfile = ({ navigation, route }: UserStackScreen<'EditProfile'>): JSX.Element => {
-  const notification = useNotification();
+const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Element => {
   const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
   const [loading, setLoading] = useState(false);
 
@@ -90,53 +90,62 @@ const EditProfile = ({ navigation, route }: UserStackScreen<'EditProfile'>): JSX
       navigation.navigate('StackProfile', newUser);
     } catch (e) {
       setLoading(false);
-      notification({
-        message: e.message,
-        error: false,
-        modal: true
-      });
     }
   };
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
-      <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-        {({ handleSubmit }): JSX.Element => (
-          <View style={styles.SignupForm}>
-            <View style={styles.photo}>
-              <FormikImageInput
-                circle
-                name="images"
-                amount={1}
-                initialImage={
-                  <Image
-                    style={{ width: dpw(0.3), height: dpw(0.3) }}
-                    source={{
-                      uri: defaultProfilePhoto
-                    }}
-                  />
-                }
+    <KeyboardAvoidingView>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onSubmit}
+        >
+          {({ handleSubmit }): JSX.Element => (
+            <View style={styles.SignupForm}>
+              <View style={styles.photo}>
+                <FormikImageInput
+                  circle
+                  name="images"
+                  amount={1}
+                  initialImage={
+                    <Image
+                      style={{ width: dpw(0.3), height: dpw(0.3) }}
+                      source={{
+                        uri: defaultProfilePhoto
+                      }}
+                    />
+                  }
+                />
+              </View>
+              <LinkedInputs>
+                <FormikTextInput
+                  style={styles.displayName}
+                  name="username"
+                  placeholder="Username"
+                />
+                <FormikTextInput name="displayName" placeholder="Display name" />
+                <FormikTextInput name="email" placeholder="Email" />
+                <FormikTextInput
+                  multiline
+                  textAlignVertical="top"
+                  style={styles.bioField}
+                  name="bio"
+                  placeholder="Bio"
+                  returnKeyType="send"
+                  onSubmitEditing={handleSubmit}
+                />
+              </LinkedInputs>
+              <Button
+                loading={loading}
+                onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+                text="Save changes"
               />
             </View>
-            <FormikTextInput style={styles.displayName} name="username" placeholder="Username" />
-            <FormikTextInput name="displayName" placeholder="Display name" />
-            <FormikTextInput name="email" placeholder="Email" />
-            <FormikTextInput
-              multiline
-              textAlignVertical="top"
-              style={styles.bioField}
-              name="bio"
-              placeholder="Bio"
-            />
-            <Button
-              loading={loading}
-              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-              text="Save changes"
-            />
-          </View>
-        )}
-      </Formik>
-    </ScrollView>
+          )}
+        </Formik>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

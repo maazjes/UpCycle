@@ -9,8 +9,6 @@ import MenuModal from './MenuModal';
 
 const styles = StyleSheet.create({
   imageBox: {
-    height: dpw(0.3),
-    width: dpw(0.3),
     backgroundColor: '#F2F2F2',
     alignItems: 'center',
     justifyContent: 'center'
@@ -19,33 +17,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-evenly'
-  },
-  addedImage: {
-    width: dpw(0.3),
-    height: dpw(0.3)
   }
 });
 
 interface FormikImageInputProps {
   name: string;
   amount: number;
+  maxAmount: number;
   containerStyle?: ViewStyle;
   circle?: boolean;
   initialImage?: JSX.Element;
+  size?: number;
+  imageStyle?: ViewStyle;
 }
 
 const FormikImageInput = ({
   name,
   amount,
+  maxAmount,
   circle = false,
-  containerStyle = {},
-  initialImage = <MaterialIcons name="add-photo-alternate" size={30} color="black" />
+  containerStyle = undefined,
+  initialImage = <MaterialIcons name="add-photo-alternate" size={30} color="black" />,
+  size = dpw(0.3),
+  imageStyle = undefined
 }: FormikImageInputProps): JSX.Element => {
   const [field, , helpers] = useField<TypedImage[]>(name);
-  const [imagePickerAction, setImagePickerAction] = useState<
-    [boolean, 'camera' | 'gallery' | undefined]
-  >([false, undefined]);
-  const [delModalVisible, setDelModalVisible] = useState(false);
+  const [menuModalItems, setMenuModalItems] = useState();
 
   const imagePickerOptions = {
     mediaTypes: MediaTypeOptions.Images,
@@ -54,79 +51,96 @@ const FormikImageInput = ({
     quality: 1
   };
 
-  const addImage = async (from: 'gallery' | 'camera'): Promise<void> => {
-    const image = await pickImage({
+  const addImage = async (from: 'gallery' | 'camera', index: number): Promise<void> => {
+    const images = await pickImage({
       ...imagePickerOptions,
       from
     });
-    if (image) {
-      helpers.setValue(field.value.concat(image));
+    if (images) {
+      const newImages = [...field.value];
+      images.forEach((image, i): void => {
+        newImages[index + i] = image;
+      });
+      helpers.setValue(newImages);
+      setMenuModalItems(undefined);
     }
   };
 
-  const onDeleteImage = (imageId: number): void => {
-    const filtered = field.value.filter((image): boolean => image.id !== imageId);
-    helpers.setValue(filtered);
-    setDelModalVisible(false);
-  };
-
-  const addImageItems = {
-    Gallery: async (): Promise<void> => {
-      await addImage('gallery');
-      setImagePickerAction([false, 'gallery']);
-    },
-    Camera: (): void => setImagePickerAction([true, 'camera'])
+  const onDeleteImage = (index: number): void => {
+    const newImages = [...field.value];
+    if (index === field.value.length - 1) {
+      newImages.splice(-1);
+    } else {
+      delete newImages[index];
+    }
+    console.log(newImages.length);
+    helpers.setValue(newImages);
+    setMenuModalItems(undefined);
   };
 
   const addedImageStyle = circle
-    ? [styles.addedImage, { borderRadius: dpw(0.15) }]
-    : styles.addedImage;
+    ? [{ width: size, height: size }, { borderRadius: size / 2 }]
+    : { width: size, height: size };
 
-  const imageBoxStyle = circle ? [styles.imageBox, { borderRadius: dpw(0.15) }] : styles.imageBox;
+  const imageBoxStyle = circle
+    ? [styles.imageBox, { borderRadius: size / 2, width: size, height: size }]
+    : [styles.imageBox, { width: size, height: size }];
 
   return (
-    <>
-      <View style={[styles.imageBoxes, containerStyle]}>
-        {Array(amount)
-          .fill(0)
-          .map((_, i): JSX.Element => {
-            const { uri, id } = field.value[i] ? field.value[i] : { uri: null, id: null };
-            const deleteImageItems = uri && {
-              Delete: (): void => onDeleteImage(id)
-            };
-            console.log(field.value);
-            return deleteImageItems ? (
-              <View key={id || uri}>
-                <Pressable onPress={(): void => setDelModalVisible(true)}>
+    <View style={[styles.imageBoxes, containerStyle]}>
+      {Array(
+        field.value.length < 3
+          ? amount
+          : field.value.length === maxAmount
+          ? maxAmount
+          : amount + field.value.length - 2
+      )
+        .fill(0)
+        .map((_, i): JSX.Element => {
+          const image: TypedImage | null =
+            field.value[i] && field.value[i].uri ? field.value[i] : null;
+          const addFromIndex = i === field.value.length ? i : field.value.length;
+          const addImageItems = {
+            Gallery: async (): Promise<void> => addImage('gallery', addFromIndex),
+            Camera: (): Promise<void> => addImage('camera', addFromIndex)
+          };
+          const deleteImageItems = image && {
+            Delete: (): void => onDeleteImage(i),
+            'Add new': (): void => setMenuModalItems(addImageItems)
+          };
+          const newMenuModalItems = deleteImageItems || addImageItems;
+          return (
+            <View key={i} style={imageStyle}>
+              {image ? (
+                <Pressable onPress={(): void => setMenuModalItems(newMenuModalItems)}>
                   <Image
                     style={addedImageStyle}
-                    source={{ uri: uri.startsWith('file') ? uri : `${uri}_100x100?alt=media` }}
+                    source={{
+                      uri: image.uri.startsWith('file')
+                        ? image.uri
+                        : `${image.uri}_100x100?alt=media`
+                    }}
                   />
                 </Pressable>
-                <MenuModal
-                  items={deleteImageItems}
-                  visible={delModalVisible}
-                  onDismiss={(): void => setDelModalVisible(false)}
-                />
-              </View>
-            ) : (
-              <Pressable
-                // eslint-disable-next-line react/no-array-index-key
-                key={i * -1}
-                onPress={(): void => setImagePickerAction([true, undefined])}
-                style={imageBoxStyle}
-              >
-                {initialImage}
-              </Pressable>
-            );
-          })}
-      </View>
-      <MenuModal
-        items={addImageItems}
-        visible={imagePickerAction[0]}
-        onDismiss={(): void => setImagePickerAction([false, undefined])}
-      />
-    </>
+              ) : (
+                <Pressable
+                  onPress={(): void => setMenuModalItems(newMenuModalItems)}
+                  style={imageBoxStyle}
+                >
+                  {initialImage}
+                </Pressable>
+              )}
+            </View>
+          );
+        })}
+      {menuModalItems && (
+        <MenuModal
+          items={menuModalItems}
+          visible={!!menuModalItems}
+          onDismiss={(): void => setMenuModalItems(undefined)}
+        />
+      )}
+    </View>
   );
 };
 

@@ -7,7 +7,6 @@ import { sendPasswordResetEmail } from 'services/passwordReset';
 import { PasswordResetBody } from '@shared/types';
 import Container from 'components/Container';
 import Notification from 'components/Notification';
-import useNotification from 'hooks/useNotification';
 import Text from 'components/Text';
 import { dph } from 'util/helpers';
 import { Feather } from '@expo/vector-icons';
@@ -22,23 +21,10 @@ const initialValues = {
 };
 
 const ResetPassword = ({ navigation }: LoginStackScreen<'ResetPassword'>): JSX.Element => {
-  const notification = useNotification();
-
   const onSubmit = async ({ email }: PasswordResetBody): Promise<void> => {
     try {
       await sendPasswordResetEmail({ email });
-      notification({
-        message: 'password reset link sent to your email',
-        error: false,
-        modal: false
-      });
-    } catch (e) {
-      notification({
-        message: 'user not found with this email address',
-        error: true,
-        modal: false
-      });
-    }
+    } catch (e) {}
   };
 
   return (

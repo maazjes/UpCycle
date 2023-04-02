@@ -2,7 +2,6 @@ import { StyleSheet, View, ViewStyle, ScrollView, Pressable } from 'react-native
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
 import { Post, TypedImage } from '@shared/types';
-import useNotification from 'hooks/useNotification';
 import { addFavorite, removeFavorite } from '../services/favorites';
 import Carousel from './Carousel';
 import Text from './Text';
@@ -33,45 +32,27 @@ interface GridPostProps {
 }
 
 const SinglePostCard = ({ post, containerStyle = {} }: GridPostProps): JSX.Element => {
-  const notification = useNotification();
   const [favoriteId, setFavoriteId] = useState<null | number>(post.favoriteId);
 
-  const onaddFavorite = async (): Promise<void> => {
-    try {
-      const favorite = await addFavorite({ postId: post.id });
-      setFavoriteId(favorite.data.id);
-    } catch (e) {
-      notification({
-        message: 'Adding favorite failed. Please try again.',
-        error: true,
-        modal: true
-      });
+  const onAddFavorite = async (): Promise<void> => {
+    const favorite = await addFavorite({ postId: post.id });
+    setFavoriteId(favorite.data.id);
+  };
+
+  const onRemoveFavorite = async (): Promise<void> => {
+    if (favoriteId) {
+      await removeFavorite(favoriteId);
+      setFavoriteId(null);
     }
   };
 
-  const onremoveFavorite = async (): Promise<void> => {
-    try {
-      if (favoriteId) {
-        await removeFavorite(favoriteId);
-        setFavoriteId(null);
-      }
-    } catch (e) {
-      notification({
-        message: 'Removing favorite failed. Please try again.',
-        error: true,
-        modal: true
-      });
-    }
-  };
+  const handleFavorite = favoriteId ? onRemoveFavorite : onAddFavorite;
 
-  const handleFavorite = favoriteId ? onremoveFavorite : onaddFavorite;
   const favoriteIcon = favoriteId ? (
-    <AntDesign style={styles.favorite} name="heart" size={28} color="#fa2f3a" />
+    <AntDesign style={styles.favorite} name="heart" size={35} color="#fa2f3a" />
   ) : (
-    <AntDesign style={styles.favorite} name="hearto" size={28} color="#fa2f3a" />
+    <AntDesign style={styles.favorite} name="hearto" size={35} color="#fa2f3a" />
   );
-
-  console.log(`${post.images[0].uri}_400x400?alt=media`);
 
   return (
     <ScrollView contentContainerStyle={containerStyle}>
@@ -95,9 +76,7 @@ const SinglePostCard = ({ post, containerStyle = {} }: GridPostProps): JSX.Eleme
           </Text>
           <Text style={{ marginTop: 5 }}>{post.description}</Text>
         </View>
-        <Pressable style={{ marginTop: 4 }} onPress={handleFavorite}>
-          {favoriteIcon}
-        </Pressable>
+        <Pressable onPress={handleFavorite}>{favoriteIcon}</Pressable>
       </View>
     </ScrollView>
   );

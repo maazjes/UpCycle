@@ -8,9 +8,10 @@ import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Button from 'components/Button';
 import MenuModal from 'components/MenuModal';
 import React, { useMemo, useState } from 'react';
-import { updateChat } from 'services/chats';
 import { Chat } from '@shared/types';
-import { MenuModalProps, UserStackScreen } from '../types';
+import { useAppSelector } from 'hooks/redux';
+import { updateChatInfo } from 'services/chatInfo';
+import { MenuModalProps, ProfileProps, UserScreen } from '../types';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 
@@ -27,19 +28,20 @@ const styles = StyleSheet.create({
 
 const ItemSeparator = (): JSX.Element => <Line style={{ marginVertical: 11 }} />;
 
-const Chats = ({ navigation }: UserStackScreen<'StackChat'>): JSX.Element => {
+const Chats = ({ navigation }: UserScreen<'StackChat'>): JSX.Element => {
   const { navigate } = navigation;
   const [chats, setChats, fetchChats] = useChats();
   const [archived, setArchived] = useState(false);
   const [modalItems, setModalItems] = useState<Pick<MenuModalProps, 'items'> | undefined>();
+  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
 
   const archivedChats = useMemo<Chat[] | null>(
-    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => chat.archived) : null),
+    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => chat.info.archived) : null),
     [chats]
   );
 
   const unArchivedChats = useMemo<Chat[] | null>(
-    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => !chat.archived) : null),
+    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => !chat.info.archived) : null),
     [chats]
   );
 
@@ -57,17 +59,20 @@ const Chats = ({ navigation }: UserStackScreen<'StackChat'>): JSX.Element => {
         <Button
           text="Find new items"
           onPress={(): void => {
-            navigation.replace('StackSearch');
+            navigation.navigate('Search');
           }}
         />
       </Container>
     );
   }
 
-  const archiveOrUnarchive = async (chatId: number): Promise<void> => {
-    await updateChat(chatId, { archived: !archived });
+  const archiveOrUnarchive = async (chatInfoId: number): Promise<void> => {
+    await updateChatInfo(chatInfoId, { archived: !archived });
     const newChats = [...chats.data].map(
-      (chat): Chat => (chat.id !== chatId ? chat : { ...chat, archived: !archived })
+      (chat): Chat =>
+        chat.info.id !== chatInfoId
+          ? chat
+          : { ...chat, info: { ...chat.info, archived: !archived } }
     );
     const newChatPage = { ...chats, data: newChats };
     setChats(newChatPage);
@@ -78,27 +83,32 @@ const Chats = ({ navigation }: UserStackScreen<'StackChat'>): JSX.Element => {
     <Container>
       <FlatList
         keyExtractor={(item): string => String(item.id)}
-        data={chats.data.filter((chat): boolean => (archived ? chat.archived : !chat.archived))}
+        data={archived ? archivedChats : unArchivedChats}
         ItemSeparatorComponent={ItemSeparator}
-        renderItem={({ item }): JSX.Element => (
-          <UserBar
-            onLongPress={(): void =>
-              setModalItems(
-                archived
-                  ? { 'Unarchive chat': (): void => archiveOrUnarchive(item.id) }
-                  : { 'Archive chat': (): void => archiveOrUnarchive(item.id) }
-              )
-            }
-            displayNameStyle={{ marginBottom: dph(0.007), fontFamily: 'OpenSans_700Bold' }}
-            profilePhotoSize={50}
-            onPress={(): void => navigate('SingleChat', { userId: item.user.id })}
-            user={item.user}
-            extra={
-              <Text>{item.lastMessage.images?.length > 0 ? 'Photo' : item.lastMessage.text}</Text>
-            }
-            textRight={formatDate(item.lastMessage.createdAt)}
-          />
-        )}
+        renderItem={({ item }): JSX.Element => {
+          const otherUser = item.user.id === currentUserId ? item.user : item.creator;
+          return (
+            <UserBar
+              onLongPress={(): void =>
+                setModalItems(
+                  archived
+                    ? {
+                        'Unarchive chat': (): Promise<void> => archiveOrUnarchive(item.info.id)
+                      }
+                    : { 'Archive chat': (): Promise<void> => archiveOrUnarchive(item.info.id) }
+                )
+              }
+              displayNameStyle={{ marginBottom: dph(0.007), fontFamily: 'OpenSans_700Bold' }}
+              profilePhotoSize={50}
+              onPress={(): void => navigate('SingleChat', { userId: otherUser.id })}
+              user={otherUser}
+              extra={
+                <Text>{item.lastMessage.images?.length > 0 ? 'Photo' : item.lastMessage.text}</Text>
+              }
+              textRight={formatDate(item.lastMessage.createdAt)}
+            />
+          );
+        }}
         onEndReached={fetchChats}
         onEndReachedThreshold={0.2}
       />

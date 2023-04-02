@@ -7,7 +7,7 @@ import {
   ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
-import { Message, User } from './index.js';
+import { ChatInfo, Message, User } from './index.js';
 
 class Chat extends Model<InferAttributes<Chat>, InferCreationAttributes<Chat>> {
   declare id: CreationOptional<number>;
@@ -16,8 +16,6 @@ class Chat extends Model<InferAttributes<Chat>, InferCreationAttributes<Chat>> {
 
   declare userId: ForeignKey<User['id']>;
 
-  declare archived: boolean;
-
   declare lastMessageId: CreationOptional<Message['id']>;
 
   declare lastMessage?: Message;
@@ -25,6 +23,8 @@ class Chat extends Model<InferAttributes<Chat>, InferCreationAttributes<Chat>> {
   declare creator?: User;
 
   declare user?: User;
+
+  declare info?: ChatInfo;
 }
 
 Chat.init(
@@ -48,10 +48,6 @@ Chat.init(
       type: DataTypes.INTEGER,
       allowNull: true,
       references: { model: 'messages', key: 'id' }
-    },
-    archived: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false
     }
   },
   {

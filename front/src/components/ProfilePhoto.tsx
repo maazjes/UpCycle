@@ -7,7 +7,12 @@ const styles = StyleSheet.create({
   }
 });
 
-const ProfilePhoto = ({ uri, size = 30 }: { uri: string | null; size?: number }): JSX.Element => (
+interface ProfilePhotoProps {
+  uri: string | null;
+  size?: number;
+}
+
+const ProfilePhoto = ({ uri, size = 30 }: ProfilePhotoProps): JSX.Element => (
   <Image
     style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
     source={{

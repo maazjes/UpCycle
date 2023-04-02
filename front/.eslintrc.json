@@ -36,7 +36,7 @@
     "react/require-default-props": [
       2,
       {
-        "functions": "defaultArguments"
+        "functions": "ignore"
       }
     ],
     "@typescript-eslint/explicit-function-return-type": [

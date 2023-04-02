@@ -3,7 +3,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
 import { dpw, dph } from 'util/helpers';
 import Button from 'components/Button';
-import { UserStackScreen } from 'types';
+import { UserScreen } from 'types';
 import GridView from 'components/GridView';
 import { useTranslation } from 'react-i18next';
 import usePosts from '../hooks/usePosts';
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const Favorites = ({ navigation }: UserStackScreen<'StackFavorites'>): JSX.Element => {
+const Favorites = ({ navigation }: UserScreen<'StackFavorites'>): JSX.Element => {
   const [posts, fetchPosts] = usePosts({ favorite: 'true' });
   const { t } = useTranslation();
 

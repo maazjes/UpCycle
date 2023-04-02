@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { FlatList, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { TypedImage } from '@shared/types';
-import { ProfileProps, UserStackScreen } from 'types';
+import { ProfileProps, UserScreen } from 'types';
 import { dpw, formatDate, pickImage } from 'util/helpers';
 import MenuModal from 'components/MenuModal';
 import { MediaTypeOptions } from 'expo-image-picker';
 import useMessages from 'hooks/useMessages';
 import Modal from 'components/Modal';
 import ImageGrid from 'components/ImageGrid';
+import { useHeaderHeight } from '@react-navigation/elements';
+import KeyboardAvoidingView from 'components/KeyboardAvoidingView';
 import TextInput from '../components/TextInput';
 import socket from '../util/socket';
 import { createMessage } from '../services/messages';
@@ -128,7 +130,7 @@ const imagePickerOptions = {
   quality: 1
 };
 
-const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.Element => {
+const SingleChat = ({ route, navigation }: UserScreen<'SingleChat'>): JSX.Element => {
   const [message, setMessage] = useState('');
   const [images, setImages] = useState<TypedImage[]>([]);
   const [pickImageModalVisible, setPickImageModalVisible] = useState(false);
@@ -138,6 +140,7 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
     userId1: currentUserId,
     userId2: userId
   });
+  const headerHeight = useHeaderHeight();
 
   useEffect((): (() => void) => {
     const parent = navigation.getParent();
@@ -188,6 +191,11 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
     }
   };
 
+  const onNewImageMessage = (): void => {
+    setPickImageModalVisible(false);
+    onNewMessage();
+  };
+
   const menuModalItems = {
     Gallery: (): Promise<void> => addImage('gallery'),
     Camera: (): Promise<void> => addImage('camera')
@@ -201,7 +209,10 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
           style={styles.textInput}
           onChangeText={(value): void => setMessage(value)}
           error={false}
+          returnKeyType="send"
+          onSubmitEditing={onNewMessage}
         />
+
         <View style={styles.addPhotoIcon}>
           <Pressable onPress={(): void => setPickImageModalVisible(true)}>
             <MaterialIcons name="add-photo-alternate" size={dpw(0.09)} color="grey" />
@@ -218,7 +229,7 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
   );
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView>
       {messages && (
         <FlatList
           contentContainerStyle={{ padding: dpw(0.055 / 3) }}
@@ -282,6 +293,9 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
                 style={styles.sendImageInput}
                 onChangeText={(value): void => setMessage(value)}
                 error={false}
+                blurOnSubmit={false}
+                returnKeyType="send"
+                onSubmitEditing={onNewImageMessage}
                 placeholder="Add a caption..."
               />
               <Button
@@ -289,16 +303,13 @@ const SingleChat = ({ route, navigation }: UserStackScreen<'SingleChat'>): JSX.E
                 fontSize={17}
                 style={{}}
                 text="SEND"
-                onPress={(): void => {
-                  setPickImageModalVisible(false);
-                  onNewMessage();
-                }}
+                onPress={onNewImageMessage}
               />
             </View>
           </View>
         )}
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 

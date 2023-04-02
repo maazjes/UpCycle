@@ -12,24 +12,31 @@ interface Props extends ViewProps {
   search?: boolean;
   createPost?: boolean;
   setCategory?: React.Dispatch<React.SetStateAction<number | undefined>>;
+  initialCategory?: string;
 }
 
 const CategoryPicker = ({
   search = false,
   createPost = false,
   setCategory = undefined,
+  initialCategory = undefined,
   ...props
 }: Props): JSX.Element => {
   const [activeCategories, setActiveCategories] = useState<Category[][] | null>(null);
   const [visible, setVisible] = useState(false);
   const selectedCategories = useRef<Category['id'][]>([]);
-  const [, , helpers] = conditionalUseField(createPost, 'categories');
-  const finalSelection = useRef<string>();
+  const [, , helpers] = conditionalUseField<number[]>(createPost, 'categories');
+  const finalSelection = useRef<string | undefined>(initialCategory);
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
       const res = await getCategories();
-      setActiveCategories([[...res.data]]);
+      const allCategory = { name: `Kaikki`, id: -1, subcategories: [] };
+      if (search) {
+        setActiveCategories([[allCategory, ...res.data]]);
+      } else {
+        setActiveCategories([[...res.data]]);
+      }
     };
     initialize();
   }, []);
@@ -37,8 +44,6 @@ const CategoryPicker = ({
   const closeModal = (): void => {
     setVisible(false);
   };
-
-  console.log(activeCategories);
 
   const onCategoryPress = (category: Category): void => {
     selectedCategories.current.push(category.id);

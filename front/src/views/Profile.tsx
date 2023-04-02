@@ -8,11 +8,10 @@ import { createFollow, removeFollow } from 'services/follows';
 import Line from 'components/Line';
 import useAuth from 'hooks/useAuth';
 import MenuModal from 'components/MenuModal';
-import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import GridView from '../components/GridView';
-import { ProfileProps, UserStackScreen } from '../types';
+import { ProfileProps, UserScreen } from '../types';
 import { useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { getUser } from '../services/users';
@@ -32,14 +31,13 @@ const styles = StyleSheet.create({
   }
 });
 
-const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.Element => {
+const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element => {
   const profileParams = useAppSelector((state): ProfileProps => state.profileProps!);
   const currentUserId = profileParams.id;
   const [user, setUser] = useState<User>();
   const [modalVisible, setModalVisible] = useState(false);
   const { navigate } = navigation;
   const { logout } = useAuth();
-  const notification = useNotification();
   const title = route.params?.username || profileParams.username;
   const { id: userId } = route.params || profileParams;
   const [posts, fetchPosts] = usePosts({ userId });
@@ -67,26 +65,14 @@ const Profile = ({ route, navigation }: UserStackScreen<'StackProfile'>): JSX.El
     try {
       const res = await createFollow({ userId });
       setUser({ ...user, followId: res.data.id, followers: user.followers + 1 });
-    } catch (e) {
-      notification({
-        message: 'Following user failed. Please try again.',
-        error: true,
-        modal: true
-      });
-    }
+    } catch (e) {}
   };
 
   const onUnfollow = async (): Promise<void> => {
     try {
       await removeFollow(user.followId!);
       setUser({ ...user, followId: null, followers: user.followers - 1 });
-    } catch (e) {
-      notification({
-        message: 'Unfollowing user failed. Please try again.',
-        error: true,
-        modal: true
-      });
-    }
+    } catch (e) {}
   };
 
   const onEditProfile = (): void => {

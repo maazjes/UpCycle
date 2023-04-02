@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react';
 import { Post } from '@shared/types';
 import MenuModal from 'components/MenuModal';
 import { Entypo } from '@expo/vector-icons';
-import useNotification from 'hooks/useNotification';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
-import { ProfileProps, UserStackScreen } from '../types';
+import { ProfileProps, UserScreen } from '../types';
 import { useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { deletePost, getPost } from '../services/posts';
@@ -28,12 +27,11 @@ const styles = StyleSheet.create({
   }
 });
 
-const SinglePost = ({ route, navigation }: UserStackScreen<'SinglePost'>): JSX.Element => {
+const SinglePost = ({ route, navigation }: UserScreen<'SinglePost'>): JSX.Element => {
   const { postId } = route.params;
   const [post, setPost] = useState<null | Post>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
-  const notification = useNotification();
   const { navigate } = navigation;
 
   useEffect((): void => {
@@ -61,21 +59,19 @@ const SinglePost = ({ route, navigation }: UserStackScreen<'SinglePost'>): JSX.E
   const onPostDelete = async (id: number): Promise<void> => {
     try {
       await deletePost(id);
-    } catch (e) {
-      notification({ error: true, modal: true, message: 'Error deleting post. Please try again.' });
-    }
+    } catch (e) {}
     navigation.goBack();
     setModalVisible(false);
   };
 
-  const onPostEdit = (id: number): void => {
-    navigate('EditPost', { postId: id });
+  const onPostEdit = (): void => {
+    navigate('EditPost', post);
     setModalVisible(false);
   };
 
   const menuModalItems = {
     'Delete post': (): Promise<void> => onPostDelete(postId),
-    'Edit post': (): void => onPostEdit(postId)
+    'Edit post': onPostEdit
   };
 
   const itemRight =

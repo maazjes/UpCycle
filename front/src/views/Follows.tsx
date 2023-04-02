@@ -1,5 +1,5 @@
 import useFollows from 'hooks/useFollows';
-import { ProfileProps, UserStackScreen } from 'types';
+import { ProfileProps, UserScreen } from 'types';
 import Loading from 'components/Loading';
 import UserBar from 'components/UserBar';
 import { createFollow, removeFollow } from 'services/follows';
@@ -11,7 +11,7 @@ import { AxiosResponse } from 'axios';
 import Text from 'components/Text';
 import Container from 'components/Container';
 
-const Follows = ({ route, navigation }: UserStackScreen<'Follows'>): JSX.Element => {
+const Follows = ({ route, navigation }: UserScreen<'Follows'>): JSX.Element => {
   const { userId, role } = route.params;
   const [follows, fetchFollows] = useFollows({ userId, role });
   const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);

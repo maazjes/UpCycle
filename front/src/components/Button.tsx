@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
 interface Props extends TouchableOpacityProps {
   text?: string;
   element?: JSX.Element;
-  onPress: (event: GestureResponderEvent) => void;
+  onPress: (event: GestureResponderEvent | any) => void;
   size?: 'small' | 'regular';
   o?: boolean;
   circle?: boolean;

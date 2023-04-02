@@ -6,17 +6,19 @@ import { Server } from 'socket.io';
 import http from 'http';
 import { isString } from './util/helpers.js';
 import { connectToDatabase } from './util/db.js';
-import postsRouter from './controllers/posts.js';
-import usersRouter from './controllers/users.js';
-import loginRouter from './controllers/login.js';
-import categoriesRouter from './controllers/categories.js';
-import imagesRouter from './controllers/images.js';
-import favoritesRouter from './controllers/favorites.js';
-import chatsRouter from './controllers/chats.js';
-import messagesRouter from './controllers/messages.js';
-import tokensRouter from './controllers/tokens.js';
-import followsRouter from './controllers/follows.js';
-import passwordResetRouter from './controllers/passwordReset.js';
+import posts from './controllers/posts.js';
+import users from './controllers/users.js';
+import login from './controllers/login.js';
+import categories from './controllers/categories.js';
+import images from './controllers/images.js';
+import favorites from './controllers/favorites.js';
+import chats from './controllers/chats.js';
+import messages from './controllers/messages.js';
+import tokens from './controllers/tokens.js';
+import follows from './controllers/follows.js';
+import passwordReset from './controllers/passwordReset.js';
+import chatInfo from './controllers/chatInfo.js';
+import verifyEmail from './controllers/verifyEmail.js';
 import { errorHandler } from './util/middleware.js';
 import {
   ClientToServerEvents,
@@ -67,17 +69,19 @@ io.on('connection', async (socket): Promise<void> => {
   });
 });
 
-app.use('/api/posts', postsRouter);
-app.use('/api/users', usersRouter);
-app.use('/api/login', loginRouter);
-app.use('/api/categories', categoriesRouter);
-app.use('/api/images', imagesRouter);
-app.use('/api/favorites', favoritesRouter);
-app.use('/api/chats', chatsRouter);
-app.use('/api/messages', messagesRouter);
-app.use('/api/passwordreset', passwordResetRouter);
-app.use('/api', followsRouter);
-app.use('/api', tokensRouter);
+app.use('/api/posts', posts);
+app.use('/api/users', users);
+app.use('/api/login', login);
+app.use('/api/categories', categories);
+app.use('/api/images', images);
+app.use('/api/favorites', favorites);
+app.use('/api/chats', chats);
+app.use('/api/messages', messages);
+app.use('/api/passwordreset', passwordReset);
+app.use('/api', follows);
+app.use('/api', tokens);
+app.use('/api/chatinfo', chatInfo);
+app.use('/api/verifyemail', verifyEmail);
 app.use(errorHandler);
 
 const start = async (): Promise<void> => {

@@ -1,18 +1,14 @@
 import { AxiosResponse } from 'axios';
 import { useState, useEffect } from 'react';
-import { NewPostBody, UserStackScreen } from '../types';
+import { NewPostBody, UserScreen } from '../types';
 import Loading from '../components/Loading';
 import PostForm from '../components/PostForm';
 import { getPost, updatePost } from '../services/posts';
 import { deleteImage } from '../services/images';
-import useNotification from '../hooks/useNotification';
-import useError from '../hooks/useError';
 
-const EditPost = ({ route, navigation }: UserStackScreen<'EditPost'>): JSX.Element => {
-  const notification = useNotification();
-  const { postId } = route.params;
-  const [currentPost, setCurrentPost] = useState<NewPostBody>();
-  const error = useError();
+const EditPost = ({ route, navigation }: UserScreen<'EditPost'>): JSX.Element => {
+  const { id: postId } = route.params;
+  const [currentPost, setCurrentPost] = useState<NewPostBody & { initialCategory: string }>();
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
@@ -20,7 +16,8 @@ const EditPost = ({ route, navigation }: UserStackScreen<'EditPost'>): JSX.Eleme
       const post = {
         ...res.data,
         price: res.data.price.slice(0, -1),
-        categories: res.data.categories.map((c): number => c.id)
+        categories: res.data.categories.map((c): number => c.id),
+        initialCategory: res.data.categories[res.data.categories.length - 1].name
       };
       setCurrentPost(post);
     };
@@ -52,17 +49,24 @@ const EditPost = ({ route, navigation }: UserStackScreen<'EditPost'>): JSX.Eleme
       const imagesToDelete = [...currentPost.images].filter(
         (image): boolean => !imageUris.includes(image.uri)
       );
+      if (
+        Object.keys(valuesToAdd).length === 0 &&
+        imagesToAdd.length &&
+        imagesToDelete.length === 0
+      ) {
+        return;
+      }
       const imagePromises = imagesToDelete.map(
         (image): Promise<AxiosResponse<undefined>> => deleteImage(image.id)
       );
-      await Promise.all(imagePromises);
       const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
       await updatePost(Number(postId), finalValuesToAdd);
+      Promise.all(imagePromises);
       const newcurrentPost = { ...currentPost, ...finalValuesToAdd };
       setCurrentPost(newcurrentPost);
       navigation.goBack();
     } catch (e) {
-      error(e);
+      console.log(e);
     }
   };
 

@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import useDebounce from 'hooks/useDebounce';
 import CategoryPicker from 'components/CategoryPicker';
 import { SearchPostsQuery } from 'types';
-import useNotification from 'hooks/useNotification';
 import Picker from 'components/Picker';
 import { Condition } from '@shared/types';
 import { View, StyleSheet } from 'react-native';
@@ -33,10 +32,9 @@ const Search = (): JSX.Element => {
   const [searchQuery, setSearchQuery] = useState<string>();
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [category, setCategory] = useState<number>();
-  const [condition, setCondition] = useState<Condition>();
+  const [condition, setCondition] = useState<Condition | 'kaikki'>();
   const [city, setCity] = useState<string | null>();
   const searchParams = useRef<SearchPostsQuery>();
-  const notification = useNotification();
 
   useEffect((): void => {
     const search = async (): Promise<void> => {
@@ -44,25 +42,19 @@ const Search = (): JSX.Element => {
       if (debouncedSearchQuery) {
         query = { ...query, contains: debouncedSearchQuery };
       }
-      if (category) {
+      if (category && category !== -1) {
         query = { ...query, categoryId: String(category) };
       }
-      if (condition) {
+      if (condition && condition !== 'kaikki') {
         query = { ...query, condition };
       }
-      if (city) {
+      if (city && city !== 'kaikki') {
         query = { ...query, city };
       }
       if (query) {
         try {
           await fetchPosts(query);
-        } catch (e) {
-          notification({
-            message: 'Something went wrong. Please try again.',
-            error: true,
-            modal: true
-          });
-        }
+        } catch (e) {}
       }
       searchParams.current = query;
     };
@@ -84,12 +76,12 @@ const Search = (): JSX.Element => {
           style={{ paddingVertical: dph(0.02) }}
           onValueChange={(value): void => setCity(value)}
           selectedValue={city || 'Kaupunki'}
-          items={cities}
+          items={['kaikki', ...cities]}
         />
         <CategoryPicker style={{ paddingVertical: dph(0.02) }} search setCategory={setCategory} />
         <Picker
           style={{ paddingVertical: dph(0.02) }}
-          items={conditions}
+          items={['kaikki', ...conditions]}
           selectedValue={condition ?? 'Tuotteen kunto'}
           onValueChange={(value): void => setCondition(value as Condition)}
         />

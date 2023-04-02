@@ -35,9 +35,19 @@ export interface TokenUser extends User {
   refreshToken: string;
 }
 
-export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl'> {
+export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl' | 'email'> {
   password: string;
+  email: string;
 }
+
+// FirebaseUsers
+
+export interface FirebaseUser {
+  id: string;
+  email: string;
+}
+
+export interface NewFirebaseUserBody extends Partial<Omit<FirebaseUser, 'id'>> {}
 
 // Posts
 
@@ -51,7 +61,7 @@ export interface PostBase {
 export interface Post extends PostBase {
   description: string;
   condition: string;
-  postcode: number;
+  postcode: string;
   city: string;
   user: UserBase;
   categories: Category[];
@@ -63,7 +73,7 @@ export interface SharedNewPostBody {
   description: string;
   price: string;
   condition: string;
-  postcode: number;
+  postcode: string;
   city: string;
 }
 
@@ -103,7 +113,7 @@ export interface Message {
 export interface NewMessageBody {
   receiverId: string;
   text: string;
-  images?: TypedImage[]
+  images?: string[]
 }
 
 export interface MessagePage extends PaginationBase {
@@ -148,7 +158,8 @@ export interface Chat {
   id: number;
   lastMessage: Message;
   user: UserBase;
-  archived: boolean;
+  creator: UserBase;
+  info: ChatInfoBase
 }
 
 export interface RawChat {
@@ -162,8 +173,20 @@ export interface ChatPage extends PaginationBase {
   data: Chat[];
 }
 
-export interface UpdateChatBody {
+// ChatInfo
+
+export interface ChatInfoBase {
+  id: number;
   archived: boolean;
+}
+
+export interface RawChatInfo extends ChatInfoBase {
+  userId: string;
+  chatId: number;
+}
+
+export interface UpdateChatInfoBody {
+  archived?: boolean;
 }
 
 // Categories
@@ -194,12 +217,26 @@ export interface PasswordResetBody {
   email: string;
 }
 
+export interface ExchangeCustomTokenBody {
+  idToken: string;
+  refreshToken: string;
+  expiresIn: string;
+}
+
 export interface PasswordResetVerifyBody {
   oobCode: string;
 }
 
 export interface PasswordResetConfirmationBody extends PasswordResetVerifyBody {
   newPassword: string;
+}
+
+export interface EmailVerifyBody {
+  email: string;
+}
+
+export interface CheckEmailVerified {
+  verified: boolean;
 }
 
 export interface LoginBody {

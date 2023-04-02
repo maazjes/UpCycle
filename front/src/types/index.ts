@@ -1,4 +1,4 @@
-import { CompositeNavigationProp } from '@react-navigation/native';
+import { CompositeNavigationProp, NavigatorScreenParams } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ModalProps, TextInput, TextInputProps } from 'react-native';
@@ -24,8 +24,14 @@ declare module 'i18next' {
 export interface UpdateUserBody extends Partial<NewUserBody> {}
 
 export interface NewUserBody extends SharedNewUserBody {
+  images: TypedImage[];
+}
+
+export interface FinalNewUserBody extends Omit<NewUserBody, 'images'> {
   image: string | null;
 }
+
+export interface FinalUpdateUserBody extends Partial<FinalNewUserBody> {}
 
 export interface AuthStorageUser {
   id: string;
@@ -43,10 +49,16 @@ export type SearchPostsQuery = Pick<
 
 export interface NewPostBody extends SharedNewPostBody {
   categories: number[];
+  images: TypedImage[];
+}
+
+export interface FinalNewPostBody extends Omit<NewPostBody, 'images'> {
   images: string[];
 }
 
 export interface UpdatePostBody extends Partial<NewPostBody> {}
+
+export interface FinalUpdatePostBody extends Partial<FinalNewPostBody> {}
 
 export interface Follow extends FollowBase {
   following?: UserBase;
@@ -74,7 +86,15 @@ export interface NotificationState {
 
 export type LoginStackParams = {
   Login: undefined;
-  SignUp: { nextPage: boolean };
+  VerifyEmail: undefined;
+  AddInformation: { email: string };
+  AddPhoto: {
+    email: string;
+    displayName: string;
+    username: string;
+    bio: string;
+    password: string;
+  };
   ResetPassword: undefined;
 };
 
@@ -100,12 +120,11 @@ export interface ProfileProps {
 }
 
 export type UserTabsParams = {
-  Search: undefined;
-  Favorites: undefined;
-  Profile: ProfileProps | User;
-  CreatePost: undefined;
-  Chat: undefined;
-  LightBox: { images?: TypedImage[] };
+  Search: NavigatorScreenParams<UserStackParams>;
+  Favorites: NavigatorScreenParams<UserStackParams>;
+  Profile?: NavigatorScreenParams<UserStackParams>;
+  CreatePost: NavigatorScreenParams<UserStackParams>;
+  Chat: NavigatorScreenParams<UserStackParams>;
 };
 
 export type UserStackNavigation = CompositeNavigationProp<
@@ -115,8 +134,8 @@ export type UserStackNavigation = CompositeNavigationProp<
 
 export type LoginStackNavigation = NativeStackNavigationProp<LoginStackParams>;
 
-export type UserStackScreen<S extends keyof UserStackParams> = NativeStackScreenProps<
-  UserStackParams,
+export type UserScreen<S extends keyof (UserTabsParams & UserStackParams)> = NativeStackScreenProps<
+  UserTabsParams & UserStackParams,
   S
 >;
 

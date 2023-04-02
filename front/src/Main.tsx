@@ -8,13 +8,22 @@ import {
   OpenSans_500Medium,
   OpenSans_700Bold
 } from '@expo-google-fonts/open-sans';
-import NotificationModal from 'components/NotificationModal';
 import useAuth from 'hooks/useAuth';
+import { createURL } from 'expo-linking';
 import UserTabs from './navigation/UserTabs';
 import LoginStack from './navigation/LoginStack';
 import { useAppSelector } from './hooks/redux';
 
 SplashScreen.preventAutoHideAsync();
+
+const config = {
+  screens: {
+    StackChat: 'feed/:sort',
+    VerifyEmail: 'user'
+  }
+};
+
+const prefix = createURL('/');
 
 export default (): JSX.Element | null => {
   const loggedIn = useAppSelector((state): boolean => state.loggedIn);
@@ -27,6 +36,10 @@ export default (): JSX.Element | null => {
     OpenSans_500Medium,
     OpenSans_700Bold
   });
+  const linking = {
+    prefixes: [prefix],
+    config
+  };
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
@@ -52,11 +65,8 @@ export default (): JSX.Element | null => {
 
   return (
     <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
-      <NavigationContainer>
-        <>
-          {loggedIn ? <UserTabs photoUrl={photoUrl!} /> : <LoginStack />}
-          <NotificationModal />
-        </>
+      <NavigationContainer linking={linking}>
+        {loggedIn ? <UserTabs photoUrl={photoUrl!} /> : <LoginStack />}
       </NavigationContainer>
     </View>
   );

@@ -1,12 +1,15 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 import { User, Chat, Image } from './index.js';
 
-class Message extends Model<
-InferAttributes<Message>, InferCreationAttributes<Message>
-> {
+class Message extends Model<InferAttributes<Message>, InferCreationAttributes<Message>> {
   declare id: CreationOptional<number>;
 
   declare receiverId: ForeignKey<User['id']>;

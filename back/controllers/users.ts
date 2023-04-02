@@ -51,10 +51,13 @@ router.post<{}, EmailUser, SharedNewUserBody>(
   '/',
   upload.single('image'),
   async (req, res): Promise<void> => {
-    const { email, displayName, password, bio, username } = req.body;
-    const fbUser = await firebase.auth().createUser({ email, password });
+    const { displayName, password, bio, username, email } = req.body;
+    console.log(email);
+    const { uid } = await firebase.auth().getUserByEmail(email);
+    console.log(uid);
+    await firebase.auth().updateUser(uid, { password });
     const user = User.build({
-      id: fbUser.uid,
+      id: uid,
       displayName,
       bio,
       username,
@@ -68,11 +71,11 @@ router.post<{}, EmailUser, SharedNewUserBody>(
       await user.save();
     } catch (e) {
       console.log(e);
-      firebase.auth().deleteUser(fbUser.uid);
+      firebase.auth().deleteUser(uid);
       throw new Error('Username already exists');
     }
     res.json({
-      email: fbUser.email!,
+      email,
       id: user.id,
       displayName: user.displayName,
       bio: user.bio,

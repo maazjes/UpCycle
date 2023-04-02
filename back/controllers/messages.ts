@@ -2,6 +2,7 @@ import express from 'express';
 import { Op } from 'sequelize';
 import { Message as SharedMessage, NewMessageBody, MessagePage } from '@shared/types.js';
 import multer from 'multer';
+import ChatInfo from '../models/chatInfo.js';
 import { saveImages, uploadPostImages } from '../util/helpers.js';
 import { Chat, Message, Image } from '../models/index.js';
 import { userExtractor } from '../util/middleware.js';
@@ -20,15 +21,22 @@ router.post<{}, SharedMessage, NewMessageBody>(
       throw new Error('Authentication required');
     }
     const { receiverId, text } = req.body;
-    const [chat] = await Chat.findOrCreate({
+    const [chat, created] = await Chat.findOrCreate({
       where: {
         [Op.or]: [
           { userId: user.id, creatorId: receiverId },
           { userId: receiverId, creatorId: user.id }
         ]
       },
-      defaults: { creatorId: user.id, userId: receiverId, archived: false }
+      defaults: { creatorId: user.id, userId: receiverId }
     });
+    if (created) {
+      await ChatInfo.create({
+        chatId: chat.id,
+        userId: user.id,
+        archived: false
+      });
+    }
     const message = await Message.create({
       text,
       chatId: chat.id,

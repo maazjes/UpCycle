@@ -2,7 +2,7 @@ import { FieldHelperProps, FieldInputProps, FieldMetaProps, isString, useField }
 import { NewMessageBody, PaginationBase, TypedImage } from '@shared/types';
 import { Dimensions, PixelRatio } from 'react-native';
 import { ImagePickerOptions, launchImageLibraryAsync, launchCameraAsync } from 'expo-image-picker';
-import { UpdatePostBody, UpdateUserBody } from '../types';
+import { FinalUpdatePostBody, FinalUpdateUserBody } from '../types';
 
 export const addQuery = (
   query: string,
@@ -35,7 +35,7 @@ export const formatImages = (imageUris: string[]): Blob[] => {
   return formattedImages;
 };
 
-type CreateFormDataParams = UpdatePostBody & UpdateUserBody & Partial<NewMessageBody>;
+type CreateFormDataParams = FinalUpdatePostBody & FinalUpdateUserBody & Partial<NewMessageBody>;
 
 export const createFormData = (params: CreateFormDataParams): FormData => {
   const keys = Object.keys(params) as Array<keyof CreateFormDataParams>;
@@ -78,11 +78,11 @@ export const dph = (heightPercent: number): number => {
   return PixelRatio.roundToNearestPixel(screenHeight * heightPercent);
 };
 
-export const conditionalUseField = (
+export const conditionalUseField = <T>(
   r: boolean,
   name: string
 ): // eslint-disable-next-line @typescript-eslint/no-explicit-any
-[FieldInputProps<any>, FieldMetaProps<any>, FieldHelperProps<any>] | [] => {
+[FieldInputProps<T>, FieldMetaProps<T>, FieldHelperProps<T>] | [] => {
   if (r) {
     return useField(name);
   }
@@ -114,9 +114,9 @@ export const pickImage = async ({
     return null;
   }
   const images = result.assets.map(
-    ({ uri }): TypedImage => ({
+    ({ uri }, i): TypedImage => ({
       uri,
-      id: `${uri}${Math.random()}`
+      id: i * -1
     })
   );
   return images;

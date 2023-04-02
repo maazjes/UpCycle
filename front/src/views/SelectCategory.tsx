@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { getCategories } from 'services/categories';
-import { UserStackScreen } from 'types';
+import { UserScreen } from 'types';
 
-const SelectCategory = ({ route, navigation }: UserStackScreen<'SelectCategory'>): JSX.Element => {
+const SelectCategory = ({ route, navigation }: UserScreen<'SelectCategory'>): JSX.Element => {
   const { selectedCategories } = route.params;
   const [activeCategories, setActiveCategories] = useState<Category[][]>([[]]);
 

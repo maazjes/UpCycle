@@ -1,32 +1,30 @@
-import { NewPostBody, UserStackScreen } from 'types';
-import useNotification from '../hooks/useNotification';
+import { NewPostBody, UserScreen } from 'types';
+import { FormikConfig } from 'formik';
 import { createPost } from '../services/posts';
 import PostForm from '../components/PostForm';
 
-const CreatePost = ({ navigation }: UserStackScreen<'StackCreatePost'>): JSX.Element => {
-  const notification = useNotification();
+const CreatePost = ({ navigation }: UserScreen<'StackCreatePost'>): JSX.Element => {
   const initialValues = {
     title: '',
     price: '',
     images: [],
     description: '',
-    postcode: -1,
+    postcode: '',
     city: '',
     condition: '',
     categories: []
   };
 
-  const onSubmit = async (values: NewPostBody): Promise<void> => {
+  const onSubmit: FormikConfig<NewPostBody>['onSubmit'] = async (values): Promise<void> => {
+    const price = `${values.price}€`;
     try {
-      await createPost({ ...values, price: `${values.price}€` });
-    } catch (e) {
-      notification({
-        message: 'Failed creating the post. Please try again.',
-        error: true,
-        modal: false
+      const res = await createPost({ ...values, price });
+      navigation.navigate('Profile', {
+        screen: 'SinglePost',
+        initial: false,
+        params: { postId: res.data.id }
       });
-    }
-    navigation.getParent()?.navigate('Profile');
+    } catch {}
   };
 
   return <PostForm onSubmit={onSubmit} initialValues={initialValues} />;

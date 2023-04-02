@@ -153,7 +153,7 @@ router.post<{}, SharedPost, NewPostBody>(
     await PostCategory.bulkCreate(postCategories);
     const images = await uploadPostImages(req.files);
     await saveImages(images, post.id);
-    res.json({ ...post, favoriteId: null } as SharedPost);
+    res.json({ ...post.dataValues, favoriteId: null } as SharedPost);
   }
 );
 

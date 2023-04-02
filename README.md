@@ -27,7 +27,8 @@
 | Restructured categories in the backend, made a custom category picker modal component and started making the search view for searching posts. | 20 hours |
 | Added support for sending image messages. Implemented search further. | 30 hours |
 | Finished chat. Started polishing the app and cleaning up all the code. Spent a lot of time getting the "next" button on forms to work and probably did a bunch of other stuff too. | 40 hours |
+| Changed the structure of archived chats in the backend, made an email verification system with firebase and fixed bugs. | 13 hours |
 
-**Total: 285 hours**
+**Total: 298 hours**
 
 plus many more additional hours on stupid mistakes...

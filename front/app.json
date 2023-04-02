@@ -1,7 +1,9 @@
 {
   "expo": {
+    "privacy": "public",
     "name": "second-hand",
     "slug": "second-hand",
+    "scheme": "upcycle",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

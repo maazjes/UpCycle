@@ -2,9 +2,12 @@ import { createHash, Hash } from 'crypto';
 import { createReadStream, PathLike } from 'fs';
 import sharp from 'sharp';
 import { InferAttributes } from 'sequelize';
+import sgMail, { ClientResponse } from '@sendgrid/mail';
 import { Image } from '../models/index.js';
 import firebase from './firebase.js';
-import { FIREBASE_BUCKET_URL } from './config.js';
+import { FIREBASE_BUCKET_URL, SENDGRID_API_KEY, VERIFIED_EMAIL } from './config.js';
+
+sgMail.setApiKey(SENDGRID_API_KEY);
 
 export const saveImages = async (
   uris: string[],
@@ -111,4 +114,21 @@ export const hashFile = async (path: PathLike, algo = 'md5'): Promise<string> =>
 
   await updateDone;
   return hashFunc.digest('hex');
+};
+
+export const sendVerificationEmail = (
+  userEmail: string,
+  actionLink: string
+): Promise<[ClientResponse, {}]> => {
+  const message = {
+    from: {
+      name: 'UpCycle',
+      email: VERIFIED_EMAIL
+    },
+    to: userEmail,
+    subject: 'Verify your email address',
+    text: `Thanks for signing up with us. Follow the link below to verify your email address.
+    \n${actionLink}`
+  };
+  return sgMail.send(message);
 };

@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, View, StatusBar, Image, Dimensions } from 'react-native';
-import { UserStackScreen } from 'types';
+import { UserScreen } from 'types';
 import { Entypo } from '@expo/vector-icons';
 import { useEffect } from 'react';
 import { ReactNativeZoomableView } from '@openspacelabs/react-native-zoomable-view';
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   }
 });
 
-const LightBox = ({ route, navigation }: UserStackScreen<'LightBox'>): JSX.Element => {
+const LightBox = ({ route, navigation }: UserScreen<'LightBox'>): JSX.Element => {
   const { uri } = route.params;
 
   useEffect((): void => {

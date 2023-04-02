@@ -3,6 +3,9 @@ import { Formik, FormikConfig } from 'formik';
 import * as yup from 'yup';
 import { NewPostBody } from 'types';
 import { conditions } from 'util/constants';
+import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { dph } from 'util/helpers';
 import FormikTextInput from './FormikTextInput';
 import FormikImageInput from './FormikImageInput';
 import PostCodeInput from './PostCodeInput';
@@ -40,48 +43,81 @@ const validationSchema = yup.object().shape({
 });
 
 interface PostFormProps {
-  initialValues: NewPostBody;
+  initialValues: NewPostBody & { initialCategory?: string };
   onSubmit: FormikConfig<NewPostBody>['onSubmit'];
 }
 
-const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element => (
-  <Container>
-    <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ handleSubmit }): JSX.Element => (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <LinkedInputs>
-            <FormikTextInput name="title" placeholder="Title" />
-            <FormikTextInput name="price" placeholder="Price (€)" />
-            <PostCodeInput name="postcode" placeholder="Postcode" />
-            <FormikTextInput
-              multiline
-              textAlignVertical="top"
-              style={styles.descriptionField}
-              name="description"
-              placeholder="Description"
+const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element | null => {
+  const [loading, setLoading] = useState(false);
+  const [shouldHide, setShouldHide] = useState(false);
+  const onFinalSubmit: FormikConfig<NewPostBody>['onSubmit'] = async (
+    values,
+    helpers
+  ): Promise<void> => {
+    setLoading(true);
+    await onSubmit(values, helpers);
+    setLoading(false);
+  };
+
+  useFocusEffect(() => {
+    setShouldHide(false);
+    return () => setShouldHide(true);
+  });
+
+  return !shouldHide ? (
+    <Container>
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={onFinalSubmit}
+      >
+        {({ handleSubmit }): JSX.Element => (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <LinkedInputs>
+              <FormikTextInput name="title" placeholder="Title" />
+              <FormikTextInput name="price" placeholder="Price (€)" />
+              <PostCodeInput name="postcode" placeholder="Postcode" />
+              <FormikTextInput
+                multiline
+                textAlignVertical="top"
+                style={styles.descriptionField}
+                name="description"
+                placeholder="Description"
+              />
+            </LinkedInputs>
+            <View style={{ marginVertical: 30 }}>
+              <FormikPicker
+                initialValue="Valitse konditio"
+                style={{ alignSelf: 'center', marginBottom: 30 }}
+                name="condition"
+                items={conditions}
+              />
+              <CategoryPicker
+                initialCategory={initialValues.initialCategory}
+                style={{ alignSelf: 'center', marginBottom: dph(0.02) }}
+                createPost
+              />
+            </View>
+            <Text size="heading" align="center">
+              Lisää kuvia
+            </Text>
+            <FormikImageInput
+              imageStyle={{ margin: 10 }}
+              name="images"
+              containerStyle={{ marginTop: 10, marginBottom: 20 }}
+              amount={3}
+              maxAmount={5}
             />
-          </LinkedInputs>
-          <View style={{ marginVertical: 30 }}>
-            <FormikPicker
-              initialValue="Valitse konditio"
-              style={{ alignSelf: 'center', marginBottom: 30 }}
-              name="condition"
-              items={conditions}
+            <Button
+              loading={loading}
+              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+              text="Submit"
             />
-            <CategoryPicker style={{ alignSelf: 'center' }} createPost />
-          </View>
-          <Text size="heading" align="center">
-            Lisää kuvia
-          </Text>
-          <FormikImageInput name="images" containerStyle={{ marginVertical: 10 }} amount={3} />
-          <Button
-            onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-            text="Submit"
-          />
-        </ScrollView>
-      )}
-    </Formik>
-  </Container>
-);
+          </ScrollView>
+        )}
+      </Formik>
+    </Container>
+  ) : null;
+};
 
 export default PostForm;
