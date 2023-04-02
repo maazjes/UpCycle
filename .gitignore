@@ -6,3 +6,4 @@ raw.dat
 firebase.ts
 front/src/util/firebase.ts
 serviceAccount.json
+fly.toml
