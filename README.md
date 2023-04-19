@@ -1,4 +1,22 @@
-[![IMAGE ALT TEXT HERE](https://i.ytimg.com/vi/bIdBKF1wvfM/maxresdefault.jpg)](https://www.youtube.com/watch?v=bIdBKF1wvfM)
+<h2>Overview</h2>
+<a href="https://www.youtube.com/watch?v=bIdBKF1wvfM">Click to see a demo video</a>
+<br></br>
+
+**The goal of the project** was to make a React Native application that has the functionalities required to operate a second hand market. As a little twist I also added some functionalities better known from social media apps such as the possibility to follow other users. The main goal of this project was however to get better at React / React Native and ExpressJS and SQL. The login / registration functionality is made with Firebase and the images are also stored in Firebase.
+<br></br>
+
+**Both the Backend and the Frontend are fully made with TypeScript** using very strict settings for maximal learning experience. The types are shared between the Backend and the Frontend to make everything convenient. After all a response body sent from the Backend is the same shape as a response body received in the Frontend.
+
+<H2>Technologies</H2>
+
+* **TypeScript**
+* **React Native**
+* **ExpressJS**
+* **PostgreSQL**
+* **Sequelize**
+* **Firebase**
+* **Redux**
+<h2>Structure</h2>
 
 ```mermaid
 %%{init: {'theme': 'forest', "flowchart" : { "curve" : "basis" } } }%%
@@ -20,13 +38,23 @@ subgraph Backend
 I[Index.ts]
 J[Controllers] --> I
 K[Util] --> I
-P[PostgreSQL] --> K
+P(PostgreSQL) --> K
 Migrations --> P
 K --> J
-L[Firebase] --> K
+L(Firebase) --> K
 M[Middleware] --> K
 end
 Frontend --- Backend
+```
+
+<h2>Workins hours</h2>
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
 ```
 
 &nbsp;
@@ -61,7 +89,8 @@ qwdqwdwq
 | Added support for sending image messages. Implemented search further. | 30 hours |
 | Finished chat. Started polishing the app and cleaning up all the code. Spent a lot of time getting the "next" button on forms to work and probably did a bunch of other stuff too. | 40 hours |
 | Changed the structure of archived chats in the backend, made an email verification system with firebase and fixed bugs. | 13 hours |
+| Finalized everything | 50 hours |
 
-**Total: 298 hours**
+**Total: 348 hours**
 
 plus many more additional hours on stupid mistakes...

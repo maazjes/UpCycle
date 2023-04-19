@@ -2,6 +2,17 @@
   "name": "second-hand",
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
+  "description": "Frontend for the UpCycle app.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maazjes/upcycle.git"
+  },
+  "author": "Marius Hasan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maazjes/upcycle/issues"
+  },
+  "homepage": "https://github.com/maazjes/upcycle#readme",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
