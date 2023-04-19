@@ -1,5 +1,36 @@
 [![IMAGE ALT TEXT HERE](https://i.ytimg.com/vi/bIdBKF1wvfM/maxresdefault.jpg)](https://www.youtube.com/watch?v=bIdBKF1wvfM)
 
+```mermaid
+%%{init: {'theme': 'forest', "flowchart" : { "curve" : "basis" } } }%%
+graph TB
+subgraph Frontend
+A[App.tsx] --> B[Main.tsx]
+B --> C{Navigation}
+C --> D[Views]
+E[Components] --> D
+F[Hooks] --> E
+F --> D
+D --> H[Redux store]
+E --> H
+S[services] --> E
+S --> D
+S --> F
+end
+subgraph Backend
+I[Index.ts]
+J[Controllers] --> I
+K[Util] --> I
+P[PostgreSQL] --> K
+Migrations --> P
+K --> J
+L[Firebase] --> K
+M[Middleware] --> K
+end
+Frontend --- Backend
+```
+
+&nbsp;
+qwdqwdwq
 | Tasks | Time used |
 | ------------- | ------------- |
 | Initialized an Expo app with TypeScript and ESLint. | 3 hours |
