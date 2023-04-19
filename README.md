@@ -50,11 +50,30 @@ Frontend --- Backend
 <h2>Workins hours</h2>
 
 ```mermaid
-graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+graph TB
+subgraph Frontend
+A[App.tsx] --> B[Main.tsx]
+B --> C{Navigation}
+C --> D[Views]
+E[Components] --> D
+F[Hooks] --> E
+F --> D
+D --> H[Redux store]
+E --> H
+S[services] --> E
+S --> D
+S --> F
+end
+subgraph Backend
+I[Index.ts]
+J[Controllers] --> I
+K[Util] --> I
+P[PostgreSQL] --> K
+Migrations --> P
+K --> J
+L[Firebase] --> K
+M[Middleware] --> K
+end
 ```
 
 &nbsp;
