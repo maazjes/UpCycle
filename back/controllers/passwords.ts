@@ -12,7 +12,6 @@ router.post<{}, {}, EmailBody>('/sendresetemail', async (req, res): Promise<void
     url: 'https://tinyurl.com/upcyclelogin'
   };
   const actionLink = await firebase.auth().generatePasswordResetLink(email, actionCodeSettings);
-  console.log('actionlink', actionLink);
   await sendEmail(
     email,
     'Reset your password',

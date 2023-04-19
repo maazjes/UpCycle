@@ -1,3 +1,5 @@
+[![IMAGE ALT TEXT HERE](https://i.ytimg.com/vi/bIdBKF1wvfM/maxresdefault.jpg)](https://www.youtube.com/watch?v=bIdBKF1wvfM)
+
 | Tasks | Time used |
 | ------------- | ------------- |
 | Initialized an Expo app with TypeScript and ESLint. | 3 hours |

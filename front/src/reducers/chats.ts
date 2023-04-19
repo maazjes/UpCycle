@@ -21,7 +21,7 @@ const chatsSlice = createSlice({
       return {
         offset: offset + 1,
         totalItems: totalItems + 1,
-        data: data.concat(action.payload)
+        data: [action.payload, ...data]
       };
     },
     editChat(

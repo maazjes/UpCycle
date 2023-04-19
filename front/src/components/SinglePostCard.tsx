@@ -38,6 +38,8 @@ const SinglePostCard = ({ post, containerStyle = {} }: GridPostProps): JSX.Eleme
   const [favoriteId, setFavoriteId] = useState<null | number>(post.favoriteId);
   const dispatch = useAppDispatch();
 
+  console.log(post.images);
+
   const onAddFavorite = async (): Promise<void> => {
     try {
       const favorite = await createFavorite({ postId: post.id });
@@ -71,9 +73,15 @@ const SinglePostCard = ({ post, containerStyle = {} }: GridPostProps): JSX.Eleme
   return (
     <ScrollView contentContainerStyle={containerStyle}>
       <Carousel
-        images={post.images
-          .map((image): TypedImage => ({ ...image, uri: `${image.uri}_400x400?alt=media` }))
-          .reverse()}
+        images={
+          post.title === 'Matches'
+            ? post.images
+                .map((image): TypedImage => ({ ...image, uri: `${image.uri}_400x400?alt=media` }))
+                .reverse()
+            : post.images.map(
+                (image): TypedImage => ({ ...image, uri: `${image.uri}_400x400?alt=media` })
+              )
+        }
       />
       <View style={styles.infoBox}>
         <View>

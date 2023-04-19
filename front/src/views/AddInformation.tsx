@@ -21,8 +21,8 @@ const styles = StyleSheet.create({
 const validationSchema = yup.object().shape({
   username: yup
     .string()
-    .min(2, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
+    .min(2, 'Minimum length of username is 2')
+    .max(30, 'Maximum length of username is 30')
     .required('Username is required')
     .test(
       'Test unique username',
@@ -40,19 +40,15 @@ const validationSchema = yup.object().shape({
         return true;
       }
     ),
-  bio: yup
-    .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(150, 'Maximum length of name is 150')
-    .required('Username is required'),
+  bio: yup.string().max(150, 'Maximum length of name is 150'),
   displayName: yup
     .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
+    .min(1, 'Minimum length of display name is 2')
+    .max(15, 'Maximum length of display name is 30')
     .required('Name is required'),
   password: yup
     .string()
-    .min(5, 'Minimum length of password is 5')
+    .min(6, 'Minimum length of password is 6')
     .max(20, 'Maximum length of password is 20')
     .required('Password is required'),
   passwordConfirmation: yup

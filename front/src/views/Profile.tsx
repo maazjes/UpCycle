@@ -5,10 +5,10 @@ import { dpw } from 'util/helpers';
 import Text from 'components/Text';
 import { createFollow, removeFollow } from 'services/follows';
 import Line from 'components/Line';
-import useProfilePosts from 'hooks/useProfilePosts';
 import { setUser as setUserAction } from 'reducers/profileUser';
 import { Ionicons } from '@expo/vector-icons';
 import usePosts from 'hooks/usePosts';
+import useProfilePosts from 'hooks/useProfilePosts';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import GridView from '../components/GridView';
@@ -52,7 +52,7 @@ const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element
       navigation.setOptions({ headerRight: settings });
     }
     const initialize = async (): Promise<void> => {
-      await fetchPosts();
+      await fetchPosts(currentUserId !== userId ? { userId } : undefined);
     };
     initialize();
   }, []);
@@ -188,8 +188,10 @@ const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element
       ListHeaderComponent={header}
       ListHeaderComponentStyle={{ marginBottom: dpw(0.06) }}
       posts={posts.data}
-      onEndReached={(): Promise<void> => fetchPosts()}
-      onEndReachedThreshold={0.3}
+      onEndReached={(): Promise<void> =>
+        fetchPosts(currentUserId !== userId ? { userId } : undefined)
+      }
+      onEndReachedThreshold={0.2}
     />
   ) : (
     <View style={{ flexGrow: 1 }}>

@@ -11,7 +11,7 @@ export const PostInclude = [
     through: { attributes: [] }
   },
   { model: User, attributes: UserBaseAttributes },
-  { model: Image, attributes: { exclude: ['postId'] } }
+  { model: Image, order: ['uri', 'ASC'], attributes: { exclude: ['postId'] } }
 ];
 
 export const PostAttributes = { exclude: ['userId', 'categoryId'] };

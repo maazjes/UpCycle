@@ -11,10 +11,13 @@ const usePosts = (): [PostPage | null, typeof fetchPosts] => {
 
   const fetchPosts = async (fetchQuery?: SharedGetPostsQuery): Promise<void> => {
     if (!deepEqual(fetchQuery || {}, params.current || {})) {
+      console.log(fetchQuery);
+      console.log(params.current);
       offset.current = 0;
     }
 
     console.log('offset', offset.current);
+    console.log();
 
     const res = await getPosts({
       limit: 6,

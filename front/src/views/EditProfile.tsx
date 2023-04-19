@@ -52,8 +52,8 @@ const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Elem
     email: yup.string().email().required('email is required'),
     username: yup
       .string()
-      .min(2, 'Minimum length of name is 2')
-      .max(15, 'Maximum length of name is 15')
+      .min(2, 'Minimum length of username is 2')
+      .max(15, 'Maximum length of username is 30')
       .required('Username is required')
       .test(
         'Test unique username',
@@ -73,13 +73,13 @@ const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Elem
       ),
     bio: yup
       .string()
-      .min(1, 'Minimum length of name is 2')
-      .max(150, 'Maximum length of name is 150')
+      .min(1, 'Minimum length of bio is 2')
+      .max(150, 'Maximum length of bio is 150')
       .required('username is required'),
     displayName: yup
       .string()
-      .min(1, 'Minimum length of name is 2')
-      .max(15, 'Maximum length of name is 15')
+      .min(1, 'Minimum length of display name is 2')
+      .max(15, 'Maximum length of display name is 30')
       .required('name is required')
   });
 

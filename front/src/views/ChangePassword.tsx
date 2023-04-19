@@ -13,7 +13,7 @@ import Button from '../components/Button';
 const validationSchema = yup.object().shape({
   password: yup
     .string()
-    .min(5, 'Minimum length of password is 5')
+    .min(6, 'Minimum length of password is 6')
     .max(20, 'Maximum length of password is 20')
     .required('Password is required'),
   passwordConfirmation: yup

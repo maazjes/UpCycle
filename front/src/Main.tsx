@@ -53,7 +53,7 @@ export default (): JSX.Element | null => {
       setReady(true);
     };
     initialize();
-  }, []);
+  }, [loggedIn]);
 
   useEffect((): void => {
     if (loggedIn) {
