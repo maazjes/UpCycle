@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthStorageUser } from 'types';
+import { TokenUser } from '@shared/types';
 
 class AuthStorage {
   namespace: string;
@@ -8,15 +8,15 @@ class AuthStorage {
     this.namespace = namespace;
   }
 
-  async getUser(): Promise<AuthStorageUser | null> {
+  async getUser(): Promise<TokenUser | null> {
     const token = await AsyncStorage.getItem(`${this.namespace}:user`);
     if (!token) {
       return null;
     }
-    return JSON.parse(token) as AuthStorageUser;
+    return JSON.parse(token) as TokenUser;
   }
 
-  setUser(user: AuthStorageUser): void {
+  setUser(user: TokenUser): void {
     AsyncStorage.setItem(`${this.namespace}:user`, JSON.stringify(user));
   }
 

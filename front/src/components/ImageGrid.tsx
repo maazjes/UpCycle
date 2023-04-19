@@ -8,28 +8,35 @@ const styles = StyleSheet.create({
     width: '10%',
     height: '10%'
   },
-  singleImage: {},
   images: {
     flexWrap: 'wrap',
     flexDirection: 'row'
   }
 });
 
-const ImageGrid = ({ images }: { images: TypedImage[] }): JSX.Element => {
+interface ImageGridProps {
+  images: TypedImage[];
+}
+
+const ImageGrid = ({ images }: ImageGridProps): JSX.Element => {
   const { navigate } = useNavigation<UserStackNavigation>();
   return images.length > 1 ? (
     <View style={styles.images}>
       {images.map(
-        (image): JSX.Element => (
-          <Pressable key={image.id} onPress={(): void => navigate('LightBox', { uri: image.uri })}>
+        (image, i): JSX.Element => (
+          <Pressable
+            key={image.id}
+            onPress={(): void =>
+              navigate('LightBox', { uri: `${images[i].uri}_original?alt=media` })
+            }
+          >
             <Image
               style={{
-                aspectRatio: 1,
                 height: 70,
                 width: 70,
                 borderRadius: 1
               }}
-              source={{ uri: image.uri }}
+              source={{ uri: `${image.uri}_original?alt=media` }}
             />
           </Pressable>
         )
@@ -38,14 +45,15 @@ const ImageGrid = ({ images }: { images: TypedImage[] }): JSX.Element => {
   ) : (
     <Pressable
       style={{ width: '100%', aspectRatio: 1 }}
-      onPress={(): void => navigate('LightBox', { uri: images[0].uri })}
+      onPress={(): void => navigate('LightBox', { uri: `${images[0].uri}_original?alt=media` })}
     >
       <Image
         style={{
-          flex: 1,
+          width: '100%',
+          height: '100%',
           borderRadius: 1
         }}
-        source={{ uri: images[0].uri }}
+        source={{ uri: `${images[0].uri}_original?alt=media` }}
       />
     </Pressable>
   );

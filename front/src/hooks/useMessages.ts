@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { getMessages } from 'services/messages';
 import { Message, MessagePage, SharedGetMessagesQuery } from '@shared/types';
 import { concatPages } from '../util/helpers';
@@ -16,32 +16,23 @@ interface PartialMessagePage extends Omit<MessagePage, 'data'> {
 
 const useMessages = (
   query: SharedGetMessagesQuery
-): [PartialMessagePage | null, typeof setMessages, typeof fetchMessages] => {
-  const [messagePage, setMessagePage] = useState<PartialMessagePage>({ ...emptyPage });
-  const offset = useRef(0);
-  const endReached = useRef(false);
+): [PartialMessagePage | null, typeof addMessage, typeof fetchMessages] => {
+  const [messagePage, setMessagePage] = useState<PartialMessagePage | null>(null);
 
   const fetchMessages = async (): Promise<void> => {
-    if (endReached.current) {
-      return;
-    }
-    const res = await getMessages({ ...query, offset: offset.current, limit: 4 });
-    if (res.data.data.length > 0) {
-      offset.current += res.data.data.length;
-      setMessagePage(concatPages(messagePage || { ...emptyPage }, res.data));
-    } else {
-      endReached.current = true;
-    }
+    const res = await getMessages({ ...query, offset: messagePage?.offset || 0, limit: 4 });
+    setMessagePage(concatPages(messagePage || { ...emptyPage }, res.data));
   };
 
-  const setMessages = async (message: PartialMessage): Promise<void> => {
-    setMessagePage({
-      ...messagePage!,
-      totalItems: messagePage!.totalItems + 1,
-      offset: messagePage!.offset + 1,
-      data: [message, ...messagePage!.data]
-    });
-    offset.current += 1;
+  const addMessage = async (message: PartialMessage): Promise<void> => {
+    if (messagePage) {
+      setMessagePage({
+        ...messagePage,
+        totalItems: messagePage.totalItems + 1,
+        offset: messagePage.offset + 1,
+        data: [message, ...messagePage.data]
+      });
+    }
   };
 
   useEffect((): void => {
@@ -51,7 +42,7 @@ const useMessages = (
     initialize();
   }, []);
 
-  return [messagePage, setMessages, fetchMessages];
+  return [messagePage, addMessage, fetchMessages];
 };
 
 export default useMessages;

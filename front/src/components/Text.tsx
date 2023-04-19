@@ -1,6 +1,16 @@
-import { Text as NativeText, StyleSheet, TextStyle } from 'react-native';
+import { Text as NativeText, StyleSheet, TextStyle, View } from 'react-native';
 
 import theme from '../styles/theme';
+
+interface TextProps {
+  color?: 'secondary' | 'primary' | 'blue' | 'green' | 'red' | 'grey';
+  size?: 'subheading' | 'body' | 'heading';
+  weight?: 'bold' | 'normal';
+  align?: 'left' | 'center';
+  style?: TextStyle | TextStyle[];
+  children?: string;
+  padding?: boolean;
+}
 
 const styles = StyleSheet.create({
   text: {
@@ -47,15 +57,9 @@ const Text = ({
   weight = 'normal',
   align = 'left',
   style = {},
+  padding = true,
   ...props
-}: {
-  color?: 'secondary' | 'primary' | 'blue' | 'green' | 'red' | 'grey';
-  size?: 'subheading' | 'body' | 'heading';
-  weight?: 'bold' | 'normal';
-  align?: 'left' | 'center';
-  style?: TextStyle | TextStyle[];
-  children?: string;
-}): JSX.Element => {
+}: TextProps): JSX.Element => {
   const textStyle = [
     styles.text,
     color === 'secondary' && styles.colorTextSecondary,
@@ -71,7 +75,29 @@ const Text = ({
     style
   ];
 
-  return <NativeText style={textStyle} {...props} />;
+  return padding ? (
+    <NativeText style={textStyle} {...props} />
+  ) : (
+    <View
+      style={[
+        {
+          justifyContent: 'center',
+          height: theme.fontSizes[size] - 3
+        },
+        style
+      ]}
+    >
+      <NativeText
+        style={[
+          textStyle,
+          {
+            marginVertical: -100000
+          }
+        ]}
+        {...props}
+      />
+    </View>
+  );
 };
 
 export default Text;

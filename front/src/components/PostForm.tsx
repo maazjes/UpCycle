@@ -1,11 +1,12 @@
-import { StyleSheet, GestureResponderEvent, ScrollView, View } from 'react-native';
+import { StyleSheet, GestureResponderEvent, ScrollView } from 'react-native';
 import { Formik, FormikConfig } from 'formik';
 import * as yup from 'yup';
 import { NewPostBody } from 'types';
 import { conditions } from 'util/constants';
 import { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
+import { isAxiosError } from 'axios';
 import FormikTextInput from './FormikTextInput';
 import FormikImageInput from './FormikImageInput';
 import PostCodeInput from './PostCodeInput';
@@ -15,11 +16,17 @@ import Container from './Container';
 import CategoryPicker from './CategoryPicker';
 import FormikPicker from './FormikPicker';
 import LinkedInputs from './LinkedInputs';
+import Notification from './Notification';
+import KeyboardAvoidingView from './KeyboardAvoidingView';
 
 const styles = StyleSheet.create({
   descriptionField: {
-    height: 100,
-    paddingTop: 13
+    height: dpw(0.3),
+    paddingTop: dpw(0.05)
+  },
+  picker: {
+    alignSelf: 'center',
+    marginVertical: dpw(0.09)
   }
 });
 
@@ -49,74 +56,85 @@ interface PostFormProps {
 
 const PostForm = ({ initialValues, onSubmit }: PostFormProps): JSX.Element | null => {
   const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ error: false, text: '' });
   const [shouldHide, setShouldHide] = useState(false);
   const onFinalSubmit: FormikConfig<NewPostBody>['onSubmit'] = async (
     values,
     helpers
   ): Promise<void> => {
     setLoading(true);
-    await onSubmit(values, helpers);
+    try {
+      await onSubmit(values, helpers);
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setNotification({ error: true, text: e.message });
+      }
+    }
     setLoading(false);
   };
 
-  useFocusEffect(() => {
+  useFocusEffect((): (() => void) => {
     setShouldHide(false);
-    return () => setShouldHide(true);
+    return (): void => setShouldHide(true);
   });
 
   return !shouldHide ? (
-    <Container>
-      <Formik
-        initialValues={initialValues}
-        validationSchema={validationSchema}
-        onSubmit={onFinalSubmit}
-      >
-        {({ handleSubmit }): JSX.Element => (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <LinkedInputs>
-              <FormikTextInput name="title" placeholder="Title" />
-              <FormikTextInput name="price" placeholder="Price (€)" />
-              <PostCodeInput name="postcode" placeholder="Postcode" />
-              <FormikTextInput
-                multiline
-                textAlignVertical="top"
-                style={styles.descriptionField}
-                name="description"
-                placeholder="Description"
-              />
-            </LinkedInputs>
-            <View style={{ marginVertical: 30 }}>
+    <KeyboardAvoidingView>
+      <Container>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={onFinalSubmit}
+        >
+          {({ handleSubmit }): JSX.Element => (
+            <ScrollView showsVerticalScrollIndicator={false}>
+              <LinkedInputs>
+                <FormikTextInput name="title" placeholder="Title" />
+                <FormikTextInput name="price" placeholder="Price (€)" />
+                <PostCodeInput name="postcode" placeholder="Postcode" />
+                <FormikTextInput
+                  multiline
+                  textAlignVertical="top"
+                  style={styles.descriptionField}
+                  name="description"
+                  placeholder="Description"
+                />
+              </LinkedInputs>
               <FormikPicker
-                initialValue="Valitse konditio"
-                style={{ alignSelf: 'center', marginBottom: 30 }}
+                initialValue="Condition"
+                style={{ alignSelf: 'center', marginVertical: dpw(0.09) }}
                 name="condition"
                 items={conditions}
               />
               <CategoryPicker
                 initialCategory={initialValues.initialCategory}
-                style={{ alignSelf: 'center', marginBottom: dph(0.02) }}
+                style={{ alignSelf: 'center', marginBottom: dpw(0.09) }}
                 createPost
               />
-            </View>
-            <Text size="heading" align="center">
-              Lisää kuvia
-            </Text>
-            <FormikImageInput
-              imageStyle={{ margin: 10 }}
-              name="images"
-              containerStyle={{ marginTop: 10, marginBottom: 20 }}
-              amount={3}
-              maxAmount={5}
-            />
-            <Button
-              loading={loading}
-              onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
-              text="Submit"
-            />
-          </ScrollView>
-        )}
-      </Formik>
-    </Container>
+              <Text size="heading" align="center">
+                Add photos
+              </Text>
+              <FormikImageInput
+                boxStyle={{ margin: dpw(0.05) }}
+                name="images"
+                amount={3}
+                maxAmount={5}
+              />
+              <Button
+                loading={loading}
+                onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
+                text="Submit"
+              />
+              <Notification
+                style={{ marginTop: dpw(0.03) }}
+                text={notification.text}
+                error={notification.error}
+              />
+            </ScrollView>
+          )}
+        </Formik>
+      </Container>
+    </KeyboardAvoidingView>
   ) : null;
 };
 

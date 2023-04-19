@@ -1,12 +1,12 @@
 import Container from 'components/Container';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { StyleSheet } from 'react-native';
-import { dpw, dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import Button from 'components/Button';
 import { UserScreen } from 'types';
 import GridView from 'components/GridView';
 import { useTranslation } from 'react-i18next';
-import usePosts from '../hooks/usePosts';
+import useFavorites from 'hooks/useFavorites';
 import Loading from '../components/Loading';
 import Text from '../components/Text';
 
@@ -16,13 +16,13 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   noFavoritesText: {
-    marginVertical: dph(0.015),
+    marginVertical: dpw(0.03),
     textAlign: 'center'
   }
 });
 
 const Favorites = ({ navigation }: UserScreen<'StackFavorites'>): JSX.Element => {
-  const [posts, fetchPosts] = usePosts({ favorite: 'true' });
+  const [posts, fetchPosts] = useFavorites();
   const { t } = useTranslation();
 
   if (!posts) {
@@ -39,7 +39,7 @@ const Favorites = ({ navigation }: UserScreen<'StackFavorites'>): JSX.Element =>
         <Button
           text="Find new items"
           onPress={(): void => {
-            navigation.replace('StackSearch');
+            navigation.navigate('Search', { screen: 'StackSearch', initial: false });
           }}
         />
       </Container>
@@ -48,9 +48,9 @@ const Favorites = ({ navigation }: UserScreen<'StackFavorites'>): JSX.Element =>
 
   return (
     <GridView
-      contentContainerStyle={{ paddingVertical: dpw(0.1 / 3) }}
+      contentContainerStyle={{ paddingVertical: dpw(0.033) }}
       onEndReachedThreshold={0.2}
-      onEndReached={(): Promise<void> => fetchPosts({ favorite: 'true' })}
+      onEndReached={fetchPosts}
       posts={posts.data}
     />
   );

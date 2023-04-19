@@ -20,7 +20,7 @@ class Post extends Model<InferAttributes<Post>, InferCreationAttributes<Post>> {
 
   declare condition: string;
 
-  declare postcode: number;
+  declare postcode: string;
 
   declare city: string;
 

@@ -14,23 +14,9 @@ module.exports = {
         uri: {
           type: DataTypes.STRING,
           unique: true,
-          allowNull: false,
+          allowNull: true,
           validate: {
             isUrl: true
-          }
-        },
-        width: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          validate: {
-            len: [2, 3]
-          }
-        },
-        height: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          validate: {
-            len: [2, 3]
           }
         },
         post_id: {

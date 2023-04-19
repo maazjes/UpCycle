@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useField } from 'formik';
-import { dph, dpw } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import { FormikTextInputProps } from 'types';
 import Text from './Text';
 import TextInput from './TextInput';
@@ -8,14 +8,14 @@ import TextInput from './TextInput';
 const styles = StyleSheet.create({
   errorText: {
     color: 'red',
-    marginBottom: dph(0.01),
+    marginBottom: dpw(0.02),
     marginLeft: 1
   },
   inputField: {
-    height: dph(0.09),
+    height: dpw(0.16),
     borderWidth: 1,
     borderColor: '#d5dbd7',
-    marginBottom: dph(0.018),
+    marginBottom: dpw(0.03),
     borderRadius: 4,
     paddingLeft: dpw(0.035)
   }
@@ -29,7 +29,7 @@ const FormikTextInput = ({
 }: FormikTextInputProps): JSX.Element => {
   const [field, meta, helpers] = useField<string>(name);
   const { error, touched } = meta;
-  const showError = touched && error !== undefined;
+  const showError = (touched && error !== undefined) || error === 'Username already exists';
 
   return (
     <>

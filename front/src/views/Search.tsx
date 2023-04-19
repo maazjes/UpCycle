@@ -9,7 +9,7 @@ import { View, StyleSheet } from 'react-native';
 import { conditions } from 'util/constants';
 import GridView from 'components/GridView';
 import Container from 'components/Container';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import theme from 'styles/theme';
 import cities from '../../assets/cities.json';
 import Loading from '../components/Loading';
@@ -24,37 +24,37 @@ const styles = StyleSheet.create({
     bottom: 0,
     justifyContent: 'center'
   },
-  searchbar: { borderRadius: 0 }
+  searchBar: {
+    fontSize: theme.fontSizes.heading,
+    alignItems: 'center'
+  }
 });
 
 const Search = (): JSX.Element => {
   const [posts, fetchPosts] = usePosts();
-  const [searchQuery, setSearchQuery] = useState<string>();
+  const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [category, setCategory] = useState<number>();
-  const [condition, setCondition] = useState<Condition | 'kaikki'>();
+  const [condition, setCondition] = useState<Condition | 'All'>();
   const [city, setCity] = useState<string | null>();
   const searchParams = useRef<SearchPostsQuery>();
 
   useEffect((): void => {
     const search = async (): Promise<void> => {
-      let query: SearchPostsQuery | undefined;
-      if (debouncedSearchQuery) {
-        query = { ...query, contains: debouncedSearchQuery };
-      }
+      let query: SearchPostsQuery = { contains: debouncedSearchQuery };
       if (category && category !== -1) {
         query = { ...query, categoryId: String(category) };
       }
-      if (condition && condition !== 'kaikki') {
+      if (condition && condition !== 'All') {
         query = { ...query, condition };
       }
-      if (city && city !== 'kaikki') {
+      if (city && city !== 'All') {
         query = { ...query, city };
       }
       if (query) {
         try {
           await fetchPosts(query);
-        } catch (e) {}
+        } catch {}
       }
       searchParams.current = query;
     };
@@ -64,25 +64,24 @@ const Search = (): JSX.Element => {
   const header = (): JSX.Element => (
     <View>
       <Searchbar
-        style={styles.searchbar}
-        inputStyle={{ fontSize: theme.fontSizes.heading, alignItems: 'center' }}
-        placeholder="Hakusana"
+        inputStyle={styles.searchBar}
+        placeholder="Keyword"
         onChangeText={(query: string): void => setSearchQuery(query)}
         value={searchQuery || ''}
       />
       <Container center>
         <Picker
           searchbar
-          style={{ paddingVertical: dph(0.02) }}
+          style={{ marginVertical: dpw(0.09) }}
           onValueChange={(value): void => setCity(value)}
-          selectedValue={city || 'Kaupunki'}
-          items={['kaikki', ...cities]}
+          selectedValue={city || 'City'}
+          items={['All', ...cities]}
         />
-        <CategoryPicker style={{ paddingVertical: dph(0.02) }} search setCategory={setCategory} />
+        <CategoryPicker style={{ marginBottom: dpw(0.09) }} search setCategory={setCategory} />
         <Picker
-          style={{ paddingVertical: dph(0.02) }}
-          items={['kaikki', ...conditions]}
-          selectedValue={condition ?? 'Tuotteen kunto'}
+          style={{ marginBottom: dpw(0.09) }}
+          items={['All', ...conditions]}
+          selectedValue={condition ?? 'Condition'}
           onValueChange={(value): void => setCondition(value as Condition)}
         />
       </Container>

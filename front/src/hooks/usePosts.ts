@@ -1,10 +1,10 @@
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { PostPage, SharedGetPostsQuery } from '@shared/types';
 import { emptyPage } from 'util/constants';
 import { concatPages, deepEqual } from '../util/helpers';
 import { getPosts } from '../services/posts';
 
-const usePosts = (initialQuery?: SharedGetPostsQuery): [PostPage | null, typeof fetchPosts] => {
+const usePosts = (): [PostPage | null, typeof fetchPosts] => {
   const offset = useRef(0);
   const [posts, setPosts] = useState<PostPage | null>(null);
   const params = useRef<SharedGetPostsQuery>();
@@ -13,6 +13,8 @@ const usePosts = (initialQuery?: SharedGetPostsQuery): [PostPage | null, typeof 
     if (!deepEqual(fetchQuery || {}, params.current || {})) {
       offset.current = 0;
     }
+
+    console.log('offset', offset.current);
 
     const res = await getPosts({
       limit: 6,
@@ -26,13 +28,6 @@ const usePosts = (initialQuery?: SharedGetPostsQuery): [PostPage | null, typeof 
     offset.current += res.data.data.length;
     params.current = fetchQuery;
   };
-
-  useEffect((): void => {
-    const initialize = async (): Promise<void> => {
-      await fetchPosts(initialQuery);
-    };
-    initialize();
-  }, []);
 
   return [posts, fetchPosts];
 };

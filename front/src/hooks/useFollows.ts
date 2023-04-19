@@ -1,16 +1,18 @@
 import { useRef, useState, useEffect } from 'react';
-import { FollowPage } from 'types';
+import { FollowPage } from '@shared/types';
 import { getFollowers, getFollowing } from 'services/follows';
 import { concatPages } from '../util/helpers';
 import { emptyPage } from '../util/constants';
 
+interface UseFollowsQuery {
+  userId: string;
+  role: 'follower' | 'following';
+}
+
 const useFollows = ({
   userId,
   role
-}: {
-  userId: string;
-  role: 'follower' | 'following';
-}): [FollowPage | null, typeof fetchFollows] => {
+}: UseFollowsQuery): [FollowPage | null, typeof setFollows, typeof fetchFollows] => {
   const [follows, setFollows] = useState<FollowPage | null>(null);
   const offset = useRef(0);
 
@@ -34,7 +36,7 @@ const useFollows = ({
     initialize();
   }, []);
 
-  return [follows, fetchFollows];
+  return [follows, setFollows, fetchFollows];
 };
 
 export default useFollows;

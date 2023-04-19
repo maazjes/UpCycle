@@ -36,6 +36,7 @@ Chat.belongsTo(Message, { foreignKey: 'lastMessageId', as: 'lastMessage' });
 
 Follow.belongsTo(User, { foreignKey: 'followingId', as: 'following' });
 Follow.belongsTo(User, { foreignKey: 'followerId', as: 'follower' });
+User.hasMany(Follow, { foreignKey: 'followingId', as: 'followers' });
 
 PostCategory.belongsTo(Post);
 

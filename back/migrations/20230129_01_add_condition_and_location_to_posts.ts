@@ -7,11 +7,11 @@ module.exports = {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [['new', 'slightly used', 'used']]
+        isIn: [['New', 'Slightly used', 'Used']]
       }
     });
     await queryInterface.addColumn('posts', 'postcode', {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         len: [5, 5]

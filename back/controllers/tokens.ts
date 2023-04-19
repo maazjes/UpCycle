@@ -24,7 +24,7 @@ router.post<{}, { idToken: string }, { refreshToken: string }>(
 
 router.post<{}, {}, { idToken: string }>('/verifyidtoken', async (req, res): Promise<void> => {
   await firebase.auth().verifyIdToken(req.body.idToken);
-  res.status(200).json({});
+  res.json();
 });
 
 export default router;

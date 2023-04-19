@@ -1,58 +1,43 @@
-import { AppState } from 'react-native';
+import { AppState, StyleSheet } from 'react-native';
 import * as yup from 'yup';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import Container from 'components/Container';
 import { LoginStackScreen } from 'types';
 import Text from 'components/Text';
 import { Fontisto } from '@expo/vector-icons';
 import { Formik } from 'formik';
-import { checkEmailVerified, verifyEmail } from 'services/verifyEmail';
+import { checkEmailVerified, verifyEmail } from 'services/emails';
 import { useEffect, useRef, useState } from 'react';
 import Notification from 'components/Notification';
+import { isAxiosError } from 'axios';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 
-const validationSchema = yup.object().shape({
-  email: yup.string().email().required('email is required'),
-  username: yup
-    .string()
-    .min(2, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
-    .required('Username is required'),
-  bio: yup
-    .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(150, 'Maximum length of name is 150')
-    .required('Username is required'),
-  displayName: yup
-    .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
-    .required('Name is required'),
-  password: yup
-    .string()
-    .min(5, 'Minimum length of password is 5')
-    .max(20, 'Maximum length of password is 20')
-    .required('Password is required'),
-  passwordConfirmation: yup
-    .string()
-    .oneOf([yup.ref('password'), null], 'Passwords must match')
-    .required('Password confirmation is required')
+const styles = StyleSheet.create({
+  emailIcon: {
+    marginBottom: dpw(0.02),
+    alignSelf: 'center'
+  }
 });
+const validationSchema = yup.object().shape({
+  email: yup.string().email('Must be a valid email address').required('Email is required')
+});
+
+const initialValues = {
+  email: ''
+};
 
 const VerifyEmail = ({ navigation }: LoginStackScreen<'VerifyEmail'>): JSX.Element => {
   const appState = useRef(AppState.currentState);
   const emailRef = useRef<string>();
-  const [verified, setVerified] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState('');
+  const [notification, setNotification] = useState({ error: false, text: '' });
 
   const emailVerifiedCheck = async (): Promise<void> => {
     if (emailRef.current) {
       const res = await checkEmailVerified({ email: emailRef.current });
       if (res.data.verified) {
         navigation.navigate('AddInformation', { email: emailRef.current });
-        setVerified(true);
       }
     }
   };
@@ -70,49 +55,45 @@ const VerifyEmail = ({ navigation }: LoginStackScreen<'VerifyEmail'>): JSX.Eleme
     };
   }, []);
 
-  const initialValues = {
-    email: ''
-  };
-
   const onSubmit = async ({ email }: { email: string }): Promise<void> => {
     emailRef.current = email;
-    if (!verified) {
-      setLoading(true);
-      try {
-        await verifyEmail({ email });
-        setNotification('A verification link has been sent to your email');
-      } catch {}
-    } else {
-      navigation.navigate('AddInformation', { email: emailRef.current });
+    setLoading(true);
+    try {
+      await verifyEmail({ email });
+      setNotification({ error: false, text: 'A verification link has been sent to your email' });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setNotification({ error: true, text: e.message });
+      }
     }
     setLoading(false);
   };
 
   return (
     <Container size="small" scrollable>
-      <Formik initialValues={initialValues} onSubmit={onSubmit}>
+      <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
         {({ handleSubmit }): JSX.Element => (
           <>
-            <Fontisto
-              style={{ marginBottom: dph(0.015), alignSelf: 'center' }}
-              name="email"
-              size={70}
-              color="black"
-            />
-            <Text align="center" style={{ marginBottom: dph(0.015) }} size="heading" weight="bold">
+            <Fontisto style={styles.emailIcon} name="email" size={dpw(0.2)} color="black" />
+            <Text align="center" style={{ marginBottom: dpw(0.02) }} size="heading" weight="bold">
               Enter your email
             </Text>
-            <Text color="grey" style={{ marginBottom: dph(0.03) }}>
-              Enter your email below and well send you an email to verify your account.
+            <Text color="grey" style={{ marginBottom: dpw(0.05) }}>
+              Enter your email below and well send you an email to verify it.
             </Text>
-            <FormikTextInput name="email" placeholder="Email" />
+            <FormikTextInput
+              returnKeyType="send"
+              onSubmitEditing={(): void => handleSubmit()}
+              name="email"
+              placeholder="Email"
+            />
             <Button
-              style={{ marginBottom: dph(0.02) }}
+              style={{ marginBottom: dpw(0.03) }}
               loading={loading}
               onPress={handleSubmit}
-              text={!verified ? 'Send link' : 'Continue'}
+              text="Send link"
             />
-            <Notification text={notification} />
+            <Notification error={notification.error} text={notification.text} />
           </>
         )}
       </Formik>

@@ -2,48 +2,46 @@ import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
 import useChats from 'hooks/useChats';
 import Container from 'components/Container';
 import Text from 'components/Text';
-import { dph, dpw, formatDate } from 'util/helpers';
+import { dpw, formatDate } from 'util/helpers';
 import Line from 'components/Line';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Button from 'components/Button';
 import MenuModal from 'components/MenuModal';
-import React, { useMemo, useState } from 'react';
-import { Chat } from '@shared/types';
-import { useAppSelector } from 'hooks/redux';
+import React, { useState } from 'react';
+import { useAppDispatch, useAppSelector } from 'hooks/redux';
 import { updateChatInfo } from 'services/chatInfo';
-import { MenuModalProps, ProfileProps, UserScreen } from '../types';
+import { editChat } from 'reducers/chats';
+import { MenuModalItems, UserScreen } from '../types';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
+import theme from '../styles/theme';
 
 const styles = StyleSheet.create({
   noFavorites: {
     justifyContent: 'center',
     alignItems: 'center'
   },
-  noFavoritesText: {
-    marginVertical: dph(0.015),
+  noChatsText: {
+    marginVertical: dpw(0.03),
     textAlign: 'center'
+  },
+  displayNameStyle: {
+    fontFamily: theme.fonts.bold,
+    marginBottom: dpw(0.01)
+  },
+  archivedText: {
+    alignSelf: 'flex-end'
   }
 });
 
 const ItemSeparator = (): JSX.Element => <Line style={{ marginVertical: 11 }} />;
 
-const Chats = ({ navigation }: UserScreen<'StackChat'>): JSX.Element => {
-  const { navigate } = navigation;
-  const [chats, setChats, fetchChats] = useChats();
+const Chats = ({ navigation }: UserScreen<'StackChats'>): JSX.Element => {
+  const [chats, fetchChats] = useChats();
   const [archived, setArchived] = useState(false);
-  const [modalItems, setModalItems] = useState<Pick<MenuModalProps, 'items'> | undefined>();
-  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
-
-  const archivedChats = useMemo<Chat[] | null>(
-    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => chat.info.archived) : null),
-    [chats]
-  );
-
-  const unArchivedChats = useMemo<Chat[] | null>(
-    (): Chat[] | null => (chats ? chats.data.filter((chat): boolean => !chat.info.archived) : null),
-    [chats]
-  );
+  const [modalItems, setModalItems] = useState<MenuModalItems | undefined>();
+  const dispatch = useAppDispatch();
+  const currentUserId = useAppSelector((state): string => state.currentUserId!);
 
   if (!chats) {
     return <Loading />;
@@ -53,13 +51,13 @@ const Chats = ({ navigation }: UserScreen<'StackChat'>): JSX.Element => {
     return (
       <Container style={styles.noFavorites}>
         <FontAwesome5 name="sad-cry" size={dpw(0.15)} color="black" />
-        <Text style={styles.noFavoritesText} weight="bold" size="subheading">
+        <Text style={styles.noChatsText} weight="bold" size="subheading">
           No chats to show
         </Text>
         <Button
           text="Find new items"
           onPress={(): void => {
-            navigation.navigate('Search');
+            navigation.navigate('Search', { screen: 'StackSearch', initial: false });
           }}
         />
       </Container>
@@ -67,26 +65,25 @@ const Chats = ({ navigation }: UserScreen<'StackChat'>): JSX.Element => {
   }
 
   const archiveOrUnarchive = async (chatInfoId: number): Promise<void> => {
-    await updateChatInfo(chatInfoId, { archived: !archived });
-    const newChats = [...chats.data].map(
-      (chat): Chat =>
-        chat.info.id !== chatInfoId
-          ? chat
-          : { ...chat, info: { ...chat.info, archived: !archived } }
-    );
-    const newChatPage = { ...chats, data: newChats };
-    setChats(newChatPage);
-    setModalItems(undefined);
+    try {
+      const found = chats.data.find((chat): boolean => chat.info.id === chatInfoId)!;
+      await updateChatInfo(chatInfoId, { archived: !archived });
+      const newChat = { ...found, info: { ...found.info, archived: !archived } };
+      dispatch(editChat(newChat));
+      setModalItems(undefined);
+    } catch {}
   };
 
   return (
     <Container>
       <FlatList
         keyExtractor={(item): string => String(item.id)}
-        data={archived ? archivedChats : unArchivedChats}
+        data={chats.data.filter((chat): boolean =>
+          archived ? chat.info.archived : !chat.info.archived
+        )}
         ItemSeparatorComponent={ItemSeparator}
         renderItem={({ item }): JSX.Element => {
-          const otherUser = item.user.id === currentUserId ? item.user : item.creator;
+          const otherUser = item.user.id === currentUserId ? item.creator : item.user;
           return (
             <UserBar
               onLongPress={(): void =>
@@ -98,14 +95,23 @@ const Chats = ({ navigation }: UserScreen<'StackChat'>): JSX.Element => {
                     : { 'Archive chat': (): Promise<void> => archiveOrUnarchive(item.info.id) }
                 )
               }
-              displayNameStyle={{ marginBottom: dph(0.007), fontFamily: 'OpenSans_700Bold' }}
-              profilePhotoSize={50}
-              onPress={(): void => navigate('SingleChat', { userId: otherUser.id })}
+              onPress={(): void => {
+                navigation.navigate('SingleChat', {
+                  userId: otherUser.id,
+                  username: otherUser.username
+                });
+              }}
+              displayNameStyle={styles.displayNameStyle}
+              profilePhotoSize={dpw(0.128)}
               user={otherUser}
               extra={
                 <Text>{item.lastMessage.images?.length > 0 ? 'Photo' : item.lastMessage.text}</Text>
               }
-              textRight={formatDate(item.lastMessage.createdAt)}
+              itemRight={
+                <Text style={{ alignSelf: 'flex-start', marginTop: 1 }} color="grey">
+                  {formatDate(item.lastMessage.createdAt)}
+                </Text>
+              }
             />
           );
         }}

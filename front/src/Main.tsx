@@ -1,5 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
 import { View } from 'react-native';
 import {
@@ -18,8 +18,9 @@ SplashScreen.preventAutoHideAsync();
 
 const config = {
   screens: {
-    StackChat: 'feed/:sort',
-    VerifyEmail: 'user'
+    Login: 'login',
+    VerifyEmail: 'verifyemail',
+    ChangeEmail: 'changeemail'
   }
 };
 
@@ -45,7 +46,6 @@ export default (): JSX.Element | null => {
     const initialize = async (): Promise<void> => {
       try {
         const authStorageUser = await refreshLogin();
-        handle.current = setInterval(refreshLogin, 3500000);
         if (authStorageUser) {
           setPhotoUrl(authStorageUser.photoUrl);
         }
@@ -54,6 +54,15 @@ export default (): JSX.Element | null => {
     };
     initialize();
   }, []);
+
+  useEffect((): void => {
+    if (loggedIn) {
+      handle.current = setInterval(refreshLogin, 3500000);
+    }
+    if (handle.current && !loggedIn) {
+      clearInterval(handle.current);
+    }
+  }, [loggedIn]);
 
   const onLayoutRootView = useCallback(async (): Promise<void> => {
     await SplashScreen.hideAsync();

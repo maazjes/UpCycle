@@ -18,7 +18,7 @@ class Message extends Model<InferAttributes<Message>, InferCreationAttributes<Me
 
   declare chatId: ForeignKey<Chat['id']>;
 
-  declare text: string;
+  declare text: string | null;
 
   declare createdAt: CreationOptional<Date>;
 

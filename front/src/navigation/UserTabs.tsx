@@ -1,5 +1,5 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Entypo, AntDesign, FontAwesome, Feather } from '@expo/vector-icons';
+import { Entypo, Feather } from '@expo/vector-icons';
 import { dpw } from 'util/helpers';
 import ProfilePhoto from '../components/ProfilePhoto';
 import UserStack from './UserStack';
@@ -20,18 +20,18 @@ const renderUserStack =
 
 const UserTabs = ({ photoUrl }: { photoUrl: string }): JSX.Element => {
   const homeIcon = (info: Info): JSX.Element => (
-    <Entypo name="home" size={dpw(0.08)} color={info.focused ? '#7bc17e' : 'black'} />
+    <Entypo name="home" size={dpw(0.085)} color={info.focused ? '#7bc17e' : 'black'} />
   );
   const favoritesIcon = (info: Info): JSX.Element => (
-    <AntDesign name="hearto" size={dpw(0.08)} color={info.focused ? '#7bc17e' : 'black'} />
+    <Feather name="heart" size={dpw(0.085)} color={info.focused ? '#7bc17e' : 'black'} />
   );
   const createPostIcon = (info: Info): JSX.Element => (
-    <FontAwesome name="plus-square-o" size={dpw(0.09)} color={info.focused ? '#7bc17e' : 'black'} />
+    <Feather name="plus-square" size={dpw(0.087)} color={info.focused ? '#7bc17e' : 'black'} />
   );
   const chatIcon = (info: Info): JSX.Element => (
-    <Feather name="message-circle" size={dpw(0.08)} color={info.focused ? '#7bc17e' : 'black'} />
+    <Feather name="message-circle" size={dpw(0.085)} color={info.focused ? '#7bc17e' : 'black'} />
   );
-  const profileIcon = (): JSX.Element => <ProfilePhoto uri={photoUrl} size={dpw(0.08)} />;
+  const profileIcon = (): JSX.Element => <ProfilePhoto uri={photoUrl} size={dpw(0.085)} />;
 
   return (
     <Tab.Navigator
@@ -39,14 +39,15 @@ const UserTabs = ({ photoUrl }: { photoUrl: string }): JSX.Element => {
         headerShown: false,
         tabBarLabelStyle: { display: 'none' },
         tabBarIconStyle: { alignSelf: 'center' },
-        tabBarStyle: { height: dpw(0.14) }
+        tabBarStyle: { height: dpw(0.13) }
       }}
     >
       <Tab.Screen
         name="Search"
         component={renderUserStack('StackSearch')}
         options={{
-          tabBarIcon: homeIcon
+          tabBarIcon: homeIcon,
+          unmountOnBlur: true
         }}
       />
       <Tab.Screen
@@ -60,19 +61,21 @@ const UserTabs = ({ photoUrl }: { photoUrl: string }): JSX.Element => {
         name="CreatePost"
         component={renderUserStack('StackCreatePost')}
         options={{
-          tabBarIcon: createPostIcon,
-          tabBarIconStyle: { marginTop: 4 }
+          tabBarIcon: createPostIcon
         }}
       />
       <Tab.Screen
-        name="Chat"
-        component={renderUserStack('StackChat')}
-        options={{ tabBarIcon: chatIcon, tabBarIconStyle: { marginTop: 2 } }}
+        name="Chats"
+        component={renderUserStack('StackChats')}
+        options={{ tabBarIcon: chatIcon, lazy: false }}
       />
       <Tab.Screen
         name="Profile"
         component={renderUserStack('StackProfile')}
-        options={{ tabBarIcon: profileIcon }}
+        options={{
+          tabBarIcon: profileIcon,
+          lazy: false
+        }}
       />
     </Tab.Navigator>
   );

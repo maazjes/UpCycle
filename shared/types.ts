@@ -35,9 +35,12 @@ export interface TokenUser extends User {
   refreshToken: string;
 }
 
-export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl' | 'email'> {
-  password: string;
-  email: string;
+export interface SharedNewUserBody extends Omit<EmailUser, 'id' | 'photoUrl'> {
+  password: string
+}
+
+export type GetUsersQuery = {
+  username: string;
 }
 
 // FirebaseUsers
@@ -94,7 +97,7 @@ export type SharedGetPostsQuery = {
 
 export interface TypedImage {
   uri: string;
-  id: number;
+  id: number | string;
 }
 
 // Messages
@@ -129,27 +132,27 @@ export type SharedGetMessagesQuery = {
 
 export interface FollowBase {
   id: number;
-  followerId: string;
 }
 
 export interface Follow extends FollowBase {
+  user: FollowUserBase
+}
+
+export interface NewFollowBody {
+  userId: string;
+}
+
+export interface RawFollow extends FollowBase {
+  followerId: string;
   followingId: string;
 }
 
-export interface Following extends FollowBase {
-  following: UserBase;
+export interface FollowUserBase extends UserBase {
+  followers: FollowBase[]
 }
 
-export interface Follower extends FollowBase {
-  follower: UserBase;
-}
-
-export interface FollowingPage extends PaginationBase {
-  data: Following[];
-}
-
-export interface FollowerPage extends PaginationBase {
-  data: Follower[];
+export interface FollowPage extends PaginationBase {
+  data: Follow[]
 }
 
 // Chats
@@ -195,6 +198,7 @@ export interface Category {
   id: number;
   name: string;
   subcategories: Category[];
+  depth: number;
 }
 
 // Favorites
@@ -213,10 +217,6 @@ export interface ErrorBody {
 
 export type Condition = 'new' | 'slightly used' | 'used';
 
-export interface PasswordResetBody {
-  email: string;
-}
-
 export interface ExchangeCustomTokenBody {
   idToken: string;
   refreshToken: string;
@@ -231,11 +231,16 @@ export interface PasswordResetConfirmationBody extends PasswordResetVerifyBody {
   newPassword: string;
 }
 
-export interface EmailVerifyBody {
+export interface EmailBody {
   email: string;
 }
 
+export interface PasswordBody {
+  password: string;
+}
+
 export interface CheckEmailVerified {
+  email: string;
   verified: boolean;
 }
 

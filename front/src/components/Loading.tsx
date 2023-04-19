@@ -1,5 +1,6 @@
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
+import { dpw } from 'util/helpers';
 import Text from './Text';
 
 const { height } = Dimensions.get('window');
@@ -7,7 +8,7 @@ const { height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#F2F2F2',
-    height: '100%'
+    flexGrow: 1
   },
   spinnerTextStyle: {
     color: '#FFF'
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   text: {
-    margin: 10
+    marginTop: dpw(0.02)
   }
 });
 

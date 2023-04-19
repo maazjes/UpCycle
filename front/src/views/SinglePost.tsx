@@ -1,13 +1,15 @@
 import { StyleSheet, Dimensions, ScrollView, Pressable } from 'react-native';
 import { useState, useEffect } from 'react';
-import { Post } from '@shared/types';
 import MenuModal from 'components/MenuModal';
 import { Entypo } from '@expo/vector-icons';
+import { removePost } from 'reducers/profilePosts';
+import { setSinglePost } from 'reducers/singlePost';
+import { dpw } from 'util/helpers';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import SinglePostCard from '../components/SinglePostCard';
-import { ProfileProps, UserScreen } from '../types';
-import { useAppSelector } from '../hooks/redux';
+import { GlobalState, UserScreen } from '../types';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { deletePost, getPost } from '../services/posts';
 
@@ -22,51 +24,69 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   userBar: {
-    paddingHorizontal: '5%',
+    paddingHorizontal: dpw(0.04),
     paddingVertical: '3%'
+  },
+  hitSlop: {
+    top: dpw(0.05),
+    bottom: dpw(0.05),
+    right: dpw(0.025),
+    left: dpw(0.025)
   }
 });
 
 const SinglePost = ({ route, navigation }: UserScreen<'SinglePost'>): JSX.Element => {
   const { postId } = route.params;
-  const [post, setPost] = useState<null | Post>(null);
-  const [modalVisible, setModalVisible] = useState(false);
-  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
-  const { navigate } = navigation;
+  const [settingsModalVisible, setSettingsModalVisible] = useState(false);
+  const { currentUserId, singlePost } = useAppSelector((state): GlobalState => state);
+  const dispatch = useAppDispatch();
 
-  useEffect((): void => {
+  useEffect((): (() => void) => {
     const initialize = async (): Promise<void> => {
-      const res = await getPost(postId);
-      setPost(res.data);
+      try {
+        const res = await getPost(postId);
+        dispatch(setSinglePost(res.data));
+      } catch {}
     };
+
     initialize();
+
+    return (): void => {
+      setSinglePost(null);
+    };
   }, []);
 
-  if (!post) {
+  if (!singlePost || singlePost.id !== postId) {
     return <Loading />;
   }
 
-  const onUserBarPress = (): void => {
-    navigation
-      .getParent()
-      ?.navigate('Profile', { userId: post.user.id, username: post.user.username });
+  const openSettingsModal = (): void => {
+    setSettingsModalVisible(true);
+  };
+
+  const closeSettingsModal = (): void => {
+    setSettingsModalVisible(false);
   };
 
   const onMessage = (): void => {
-    navigate('SingleChat', { userId: post.user.id });
+    navigation.navigate('SingleChat', {
+      userId: singlePost.user.id,
+      username: singlePost.user.username
+    });
   };
 
   const onPostDelete = async (id: number): Promise<void> => {
     try {
       await deletePost(id);
-    } catch (e) {}
-    navigation.goBack();
-    setModalVisible(false);
+      dispatch(removePost(id));
+      navigation.goBack();
+      closeSettingsModal();
+    } catch {}
   };
 
   const onPostEdit = (): void => {
-    navigate('EditPost', post);
-    setModalVisible(false);
+    navigation.navigate('EditPost', singlePost);
+    closeSettingsModal();
   };
 
   const menuModalItems = {
@@ -75,11 +95,8 @@ const SinglePost = ({ route, navigation }: UserScreen<'SinglePost'>): JSX.Elemen
   };
 
   const itemRight =
-    currentUserId === post.user.id ? (
-      <Pressable
-        onPress={(): void => setModalVisible(true)}
-        hitSlop={{ top: 20, bottom: 20, right: 10, left: 10 }}
-      >
+    currentUserId === singlePost.user.id ? (
+      <Pressable onPress={openSettingsModal} hitSlop={styles.hitSlop}>
         <Entypo style={{ marginTop: 1 }} name="dots-three-horizontal" size={21} color="black" />
       </Pressable>
     ) : (
@@ -87,18 +104,13 @@ const SinglePost = ({ route, navigation }: UserScreen<'SinglePost'>): JSX.Elemen
     );
 
   return (
-    <ScrollView contentContainerStyle={{ paddingBottom: 20 }} showsVerticalScrollIndicator={false}>
-      <UserBar
-        style={styles.userBar}
-        onPress={onUserBarPress}
-        user={post.user}
-        itemRight={itemRight}
-      />
-      <SinglePostCard post={post} containerStyle={styles.container} />
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <UserBar style={styles.userBar} user={singlePost.user} itemRight={itemRight} />
+      <SinglePostCard post={singlePost} containerStyle={styles.container} />
       <MenuModal
         items={menuModalItems}
-        visible={modalVisible}
-        onDismiss={(): void => setModalVisible(false)}
+        visible={settingsModalVisible}
+        onDismiss={closeSettingsModal}
       />
     </ScrollView>
   );

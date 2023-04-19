@@ -1,37 +1,23 @@
 import express from 'express';
 import { Favorite as SharedFavorite } from '@shared/types.js';
 import { Favorite } from '../models/index.js';
-import { userExtractor } from '../util/middleware.js';
 
 const router = express.Router();
 
-router.post<{}, SharedFavorite, { postId: number }>(
-  '/',
-  userExtractor,
-  async (req, res): Promise<void> => {
-    if (!req.user) {
-      throw new Error('invalid token');
-    }
-    const { postId } = req.body;
-    const favorite = await Favorite.create({ postId, userId: req.user.id });
-    if (!favorite) {
-      throw new Error('creating favorite failed');
-    }
-    res.json(favorite);
-  }
-);
+router.post<{}, SharedFavorite, { postId: number }>('/', async (req, res): Promise<void> => {
+  const { postId } = req.body;
+  const favorite = await Favorite.create({ postId, userId: req.userId! });
+  res.json(favorite);
+});
 
-router.delete<{ id: string }>('/:id', userExtractor, async (req, res): Promise<void> => {
-  if (!req.user) {
-    throw new Error('Authentication required');
-  }
+router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const favorite = await Favorite.findOne({ where: { id } });
   if (!favorite) {
-    throw new Error('couldnt find favorite by id');
+    throw new Error('Server error. Please try again.');
   }
-  if (favorite.userId !== req.user.id) {
-    throw new Error('Authentication required');
+  if (favorite.userId !== req.userId!) {
+    throw new Error('Sever error. Please login again and retry.');
   }
   await favorite.destroy();
   res.status(204).send();

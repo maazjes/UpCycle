@@ -64,7 +64,7 @@ export const createFormData = (params: CreateFormDataParams): FormData => {
 
 export const concatPages = (oldPage: PaginationBase, newPage: PaginationBase): PaginationBase => ({
   totalItems: newPage.totalItems,
-  offset: newPage.offset,
+  offset: newPage.offset + newPage.data.length,
   data: oldPage.data.concat(newPage.data)
 });
 
@@ -114,9 +114,9 @@ export const pickImage = async ({
     return null;
   }
   const images = result.assets.map(
-    ({ uri }, i): TypedImage => ({
+    ({ uri, assetId }): TypedImage => ({
       uri,
-      id: i * -1
+      id: assetId!
     })
   );
   return images;

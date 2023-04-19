@@ -1,10 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { PostPage, PostBase, Post as SharedPost } from '@shared/types.js';
+import { PostPage, PostBase, Post as SharedPost, TypedImage } from '@shared/types.js';
 import { Op, WhereOptions } from 'sequelize';
 import { NewPostBody, GetPostsQuery, UpdatePostBody } from '../types.js';
 import { Post, Category, Image, Favorite, PostCategory } from '../models/index.js';
-import { userExtractor } from '../util/middleware.js';
 import { saveImages, uploadPostImages } from '../util/helpers.js';
 import {
   PostInclude,
@@ -16,14 +15,14 @@ import {
 const upload = multer();
 const router = express.Router();
 
-router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res): Promise<void> => {
+router.get<{}, PostPage, {}, GetPostsQuery>('/', async (req, res): Promise<void> => {
   const { userId, limit, offset, favorite, contains, categoryId, condition, city } = req.query;
   const userWhere = userId ? { userId } : undefined;
   const containsWhere = contains
     ? {
         [Op.or]: [
-          { title: { [Op.substring]: contains } },
-          { description: { [Op.substring]: contains } }
+          { title: { [Op.iLike]: `%${contains}%` } },
+          { description: { [Op.iLike]: `%${contains}%` } }
         ]
       }
     : {};
@@ -32,16 +31,20 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
   where = condition ? { ...where, condition } : where;
   where = city ? { ...where, city } : where;
 
-  if (categoryId && req.user) {
+  if (categoryId) {
     const postCategories = await PostCategory.findAndCountAll({
       where: { categoryId: Number(categoryId) },
       include: {
         model: Post,
         attributes: PostBaseAttributes,
         include: PostBaseInclude,
-        where
-      }
+        where,
+        order: [['updatedAt', 'DESC']]
+      },
+      offset: Number(offset),
+      limit: Number(limit)
     });
+
     const categoryPosts = postCategories.rows.map((c): PostBase => c.dataValues.post! as PostBase);
     res.json({
       totalItems: postCategories.count,
@@ -51,17 +54,19 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
     return;
   }
 
-  if (favorite && req.user) {
+  if (favorite) {
     const favorites = await Favorite.findAndCountAll({
-      where: { userId: req.user.id },
+      where: { userId: req.userId! },
       include: {
         model: Post,
         attributes: PostBaseAttributes,
-        include: PostBaseInclude
+        include: PostBaseInclude,
+        where
       },
       attributes: [],
       limit: Number(limit),
-      offset: Number(offset)
+      offset: Number(offset),
+      order: [['id', 'DESC']]
     });
     const favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post! as PostBase);
     res.json({
@@ -77,6 +82,7 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
     limit: Number(limit),
     offset: Number(offset),
     where,
+    order: [['updatedAt', 'DESC']],
     distinct: true
   });
 
@@ -87,10 +93,7 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', userExtractor, async (req, res)
   } as PostPage);
 });
 
-router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): Promise<void> => {
-  if (!req.user) {
-    throw new Error('Authentication required');
-  }
+router.get<{ id: string }, SharedPost>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   const post = await Post.findOne({
     attributes: PostAttributes,
@@ -98,10 +101,10 @@ router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): 
     where: { id }
   });
   if (!post) {
-    throw new Error('post not found');
+    throw new Error('Server error. Please try again.');
   }
   const found = await Favorite.findOne({
-    where: { postId: Number(id), userId: req.user.id }
+    where: { postId: Number(id), userId: req.userId! }
   });
   let favoriteId = null;
   if (found) {
@@ -113,7 +116,7 @@ router.get<{ id: string }, SharedPost>('/:id', userExtractor, async (req, res): 
 router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
   const { id } = req.params;
   if (!id) {
-    throw new Error('id missing from params');
+    throw new Error('Server error. Please try again.');
   }
   await Image.destroy({ where: { postId: id } });
   await Favorite.destroy({ where: { postId: id } });
@@ -124,59 +127,51 @@ router.delete<{ id: string }>('/:id', async (req, res): Promise<void> => {
 
 router.post<{}, SharedPost, NewPostBody>(
   '/',
-  userExtractor,
   upload.array('images', 5),
   async (req, res): Promise<void> => {
-    console.log(req.body);
-    if (!req.user) {
-      throw new Error('Authentication required');
-    }
     const categories: number[] = JSON.parse(req.body.categories);
     const foundCategories = await Category.findAll({
       where: { id: { [Op.or]: categories } }
     });
     if (categories.length !== foundCategories.length) {
-      throw new Error('one or more invalid category');
+      throw new Error('Invalid categories. Try selecting them again.');
     }
     if (!req.files || !Array.isArray(req.files)) {
-      throw new Error('images missing from request');
+      throw new Error('Images are required.');
     }
     const post = await Post.create({
       ...req.body,
       categories: undefined,
-      userId: req.user.id
+      userId: req.userId!
     });
     const postCategories = categories.map((categoryId): { categoryId: number; postId: number } => ({
       categoryId,
       postId: post.id
     }));
     await PostCategory.bulkCreate(postCategories);
-    const images = await uploadPostImages(req.files);
-    await saveImages(images, post.id);
-    res.json({ ...post.dataValues, favoriteId: null } as SharedPost);
+    const imageUris = await uploadPostImages(req.files);
+    const images = await saveImages(imageUris, post.id);
+    const finalImages = images.map((image): TypedImage => image.dataValues);
+    res.json({ ...post.dataValues, favoriteId: null, images: finalImages } as SharedPost);
   }
 );
 
 router.put<{ id: string }, SharedPost, UpdatePostBody>(
   '/:id',
-  userExtractor,
   upload.array('images', 5),
   async (req, res): Promise<void> => {
-    if (!req.user) {
-      throw new Error('Authentication required');
-    }
     const categories: number[] | undefined = req.body.categories && JSON.parse(req.body.categories);
 
     const currentPost = await Post.findOne({ where: { id: req.params.id } });
     if (!currentPost) {
-      throw new Error('invalid post id');
+      throw new Error('Server error. Please try again.');
     }
     if (categories) {
       const foundCategories = await Category.findAll({
         where: { id: { [Op.or]: categories } }
       });
       if (categories.length !== foundCategories.length) {
-        throw new Error('one or more invalid category');
+        throw new Error('Invalid categories. Try selecting them again.');
       }
       await PostCategory.destroy({ where: { postId: currentPost.id } });
       const postCategories = categories.map(
@@ -196,7 +191,7 @@ router.put<{ id: string }, SharedPost, UpdatePostBody>(
     currentPost.set(valuesToAdd);
 
     const post = await currentPost.save();
-    res.json({ ...post, favoriteId: null } as SharedPost);
+    res.json({ ...post.dataValues, favoriteId: null } as SharedPost);
   }
 );
 

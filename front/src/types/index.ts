@@ -8,12 +8,12 @@ import {
   SharedNewPostBody,
   TypedImage,
   SharedNewUserBody,
-  FollowBase,
-  UserBase,
-  PaginationBase,
   Post,
-  User
+  User,
+  PostPage
 } from '@shared/types';
+
+export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
 declare module 'i18next' {
   interface CustomTypeOptions {
@@ -32,13 +32,6 @@ export interface FinalNewUserBody extends Omit<NewUserBody, 'images'> {
 }
 
 export interface FinalUpdateUserBody extends Partial<FinalNewUserBody> {}
-
-export interface AuthStorageUser {
-  id: string;
-  refreshToken: string;
-  photoUrl: string | null;
-  username: string;
-}
 
 export type GetPostsQuery = PaginationQuery & SharedGetPostsQuery;
 
@@ -60,15 +53,6 @@ export interface UpdatePostBody extends Partial<NewPostBody> {}
 
 export interface FinalUpdatePostBody extends Partial<FinalNewPostBody> {}
 
-export interface Follow extends FollowBase {
-  following?: UserBase;
-  follower?: UserBase;
-}
-
-export interface FollowPage extends PaginationBase {
-  data: Follow[];
-}
-
 export type GetMessagesQuery = PaginationQuery & SharedGetMessagesQuery;
 
 export type PaginationQuery = {
@@ -88,13 +72,7 @@ export type LoginStackParams = {
   Login: undefined;
   VerifyEmail: undefined;
   AddInformation: { email: string };
-  AddPhoto: {
-    email: string;
-    displayName: string;
-    username: string;
-    bio: string;
-    password: string;
-  };
+  AddPhoto: SharedNewUserBody;
   ResetPassword: undefined;
 };
 
@@ -102,16 +80,17 @@ export type UserStackParams = {
   StackSearch: undefined;
   StackFavorites: undefined;
   StackCreatePost: undefined;
-  StackChat: undefined;
+  StackChats: undefined;
   SinglePost: { postId: number };
-  StackProfile?: ProfileProps | User;
+  StackProfile?: ProfileProps;
   EditPost: Post;
   EditProfile: User;
-  Chat: undefined;
-  SingleChat: { userId: string };
-  Follows: { userId: string; role: 'follower' | 'following' };
-  SelectCategory: { selectedCategories: React.MutableRefObject<string[]> };
+  SingleChat: { userId: string; username: string };
+  Follows: { userId: string; role: 'follower' | 'following'; username: string };
   LightBox: { uri: string };
+  Settings: undefined;
+  ChangeEmail: undefined;
+  ChangePassword: undefined;
 };
 
 export interface ProfileProps {
@@ -122,9 +101,9 @@ export interface ProfileProps {
 export type UserTabsParams = {
   Search: NavigatorScreenParams<UserStackParams>;
   Favorites: NavigatorScreenParams<UserStackParams>;
-  Profile?: NavigatorScreenParams<UserStackParams>;
+  Profile: NavigatorScreenParams<UserStackParams>;
   CreatePost: NavigatorScreenParams<UserStackParams>;
-  Chat: NavigatorScreenParams<UserStackParams>;
+  Chats: NavigatorScreenParams<UserStackParams>;
 };
 
 export type UserStackNavigation = CompositeNavigationProp<
@@ -176,8 +155,10 @@ export interface ClientToServerEvents {
 
 // components
 
+export type MenuModalItems = { [key: string]: () => void };
+
 export interface MenuModalProps extends Omit<ModalProps, 'children'> {
-  items: { [key: string]: (...args: any[]) => any };
+  items: MenuModalItems;
   searchbar?: boolean;
 }
 
@@ -190,4 +171,13 @@ export interface PickerProps extends Omit<MenuModalProps, 'items'> {
 export interface FormikTextInputProps extends TextInputProps {
   name: string;
   inputRef?: React.RefObject<TextInput>;
+}
+
+export interface GlobalState {
+  currentUserId: string | null;
+  loggedIn: boolean;
+  favorites: PostPage | null;
+  profilePosts: PostPage | null;
+  singlePost: Post | null;
+  profileUser: User | null;
 }

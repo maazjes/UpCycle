@@ -1,76 +1,93 @@
 import { View, StyleSheet, GestureResponderEvent, ScrollView, Image } from 'react-native';
 import { Formik } from 'formik';
 import * as yup from 'yup';
-import { useAppSelector } from 'hooks/redux';
+import { useAppDispatch, useAppSelector } from 'hooks/redux';
 import ProfilePhoto from 'components/ProfilePhoto';
 import { dpw } from 'util/helpers';
-import { updateUser } from 'services/users';
+import { getUsers, updateUser } from 'services/users';
 import { defaultProfilePhoto } from 'util/constants';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import LinkedInputs from 'components/LinkedInputs';
 import KeyboardAvoidingView from 'components/KeyboardAvoidingView';
-import { ProfileProps, UserScreen } from '../types';
+import { editUser } from 'reducers/profileUser';
+import Notification from 'components/Notification';
+import { isAxiosError } from 'axios';
+import Container from 'components/Container';
+import { UserScreen } from '../types';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 import FormikImageInput from '../components/FormikImageInput';
 
 const styles = StyleSheet.create({
-  SignupForm: {
-    margin: 12
-  },
   bioField: {
-    height: 100,
-    paddingTop: 13
+    height: dpw(0.3),
+    paddingTop: dpw(0.05)
   },
   photo: {
-    justifyContent: 'center',
-    marginTop: 10
+    justifyContent: 'center'
   },
   displayName: {
-    marginTop: 20
+    marginTop: dpw(0.033)
+  },
+  initialImage: {
+    width: dpw(0.3),
+    height: dpw(0.3)
   }
-});
-
-const validationSchema = yup.object().shape({
-  email: yup.string().email().required('email is required'),
-  username: yup
-    .string()
-    .min(2, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
-    .required('username is required'),
-  bio: yup
-    .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(150, 'Maximum length of name is 150')
-    .required('username is required'),
-  displayName: yup
-    .string()
-    .min(1, 'Minimum length of name is 2')
-    .max(15, 'Maximum length of name is 15')
-    .required('name is required')
 });
 
 const profileIcon = (uri: string): JSX.Element => <ProfilePhoto uri={uri} size={dpw(0.08)} />;
 
 const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Element => {
-  const { id: currentUserId } = useAppSelector((state): ProfileProps => state.profileProps!);
+  const currentUser = useRef({
+    ...route.params,
+    images: route.params.photoUrl ? [{ uri: `${route.params.photoUrl}_100x100?alt=media` }] : [],
+    photoUrl: undefined
+  });
+  const currentUserId = useAppSelector((state): string => state.currentUserId!);
   const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ error: false, text: '' });
+  const dispatch = useAppDispatch();
 
-  const { email, displayName, bio, username, photoUrl } = route.params;
+  const validationSchema = yup.object().shape({
+    email: yup.string().email().required('email is required'),
+    username: yup
+      .string()
+      .min(2, 'Minimum length of name is 2')
+      .max(15, 'Maximum length of name is 15')
+      .required('Username is required')
+      .test(
+        'Test unique username',
+        'Username already exists',
+        async (value?: string): Promise<boolean> => {
+          if (!value || value === currentUser.current.username) {
+            return true;
+          }
+          try {
+            const res = await getUsers({ username: value });
+            if (res.data.length > 0) {
+              return false;
+            }
+          } catch {}
+          return true;
+        }
+      ),
+    bio: yup
+      .string()
+      .min(1, 'Minimum length of name is 2')
+      .max(150, 'Maximum length of name is 150')
+      .required('username is required'),
+    displayName: yup
+      .string()
+      .min(1, 'Minimum length of name is 2')
+      .max(15, 'Maximum length of name is 15')
+      .required('name is required')
+  });
 
-  const initialValues = {
-    email,
-    displayName,
-    bio,
-    username,
-    images: [{ uri: photoUrl }]
-  };
-
-  const onSubmit = async ({ images, ...params }: typeof initialValues): Promise<void> => {
-    const image = images[0].uri !== initialValues.images[0].uri ? images[0] : { uri: null };
-    (Object.keys(params) as Array<keyof Omit<typeof initialValues, 'images'>>).forEach(
+  const onSubmit = async ({ images, ...params }: typeof currentUser.current): Promise<void> => {
+    const image = images[0].uri !== currentUser.current.images[0]?.uri ? images[0] : { uri: null };
+    (Object.keys(params) as Array<keyof Omit<typeof currentUser.current, 'images'>>).forEach(
       (key): void => {
-        if (params[key] === initialValues[key]) {
+        if (params[key] === currentUser.current[key]) {
           delete params[key];
         }
       }
@@ -78,41 +95,45 @@ const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Elem
     if (!image.uri && Object.keys(params).length === 0) {
       return;
     }
+    setLoading(true);
     try {
-      setLoading(true);
       const res = await updateUser(currentUserId, { ...params, image: image?.uri });
-      const newUser = { ...route.params, ...res.data };
+      dispatch(editUser(res.data));
       if (image?.uri) {
         navigation
           .getParent()
           ?.setOptions({ tabBarIcon: (): JSX.Element => profileIcon(image.uri!) });
       }
-      navigation.navigate('StackProfile', newUser);
     } catch (e) {
-      setLoading(false);
+      if (isAxiosError(e)) {
+        setNotification({ error: true, text: e.message });
+      }
     }
+    setLoading(false);
   };
 
   return (
     <KeyboardAvoidingView>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Formik
-          initialValues={initialValues}
+          initialValues={currentUser.current}
           validationSchema={validationSchema}
           onSubmit={onSubmit}
         >
           {({ handleSubmit }): JSX.Element => (
-            <View style={styles.SignupForm}>
+            <Container>
               <View style={styles.photo}>
                 <FormikImageInput
                   circle
                   name="images"
                   amount={1}
+                  maxAmount={1}
                   initialImage={
                     <Image
-                      style={{ width: dpw(0.3), height: dpw(0.3) }}
+                      style={styles.initialImage}
                       source={{
-                        uri: defaultProfilePhoto
+                        uri: defaultProfilePhoto,
+                        cache: 'force-cache'
                       }}
                     />
                   }
@@ -133,7 +154,7 @@ const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Elem
                   name="bio"
                   placeholder="Bio"
                   returnKeyType="send"
-                  onSubmitEditing={handleSubmit}
+                  onSubmitEditing={(): void => handleSubmit()}
                 />
               </LinkedInputs>
               <Button
@@ -141,7 +162,8 @@ const EditProfile = ({ navigation, route }: UserScreen<'EditProfile'>): JSX.Elem
                 onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
                 text="Save changes"
               />
-            </View>
+              <Notification text={notification.text} error={notification.error} />
+            </Container>
           )}
         </Formik>
       </ScrollView>

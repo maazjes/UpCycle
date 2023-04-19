@@ -5,6 +5,7 @@ import { TypedImage } from '@shared/types';
 import { dpw, pickImage } from 'util/helpers';
 import { useState } from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
+import { MenuModalItems } from 'types';
 import MenuModal from './MenuModal';
 
 const styles = StyleSheet.create({
@@ -28,7 +29,7 @@ interface FormikImageInputProps {
   circle?: boolean;
   initialImage?: JSX.Element;
   size?: number;
-  imageStyle?: ViewStyle;
+  boxStyle?: ViewStyle;
 }
 
 const FormikImageInput = ({
@@ -39,11 +40,10 @@ const FormikImageInput = ({
   containerStyle = undefined,
   initialImage = <MaterialIcons name="add-photo-alternate" size={30} color="black" />,
   size = dpw(0.3),
-  imageStyle = undefined
+  boxStyle = undefined
 }: FormikImageInputProps): JSX.Element => {
   const [field, , helpers] = useField<TypedImage[]>(name);
-  const [menuModalItems, setMenuModalItems] = useState();
-
+  const [menuModalItems, setMenuModalItems] = useState<MenuModalItems>();
   const imagePickerOptions = {
     mediaTypes: MediaTypeOptions.Images,
     aspect: [1, 1] as [number, number],
@@ -73,18 +73,13 @@ const FormikImageInput = ({
     } else {
       delete newImages[index];
     }
-    console.log(newImages.length);
     helpers.setValue(newImages);
     setMenuModalItems(undefined);
   };
 
-  const addedImageStyle = circle
-    ? [{ width: size, height: size }, { borderRadius: size / 2 }]
-    : { width: size, height: size };
-
-  const imageBoxStyle = circle
-    ? [styles.imageBox, { borderRadius: size / 2, width: size, height: size }]
-    : [styles.imageBox, { width: size, height: size }];
+  const baseStyle = { width: size, height: size };
+  const addedImageStyle = [baseStyle, circle && { borderRadius: size / 2 }];
+  const imageBoxStyle = [baseStyle, styles.imageBox, circle && { borderRadius: size / 2 }];
 
   return (
     <View style={[styles.imageBoxes, containerStyle]}>
@@ -99,38 +94,38 @@ const FormikImageInput = ({
         .map((_, i): JSX.Element => {
           const image: TypedImage | null =
             field.value[i] && field.value[i].uri ? field.value[i] : null;
-          const addFromIndex = i === field.value.length ? i : field.value.length;
           const addImageItems = {
-            Gallery: async (): Promise<void> => addImage('gallery', addFromIndex),
-            Camera: (): Promise<void> => addImage('camera', addFromIndex)
+            Gallery: async (): Promise<void> => addImage('gallery', i),
+            Camera: (): Promise<void> => addImage('camera', i)
           };
           const deleteImageItems = image && {
             Delete: (): void => onDeleteImage(i),
             'Add new': (): void => setMenuModalItems(addImageItems)
           };
           const newMenuModalItems = deleteImageItems || addImageItems;
-          return (
-            <View key={i} style={imageStyle}>
-              {image ? (
-                <Pressable onPress={(): void => setMenuModalItems(newMenuModalItems)}>
-                  <Image
-                    style={addedImageStyle}
-                    source={{
-                      uri: image.uri.startsWith('file')
-                        ? image.uri
-                        : `${image.uri}_100x100?alt=media`
-                    }}
-                  />
-                </Pressable>
-              ) : (
-                <Pressable
-                  onPress={(): void => setMenuModalItems(newMenuModalItems)}
-                  style={imageBoxStyle}
-                >
-                  {initialImage}
-                </Pressable>
-              )}
-            </View>
+          return image ? (
+            <Pressable
+              style={boxStyle}
+              key={image.uri}
+              onPress={(): void => setMenuModalItems(newMenuModalItems)}
+            >
+              <Image
+                style={addedImageStyle}
+                source={{
+                  uri: image.uri,
+                  cache: 'force-cache'
+                }}
+              />
+            </Pressable>
+          ) : (
+            <Pressable
+              style={[imageBoxStyle, boxStyle]}
+              // eslint-disable-next-line react/no-array-index-key
+              key={i}
+              onPress={(): void => setMenuModalItems(newMenuModalItems)}
+            >
+              {initialImage}
+            </Pressable>
           );
         })}
       {menuModalItems && (

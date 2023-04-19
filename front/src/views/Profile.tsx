@@ -1,29 +1,30 @@
 import { useEffect, useState } from 'react';
 import { User } from '@shared/types';
-import usePosts from 'hooks/usePosts';
 import { View, StyleSheet, Pressable } from 'react-native';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import Text from 'components/Text';
 import { createFollow, removeFollow } from 'services/follows';
 import Line from 'components/Line';
-import useAuth from 'hooks/useAuth';
-import MenuModal from 'components/MenuModal';
+import useProfilePosts from 'hooks/useProfilePosts';
+import { setUser as setUserAction } from 'reducers/profileUser';
+import { Ionicons } from '@expo/vector-icons';
+import usePosts from 'hooks/usePosts';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
 import GridView from '../components/GridView';
-import { ProfileProps, UserScreen } from '../types';
-import { useAppSelector } from '../hooks/redux';
+import { UserScreen } from '../types';
+import { useAppDispatch, useAppSelector } from '../hooks/redux';
 import Button from '../components/Button';
 import { getUser } from '../services/users';
 
 const styles = StyleSheet.create({
   bio: {
-    marginTop: dph(0.03)
+    marginTop: dpw(0.05)
   },
   info: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    paddingVertical: dph(0.014)
+    paddingVertical: dpw(0.028)
   },
   infoItem: {
     flexDirection: 'column',
@@ -32,66 +33,78 @@ const styles = StyleSheet.create({
 });
 
 const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element => {
-  const profileParams = useAppSelector((state): ProfileProps => state.profileProps!);
-  const currentUserId = profileParams.id;
-  const [user, setUser] = useState<User>();
-  const [modalVisible, setModalVisible] = useState(false);
-  const { navigate } = navigation;
-  const { logout } = useAuth();
-  const title = route.params?.username || profileParams.username;
-  const { id: userId } = route.params || profileParams;
-  const [posts, fetchPosts] = usePosts({ userId });
+  const currentUserId = useAppSelector((state): string => state.currentUserId!);
+  const [user, setUser] = useState<User | null>(null);
+  const dispatch = useAppDispatch();
+  const userId = route.params?.id || currentUserId;
+  const [posts, fetchPosts] = currentUserId === userId ? useProfilePosts() : usePosts();
+  const finalUser =
+    userId === currentUserId ? useAppSelector((state): User => state.profileUser!) : user;
+
+  const settings = (): JSX.Element => (
+    <Pressable hitSlop={10} onPress={(): void => navigation.navigate('Settings')}>
+      <Ionicons name="settings-sharp" size={24} color="black" />
+    </Pressable>
+  );
+
+  useEffect((): void => {
+    if (userId === currentUserId) {
+      navigation.setOptions({ headerRight: settings });
+    }
+    const initialize = async (): Promise<void> => {
+      await fetchPosts();
+    };
+    initialize();
+  }, []);
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
-      const res = await getUser(userId);
-      setUser(res.data);
+      try {
+        const res = await getUser(userId);
+        if (userId === currentUserId) {
+          dispatch(setUserAction(res.data));
+        } else {
+          setUser(res.data);
+        }
+        setUser(res.data);
+      } catch {}
     };
-    navigation.setOptions({ title });
     initialize();
-  }, [userId]);
+  }, [userId, currentUserId]);
 
   useEffect((): void => {
-    if (user) {
-      setUser(route.params as User);
+    if (route.params?.username) {
+      navigation.setOptions({ title: route.params.username });
     }
-  }, [route.params]);
+    if (finalUser && !route.params?.username) {
+      navigation.setOptions({ title: finalUser.username });
+    }
+  }, [finalUser]);
 
-  if (!user || !posts) {
+  if (!finalUser || !posts) {
     return <Loading />;
   }
 
   const onFollow = async (): Promise<void> => {
     try {
       const res = await createFollow({ userId });
-      setUser({ ...user, followId: res.data.id, followers: user.followers + 1 });
-    } catch (e) {}
+      setUser({ ...finalUser, followId: res.data.id, followers: finalUser.followers + 1 });
+    } catch {}
   };
 
   const onUnfollow = async (): Promise<void> => {
     try {
-      await removeFollow(user.followId!);
-      setUser({ ...user, followId: null, followers: user.followers - 1 });
-    } catch (e) {}
+      await removeFollow(finalUser.followId!);
+      setUser({ ...finalUser, followId: null, followers: finalUser.followers - 1 });
+    } catch {}
   };
 
   const onEditProfile = (): void => {
-    navigate('EditProfile', user);
-    setModalVisible(false);
-  };
-
-  const onLogout = (): void => {
-    logout();
-    setModalVisible(false);
-  };
-
-  const menuModalItems = {
-    'Edit profile': onEditProfile,
-    'log out': onLogout
+    navigation.navigate('EditProfile', finalUser);
   };
 
   const extraSecond =
-    currentUserId === userId ? undefined : user.followId ? (
+    currentUserId === userId ? undefined : finalUser.followId ? (
       <Button o text="Unfollow" size="small" onPress={onUnfollow} />
     ) : (
       <Button text="Follow" size="small" onPress={onFollow} />
@@ -100,26 +113,35 @@ const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element
   const extra =
     currentUserId === userId ? (
       <Button
+        style={{ marginBottom: dpw(0.005) }}
         highlight={false}
-        text="options"
+        text="Edit profile"
         size="small"
-        onPress={(): void => setModalVisible(true)}
+        onPress={onEditProfile}
       />
     ) : (
       <Button
-        onPress={(): void => navigation.getParent()?.navigate('Chat')}
+        onPress={(): void =>
+          navigation.navigate('SingleChat', { userId: finalUser.id, username: finalUser.username })
+        }
         size="small"
         text="Message"
       />
     );
 
   const header = (): JSX.Element => (
-    <View style={{ marginBottom: 20 }}>
-      <View style={{ padding: '5%' }}>
-        <UserBar user={user} profilePhotoSize={70} extra={extra} extraSecond={extraSecond} />
+    <View>
+      <View style={{ padding: dpw(0.05) }}>
+        <UserBar
+          displayNameStyle={{ marginBottom: dpw(0.02) }}
+          user={finalUser}
+          profilePhotoSize={70}
+          extra={extra}
+          extraSecond={extraSecond}
+        />
         <View style={styles.bio}>
-          <Text weight="bold">{user.displayName}</Text>
-          <Text>{user.bio}</Text>
+          <Text weight="bold">{finalUser.displayName}</Text>
+          <Text>{finalUser.bio}</Text>
         </View>
       </View>
       <Line />
@@ -128,15 +150,31 @@ const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element
           <Text>{posts.totalItems.toString()}</Text>
           <Text color="grey">posts</Text>
         </View>
-        <Pressable onPress={(): void => navigate('Follows', { userId, role: 'follower' })}>
+        <Pressable
+          onPress={(): void =>
+            navigation.navigate('Follows', {
+              userId,
+              role: 'follower',
+              username: finalUser.username
+            })
+          }
+        >
           <View style={styles.infoItem}>
-            <Text>{user.followers.toString()}</Text>
+            <Text>{finalUser.followers.toString()}</Text>
             <Text color="grey">followers</Text>
           </View>
         </Pressable>
-        <Pressable onPress={(): void => navigate('Follows', { userId, role: 'following' })}>
+        <Pressable
+          onPress={(): void =>
+            navigation.navigate('Follows', {
+              userId,
+              role: 'following',
+              username: finalUser.username
+            })
+          }
+        >
           <View style={styles.infoItem}>
-            <Text>{user.following.toString()}</Text>
+            <Text>{finalUser.following.toString()}</Text>
             <Text color="grey">following</Text>
           </View>
         </Pressable>
@@ -145,22 +183,23 @@ const Profile = ({ route, navigation }: UserScreen<'StackProfile'>): JSX.Element
     </View>
   );
 
-  const footer = (): JSX.Element => (
-    <MenuModal
-      items={menuModalItems}
-      visible={modalVisible}
-      onDismiss={(): void => setModalVisible(false)}
-    />
-  );
-
-  return (
+  return posts.data.length > 0 ? (
     <GridView
       ListHeaderComponent={header}
+      ListHeaderComponentStyle={{ marginBottom: dpw(0.06) }}
       posts={posts.data}
       onEndReached={(): Promise<void> => fetchPosts()}
       onEndReachedThreshold={0.3}
-      ListFooterComponent={footer}
     />
+  ) : (
+    <View style={{ flexGrow: 1 }}>
+      {header()}
+      <View style={{ flexGrow: 1, justifyContent: 'center' }}>
+        <Text weight="bold" size="subheading" align="center">
+          No posts to show
+        </Text>
+      </View>
+    </View>
   );
 };
 

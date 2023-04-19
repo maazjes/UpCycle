@@ -20,23 +20,14 @@ export const saveImages = async (
   return Image.bulkCreate(imagesToSave);
 };
 
-export const uploadImage = (
-  file: Express.Multer.File,
-  date: number,
-  { width, height }: { width: number; height: number }
-): Promise<string> => {
-  const resizedImage = sharp(file.buffer).resize(width, height).jpeg();
-  return new Promise((resolve, reject): void => {
+export const uploadImage = (image: sharp.Sharp, mimetype: string, name: string): Promise<string> =>
+  new Promise((resolve, reject): void => {
     (async (): Promise<void> => {
       const bucket = firebase.storage().bucket(FIREBASE_BUCKET_URL);
-      if (!file) {
-        reject(new Error('no files'));
-      }
-      const newFileName = `${file.originalname}_${date}_${width}x${height}`;
-      const fileUpload = bucket.file(newFileName);
+      const fileUpload = bucket.file(name);
       const blobStream = fileUpload.createWriteStream({
         metadata: {
-          contentType: file.mimetype
+          contentType: mimetype
         }
       });
       blobStream.on('error', (): void => {
@@ -44,36 +35,69 @@ export const uploadImage = (
       });
       blobStream.on('finish', (): void => {
         // eslint-disable-next-line max-len
-        const parts = newFileName.split('_');
+        const parts = name.split('_');
         parts.pop();
         const uri = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${parts.join(
           '_'
         )}`;
         resolve(uri);
       });
-      const buffer = await resizedImage.toBuffer();
+      const buffer = await image.toBuffer();
       blobStream.end(buffer);
     })();
   });
-};
 
 export const uploadPostImages = async (files: Express.Multer.File[]): Promise<string[]> => {
-  const uploadTime = Date.now();
-  const uris = await Promise.all(
-    files
-      .map((file): Promise<string> => uploadImage(file, uploadTime, { width: 200, height: 200 }))
-      .concat(
-        files.map(
-          (file): Promise<string> => uploadImage(file, uploadTime, { width: 100, height: 100 })
-        )
-      )
-      .concat(
-        files.map(
-          (file): Promise<string> => uploadImage(file, uploadTime, { width: 400, height: 400 })
-        )
-      )
-  );
+  const promises: Promise<string>[] = [];
+  files.forEach((file): void => {
+    const uploadTime = Date.now();
+    const resized200 = sharp(file.buffer).resize(200, 200).withMetadata().jpeg();
+    const resized400 = sharp(file.buffer).resize(400, 400).withMetadata().jpeg();
+    promises.push(
+      uploadImage(resized200, file.mimetype, `${file.originalname}_${uploadTime}_200x200`)
+    );
+    promises.push(
+      uploadImage(resized400, file.mimetype, `${file.originalname}_${uploadTime}_400x400`)
+    );
+  });
+  const uris = await Promise.all(promises);
   return [...new Set(uris)];
+};
+
+export const uploadMessageImages = async (files: Express.Multer.File[]): Promise<string[]> => {
+  const promises: Promise<string>[] = [];
+  const images = files.map((file): sharp.Sharp => sharp(file.buffer));
+  const metadatas = await Promise.all(
+    images.map((image): Promise<sharp.Metadata> => image.metadata())
+  );
+  files.forEach(async (file, i): Promise<void> => {
+    const uploadTime = Date.now();
+    promises.push(
+      uploadImage(
+        (metadatas[i].width || 0) < 400
+          ? images[i].jpeg()
+          : images[i].resize({ width: 400, height: 400, fit: 'contain' }).withMetadata().jpeg(),
+        file.mimetype,
+        `${file.originalname}_${uploadTime}_original`
+      )
+    );
+  });
+  const uris = await Promise.all(promises);
+  return [...new Set(uris)];
+};
+
+export const uploadProfileImage = async (file: Express.Multer.File): Promise<string> => {
+  const image = sharp(file.buffer);
+  const metadata = await image.metadata();
+  const uploadTime = Date.now();
+  const uri = uploadImage(
+    metadata.height || 0 < 100
+      ? image.jpeg()
+      : image.resize({ width: 100, height: 100 }).withMetadata().jpeg(),
+    file.mimetype,
+    `${file.originalname}_${uploadTime}_100x100`
+  );
+  return uri;
 };
 
 export const getPagination = (page: number, size: number): { limit: number; offset: number } => {
@@ -116,19 +140,19 @@ export const hashFile = async (path: PathLike, algo = 'md5'): Promise<string> =>
   return hashFunc.digest('hex');
 };
 
-export const sendVerificationEmail = (
-  userEmail: string,
-  actionLink: string
+export const sendEmail = (
+  to: string,
+  subject: string,
+  text: string
 ): Promise<[ClientResponse, {}]> => {
   const message = {
     from: {
       name: 'UpCycle',
       email: VERIFIED_EMAIL
     },
-    to: userEmail,
-    subject: 'Verify your email address',
-    text: `Thanks for signing up with us. Follow the link below to verify your email address.
-    \n${actionLink}`
+    to,
+    subject,
+    text
   };
   return sgMail.send(message);
 };

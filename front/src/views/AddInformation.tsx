@@ -1,45 +1,45 @@
 import { StyleSheet } from 'react-native';
 import * as yup from 'yup';
-import { dph, dpw } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import Container from 'components/Container';
 import { LoginStackScreen, NewUserBody } from 'types';
 import Text from 'components/Text';
 import LinkedInputs from 'components/LinkedInputs';
 import { Formik } from 'formik';
 import KeyboardAvoidingView from 'components/KeyboardAvoidingView';
+import { getUsers } from 'services/users';
 import FormikTextInput from '../components/FormikTextInput';
 import Button from '../components/Button';
 
 const styles = StyleSheet.create({
   bioField: {
-    height: 100,
-    paddingTop: 13,
-    flex: 1
-  },
-  photo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  emailAndUsername: {
-    flexDirection: 'column',
-    width: dpw(0.55)
-  },
-  username: {
-    marginBottom: 0
-  },
-  displayName: {
-    marginTop: 0
+    height: dpw(0.3),
+    paddingTop: dpw(0.05)
   }
 });
 
 const validationSchema = yup.object().shape({
-  email: yup.string().email().required('email is required'),
   username: yup
     .string()
     .min(2, 'Minimum length of name is 2')
     .max(15, 'Maximum length of name is 15')
-    .required('Username is required'),
+    .required('Username is required')
+    .test(
+      'Test unique username',
+      'Username already exists',
+      async (value?: string): Promise<boolean> => {
+        if (!value) {
+          return true;
+        }
+        try {
+          const res = await getUsers({ username: value });
+          if (res.data.length > 0) {
+            return false;
+          }
+        } catch {}
+        return true;
+      }
+    ),
   bio: yup
     .string()
     .min(1, 'Minimum length of name is 2')
@@ -65,7 +65,6 @@ const AddInformation = ({ navigation, route }: LoginStackScreen<'AddInformation'
   const { email } = route.params;
 
   const initialValues = {
-    email: '',
     displayName: '',
     username: '',
     bio: '',
@@ -76,12 +75,15 @@ const AddInformation = ({ navigation, route }: LoginStackScreen<'AddInformation'
 
   const onSubmit = async ({
     password,
-    ...props
+    username,
+    ...values
   }: Omit<NewUserBody, 'email' | 'images'>): Promise<void> => {
     const userBody = {
-      ...props,
+      ...values,
+      username,
       email,
-      password
+      password,
+      image: null
     };
     navigation.navigate('AddPhoto', userBody);
   };
@@ -96,16 +98,12 @@ const AddInformation = ({ navigation, route }: LoginStackScreen<'AddInformation'
         >
           {({ handleSubmit }): JSX.Element => (
             <>
-              <Text style={{ marginBottom: 20 }} align="center" size="heading">
+              <Text style={{ marginBottom: dpw(0.05) }} align="center" size="heading">
                 Enter your information
               </Text>
               <LinkedInputs>
                 <FormikTextInput name="username" placeholder="Username" />
-                <FormikTextInput
-                  style={styles.displayName}
-                  name="displayName"
-                  placeholder="Display name"
-                />
+                <FormikTextInput name="displayName" placeholder="Display name" />
                 <FormikTextInput
                   multiline
                   blurOnSubmit
@@ -123,7 +121,7 @@ const AddInformation = ({ navigation, route }: LoginStackScreen<'AddInformation'
                   onSubmitEditing={(): void => handleSubmit()}
                 />
               </LinkedInputs>
-              <Button style={{ marginTop: dph(0.0) }} onPress={handleSubmit} text="Sign up" />
+              <Button style={{ marginBottom: dpw(0.05) }} onPress={handleSubmit} text="Continue" />
             </>
           )}
         </Formik>

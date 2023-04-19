@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
-import { EmailUser, User } from '@shared/types';
+import { EmailUser, GetUsersQuery, User, UserBase } from '@shared/types';
 import { FinalNewUserBody, FinalUpdateUserBody } from 'types';
 import api from '../util/axiosInstance';
-import { createFormData } from '../util/helpers';
+import { addQuery, createFormData } from '../util/helpers';
 
 const createUser = (body: FinalNewUserBody): Promise<AxiosResponse<EmailUser>> => {
   const formdata = createFormData(body);
@@ -10,6 +10,9 @@ const createUser = (body: FinalNewUserBody): Promise<AxiosResponse<EmailUser>> =
 };
 
 const getUser = (userId: string): Promise<AxiosResponse<User>> => api.get<User>(`users/${userId}`);
+
+const getUsers = (query: GetUsersQuery): Promise<AxiosResponse<UserBase[]>> =>
+  api.get<UserBase[]>(addQuery('users', query));
 
 const updateUser = (
   userId: string,
@@ -19,4 +22,4 @@ const updateUser = (
   return api.putForm<EmailUser>(`users/${userId}`, formdata);
 };
 
-export { createUser, getUser, updateUser };
+export { createUser, getUser, getUsers, updateUser };

@@ -12,10 +12,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#4ad34a',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderRadius: dpw(0.03)
   },
   regular: {
-    borderRadius: dpw(0.03),
     paddingVertical: dpw(0.035),
     paddingHorizontal: dpw(0.06)
   },
@@ -33,10 +33,15 @@ const styles = StyleSheet.create({
   oSmall: {
     paddingVertical: dpw(0.017 - 0.005),
     paddingHorizontal: dpw(0.027 - 0.005)
+  },
+  circle: {
+    width: dpw(0.125),
+    height: dpw(0.125),
+    borderRadius: dpw(0.125 / 2)
   }
 });
 
-interface Props extends TouchableOpacityProps {
+interface ButtonProps extends TouchableOpacityProps {
   text?: string;
   element?: JSX.Element;
   onPress: (event: GestureResponderEvent | any) => void;
@@ -59,30 +64,19 @@ const Button = ({
   loading = false,
   highlight = true,
   ...props
-}: Props): JSX.Element => {
+}: ButtonProps): JSX.Element => {
   const buttonStyle = [
     styles.button,
-    styles.regular,
-    size === 'small' && styles.small,
-    o && (size === 'small' ? [styles.o, styles.oSmall] : styles.o)
+    size === 'regular' && !circle && styles.regular,
+    size === 'small' && !circle && styles.small,
+    o && (size === 'small' ? [styles.o, styles.oSmall] : styles.o),
+    circle && styles.circle
   ];
 
   return (
     <TouchableOpacity
       activeOpacity={!highlight ? 1 : undefined}
-      style={
-        !circle
-          ? [buttonStyle, style]
-          : [
-              styles.button,
-              {
-                width: dpw(0.125),
-                height: dpw(0.125),
-                borderRadius: dpw(0.125 / 2)
-              },
-              style
-            ]
-      }
+      style={[buttonStyle, style]}
       {...props}
       onPress={onPress}
     >

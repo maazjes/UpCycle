@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { useField } from 'formik';
 // @ts-ignore
 import * as postcodes from 'datasets-fi-postalcodes';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import { FormikTextInputProps } from 'types';
 import TextInput from './TextInput';
 import Text from './Text';
@@ -10,18 +10,17 @@ import Text from './Text';
 const styles = StyleSheet.create({
   errorText: {
     color: 'red',
-    marginBottom: 10,
-    marginTop: 2,
+    marginBottom: dpw(0.02),
     marginLeft: 2
   },
   postcodeInput: {
-    width: '100%',
-    marginBottom: dph(0.018),
-    height: dph(0.09)
+    marginBottom: dpw(0.03),
+    height: dpw(0.16)
   },
   cityField: {
-    marginBottom: 10,
-    marginLeft: 4
+    marginBottom: dpw(0.03),
+    marginTop: dpw(0.02),
+    marginLeft: dpw(0.01)
   }
 });
 
@@ -56,7 +55,7 @@ const PostCodeInput = ({
         onBlur={(): void => helpers.setTouched(true)}
         value={field.value}
         error={showError}
-        style={styles.postcodeInput}
+        style={!cityField.value && styles.postcodeInput}
         {...props}
       />
       {showError ? (

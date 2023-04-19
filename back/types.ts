@@ -8,12 +8,11 @@ import {
   TypedImage,
   SharedNewUserBody
 } from '@shared/types';
-import { User } from './models';
 
 declare global {
   namespace Express {
     export interface Request {
-      user?: User;
+      userId?: string;
     }
   }
 }
@@ -24,7 +23,7 @@ export interface NewPostBody extends SharedNewPostBody {
 
 export interface UpdatePostBody extends Partial<NewPostBody> {}
 
-export interface UpdateUserBody extends Partial<SharedNewUserBody> {}
+export interface UpdateUserBody extends Omit<Partial<SharedNewUserBody>, 'email' | 'password'> {}
 
 export interface DecodedToken {
   username: string;

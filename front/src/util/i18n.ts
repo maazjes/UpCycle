@@ -1,14 +1,14 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import fi from '../../assets/i18n/fi.json';
+import en from '../../assets/i18n/en.json';
 
 i18n.use(initReactI18next).init({
   compatibilityJSON: 'v3',
   returnNull: false,
-  lng: 'fi',
-  fallbackLng: 'fi',
+  lng: 'en',
+  fallbackLng: 'en',
   resources: {
-    fi
+    en
   },
   interpolation: {
     escapeValue: false

@@ -1,9 +1,20 @@
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useState } from 'react';
 import { PickerProps } from 'types';
+import { dpw } from 'util/helpers';
 import Text from './Text';
 import MenuModal from './MenuModal';
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  pickerText: {
+    marginRight: dpw(0.03)
+  }
+});
 
 const Picker = ({
   selectedValue,
@@ -29,23 +40,17 @@ const Picker = ({
     setVisible(false);
   };
 
+  const openModal = (): void => {
+    setVisible(true);
+  };
+
   return (
-    <View>
-      <TouchableOpacity
-        style={StyleSheet.flatten([
-          {
-            flexDirection: 'row',
-            alignItems: 'center'
-          },
-          style
-        ])}
-        onPress={(): void => setVisible(true)}
-        {...props}
-      >
-        <Text style={{ marginRight: 15 }} size="heading">
+    <>
+      <TouchableOpacity style={[styles.container, style]} onPress={openModal} {...props}>
+        <Text style={styles.pickerText} size="heading">
           {selectedValue}
         </Text>
-        <AntDesign name="caretdown" size={15} color="black" />
+        <AntDesign name="caretdown" size={dpw(0.045)} color="black" />
       </TouchableOpacity>
       <MenuModal
         searchbar={searchbar}
@@ -54,7 +59,7 @@ const Picker = ({
         items={menuModalItems}
         onRequestClose={closeModal}
       />
-    </View>
+    </>
   );
 };
 

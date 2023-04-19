@@ -16,10 +16,10 @@ import chats from './controllers/chats.js';
 import messages from './controllers/messages.js';
 import tokens from './controllers/tokens.js';
 import follows from './controllers/follows.js';
-import passwordReset from './controllers/passwordReset.js';
+import passwords from './controllers/passwords.js';
 import chatInfo from './controllers/chatInfo.js';
-import verifyEmail from './controllers/verifyEmail.js';
-import { errorHandler } from './util/middleware.js';
+import emails from './controllers/emails.js';
+import { errorHandler, userExtractor } from './util/middleware.js';
 import {
   ClientToServerEvents,
   ServerToClientEvents,
@@ -49,7 +49,6 @@ io.use((socket, next): void => {
 });
 
 io.on('connection', async (socket): Promise<void> => {
-  console.log('connected');
   const { userId } = socket.handshake.auth;
   if (!userId || !isString(userId)) {
     throw new Error('invalid username');
@@ -68,20 +67,20 @@ io.on('connection', async (socket): Promise<void> => {
     socket.leave(userId);
   });
 });
-
-app.use('/api/posts', posts);
-app.use('/api/users', users);
 app.use('/api/login', login);
 app.use('/api/categories', categories);
-app.use('/api/images', images);
-app.use('/api/favorites', favorites);
-app.use('/api/chats', chats);
-app.use('/api/messages', messages);
-app.use('/api/passwordreset', passwordReset);
-app.use('/api', follows);
+app.use('/api/passwords', passwords);
 app.use('/api', tokens);
+app.use('/api/emails', emails);
+app.use(userExtractor);
 app.use('/api/chatinfo', chatInfo);
-app.use('/api/verifyemail', verifyEmail);
+app.use('/api/chats', chats);
+app.use('/api/favorites', favorites);
+app.use('/api', follows);
+app.use('/api/images', images);
+app.use('/api/messages', messages);
+app.use('/api/posts', posts);
+app.use('/api/users', users);
 app.use(errorHandler);
 
 const start = async (): Promise<void> => {

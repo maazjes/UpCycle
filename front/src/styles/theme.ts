@@ -14,7 +14,7 @@ const theme = {
   fontSizes: {
     body: 16,
     subheading: 18,
-    heading: 22
+    heading: 21
   },
   fonts: {
     main: 'OpenSans_500Medium',

@@ -1,11 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
-import loginReducer from 'reducers/loginReducer';
-import userReducer from '../reducers/userReducer';
+import loggedIn from 'reducers/loggedIn';
+import favorites from 'reducers/favorites';
+import profilePosts from 'reducers/profilePosts';
+import singlePost from 'reducers/singlePost';
+import profileUser from 'reducers/profileUser';
+import currentUserId from '../reducers/currentUserId';
+import chats from '../reducers/chats';
 
 const store = configureStore({
   reducer: {
-    profileProps: userReducer,
-    loggedIn: loginReducer
+    currentUserId,
+    loggedIn,
+    favorites,
+    profilePosts,
+    singlePost,
+    profileUser,
+    chats
   }
 });
 

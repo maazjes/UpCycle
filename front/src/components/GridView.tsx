@@ -6,22 +6,17 @@ import PostCard from './PostCard';
 const styles = StyleSheet.create({
   posts: {
     justifyContent: 'space-between',
-    paddingHorizontal: dpw(0.1 / 3),
-    paddingBottom: dpw(0.1 / 3)
-  },
-  postCard: {
-    marginBottom: 20
-  },
-  lastPostCard: {
-    alignSelf: 'flex-end'
+    paddingHorizontal: dpw(0.033),
+    paddingBottom: dpw(0.033)
   }
 });
 
-interface Props extends Omit<FlatListProps<PostBase>, 'data' | 'keyExtractor' | 'renderItem'> {
+interface GridViewProps
+  extends Omit<FlatListProps<PostBase>, 'data' | 'keyExtractor' | 'renderItem'> {
   posts: PostBase[];
 }
 
-const GridView = ({ posts, columnWrapperStyle, ...props }: Props): JSX.Element => (
+const GridView = ({ posts, columnWrapperStyle, ...props }: GridViewProps): JSX.Element => (
   <FlatList
     {...props}
     columnWrapperStyle={[styles.posts, columnWrapperStyle]}

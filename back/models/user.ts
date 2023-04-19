@@ -14,8 +14,6 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
 
   declare username: string;
 
-  declare email: string;
-
   declare photoUrl: CreationOptional<string> | null;
 
   declare bio: string;
@@ -23,6 +21,8 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare createdAt: CreationOptional<Date>;
 
   declare updatedAt: CreationOptional<Date>;
+
+  declare followers?: User[];
 }
 
 User.init(
@@ -47,14 +47,6 @@ User.init(
     username: {
       type: DataTypes.STRING,
       allowNull: false
-    },
-    email: {
-      type: DataTypes.STRING,
-      unique: true,
-      allowNull: false,
-      validate: {
-        isEmail: true
-      }
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE

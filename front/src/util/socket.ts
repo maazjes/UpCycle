@@ -6,8 +6,4 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io('http://19
   autoConnect: false
 });
 
-socket.onAny((event, ...args): void => {
-  console.log(event, args);
-});
-
 export default socket;

@@ -1,11 +1,25 @@
-import { View, ViewProps, ScrollView } from 'react-native';
+import { View, ViewProps, ScrollView, StyleSheet } from 'react-native';
 import { dpw } from 'util/helpers';
 
-interface Props extends ViewProps {
+interface ContainerProps extends ViewProps {
   scrollable?: boolean;
   size?: 'regular' | 'small';
   center?: boolean;
 }
+
+const styles = StyleSheet.create({
+  base: {
+    flexGrow: 1,
+    padding: dpw(0.033)
+  },
+  small: {
+    padding: dpw(0.05)
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
+});
 
 const Container = ({
   style,
@@ -13,27 +27,19 @@ const Container = ({
   size = 'regular',
   center = false,
   ...props
-}: Props): JSX.Element =>
-  scrollable ? (
-    <ScrollView
-      contentContainerStyle={[
-        { flexGrow: 1, padding: '2.5%' },
-        size === 'small' && { padding: '5%' },
-        center && { alignItems: 'center', justifyContent: 'center' },
-        style
-      ]}
-      {...props}
-    />
+}: ContainerProps): JSX.Element => {
+  const containerStyle = [
+    styles.base,
+    size === 'small' && styles.small,
+    center && styles.center,
+    style
+  ];
+
+  return scrollable ? (
+    <ScrollView contentContainerStyle={containerStyle} {...props} />
   ) : (
-    <View
-      style={[
-        { flex: 1, padding: dpw(0.1 / 3) },
-        size === 'small' && { padding: '5%' },
-        center && { alignItems: 'center', justifyContent: 'center' },
-        style
-      ]}
-      {...props}
-    />
+    <View style={containerStyle} {...props} />
   );
+};
 
 export default Container;

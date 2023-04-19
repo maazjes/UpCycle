@@ -1,70 +1,78 @@
 import Button from 'components/Button';
 import FormikTextInput from 'components/FormikTextInput';
 import { Formik } from 'formik';
-import { GestureResponderEvent, Pressable, View } from 'react-native';
+import { GestureResponderEvent, StyleSheet, View } from 'react-native';
 import * as yup from 'yup';
-import { sendPasswordResetEmail } from 'services/passwordReset';
-import { PasswordResetBody } from '@shared/types';
+import { sendPasswordResetEmail } from 'services/passwords';
+import { EmailBody } from '@shared/types';
 import Container from 'components/Container';
 import Notification from 'components/Notification';
 import Text from 'components/Text';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
 import { Feather } from '@expo/vector-icons';
-import { LoginStackScreen } from 'types';
+import { useState } from 'react';
+import { isAxiosError } from 'axios';
 
 const validationSchema = yup.object().shape({
-  email: yup.string().email().required('Email is required')
+  email: yup.string().email('Must be a valid email address').required('Email is required')
 });
 
 const initialValues = {
   email: ''
 };
 
-const ResetPassword = ({ navigation }: LoginStackScreen<'ResetPassword'>): JSX.Element => {
-  const onSubmit = async ({ email }: PasswordResetBody): Promise<void> => {
+const styles = StyleSheet.create({
+  lockIcon: {
+    alignSelf: 'center',
+    marginBottom: dpw(0.02)
+  }
+});
+
+const ResetPassword = (): JSX.Element => {
+  const [loading, setLoading] = useState(false);
+  const [notification, setNotification] = useState({ error: false, text: '' });
+
+  const onSubmit = async ({ email }: EmailBody): Promise<void> => {
+    setLoading(true);
     try {
       await sendPasswordResetEmail({ email });
-    } catch (e) {}
+      setNotification({ error: false, text: 'A password reset link has been sent to your email' });
+    } catch (e) {
+      if (isAxiosError(e)) {
+        setNotification({ error: true, text: e.message });
+      }
+    }
+    setLoading(false);
   };
 
   return (
     <Container scrollable size="small">
-      <Feather
-        style={{ alignSelf: 'center', marginBottom: dph(0.012) }}
-        name="lock"
-        size={80}
-        color="black"
-      />
-      <Text align="center" size="heading" weight="bold" style={{ marginBottom: dph(0.012) }}>
+      <Feather style={styles.lockIcon} name="lock" size={dpw(0.2)} color="black" />
+      <Text align="center" size="heading" weight="bold" style={{ marginBottom: dpw(0.02) }}>
         Trouble logging in?
       </Text>
-      <Text align="center" color="grey" style={{ marginBottom: dph(0.03) }}>
+      <Text align="center" color="grey" style={{ marginBottom: dpw(0.05) }}>
         Enter your email below and well send you a link to reset your password
       </Text>
       <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
         {({ handleSubmit }): JSX.Element => (
           <View>
-            <FormikTextInput name="email" placeholder="Email" />
-            <Notification />
+            <FormikTextInput
+              returnKeyType="send"
+              onSubmitEditing={(): void => handleSubmit()}
+              name="email"
+              placeholder="Email"
+            />
             <Button
-              style={{ marginTop: dph(0.02) }}
+              style={{ marginBottom: dpw(0.03) }}
+              loading={loading}
               onPress={handleSubmit as unknown as (event: GestureResponderEvent) => void}
               text="Send link"
             />
+            <Notification error={notification.error} text={notification.text} />
           </View>
         )}
       </Formik>
-      <Pressable onPress={(): void => navigation.navigate('SignUp')}>
-        <Text
-          style={{ marginTop: dph(0.03) }}
-          align="center"
-          size="subheading"
-          weight="bold"
-          color="green"
-        >
-          Sign up
-        </Text>
-      </Pressable>
     </Container>
   );
 };

@@ -1,10 +1,10 @@
 import { TextInput as NativeTextInput, TextInputProps, StyleSheet } from 'react-native';
 import theme from 'styles/theme';
-import { dph, dpw } from 'util/helpers';
+import { dpw } from 'util/helpers';
 
 const styles = StyleSheet.create({
   inputField: {
-    height: dph(0.08),
+    height: dpw(0.16),
     borderWidth: 1,
     borderColor: '#d5dbd7',
     borderRadius: 4,

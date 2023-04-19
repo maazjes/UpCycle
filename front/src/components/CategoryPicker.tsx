@@ -1,14 +1,54 @@
-import { View, Pressable, TouchableOpacity, ViewProps } from 'react-native';
+import { View, TouchableOpacity, ViewProps, StyleSheet } from 'react-native';
 import { Category } from '@shared/types';
 import { Ionicons, AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useRef, useState } from 'react';
 import { getCategories } from 'services/categories';
-import { conditionalUseField } from 'util/helpers';
+import { conditionalUseField, dpw } from 'util/helpers';
+import { arrayMoveImmutable } from 'array-move';
 import Modal from './Modal';
 import Line from './Line';
 import Text from './Text';
 
-interface Props extends ViewProps {
+const styles = StyleSheet.create({
+  pickerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  pickerText: {
+    marginRight: dpw(0.03)
+  },
+  category: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    justifyContent: 'center'
+  },
+  categoryText: {
+    marginVertical: dpw(0.04)
+  },
+  hidden: {
+    height: 0
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+    paddingVertical: dpw(0.04)
+  },
+  caretRight: {
+    marginRight: dpw(0.06),
+    position: 'absolute',
+    right: 0
+  },
+  hitSlop: {
+    left: 10,
+    right: 10,
+    top: 10,
+    bottom: 10
+  }
+});
+
+interface CategoryPickerProps extends ViewProps {
   search?: boolean;
   createPost?: boolean;
   setCategory?: React.Dispatch<React.SetStateAction<number | undefined>>;
@@ -21,7 +61,7 @@ const CategoryPicker = ({
   setCategory = undefined,
   initialCategory = undefined,
   ...props
-}: Props): JSX.Element => {
+}: CategoryPickerProps): JSX.Element => {
   const [activeCategories, setActiveCategories] = useState<Category[][] | null>(null);
   const [visible, setVisible] = useState(false);
   const selectedCategories = useRef<Category['id'][]>([]);
@@ -30,13 +70,17 @@ const CategoryPicker = ({
 
   useEffect((): void => {
     const initialize = async (): Promise<void> => {
-      const res = await getCategories();
-      const allCategory = { name: `Kaikki`, id: -1, subcategories: [] };
-      if (search) {
-        setActiveCategories([[allCategory, ...res.data]]);
-      } else {
-        setActiveCategories([[...res.data]]);
-      }
+      try {
+        const res = await getCategories();
+        const allCategory = { name: `All`, id: -1, subcategories: [], depth: 0 };
+        const miscIndex = res.data.findIndex((c): boolean => c.name.startsWith('Misc'));
+        const categories = arrayMoveImmutable(res.data, miscIndex, res.data.length);
+        if (search) {
+          setActiveCategories([[allCategory, ...categories]]);
+        } else {
+          setActiveCategories([[...categories]]);
+        }
+      } catch {}
     };
     initialize();
   }, []);
@@ -47,12 +91,23 @@ const CategoryPicker = ({
 
   const onCategoryPress = (category: Category): void => {
     selectedCategories.current.push(category.id);
+    const miscIndex = category.subcategories.findIndex((c): boolean => c.name.startsWith('Misc'));
+    const subCategories = arrayMoveImmutable(
+      category.subcategories,
+      miscIndex,
+      category.subcategories.length
+    );
     if (category.subcategories.length > 0) {
       if (search) {
-        const allCategory = { name: `Kaikki ${category.name}`, id: category.id, subcategories: [] };
-        setActiveCategories([...activeCategories!, [allCategory, ...category.subcategories]]);
+        const allCategory = {
+          name: `All ${category.name}`,
+          id: category.id,
+          subcategories: [],
+          depth: category.depth + 1
+        };
+        setActiveCategories([...activeCategories!, [allCategory, ...subCategories]]);
       } else {
-        setActiveCategories([...activeCategories!, category.subcategories]);
+        setActiveCategories([...activeCategories!, subCategories]);
       }
     } else {
       finalSelection.current = category.name;
@@ -87,34 +142,21 @@ const CategoryPicker = ({
 
   return (
     <View {...props}>
-      <Pressable
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center'
-        }}
-        onPress={openModal}
-      >
-        <Text style={{ marginRight: 15 }} size="heading">
-          {finalSelection.current ?? 'Valitse kategoria'}
+      <TouchableOpacity style={styles.pickerContainer} onPress={openModal}>
+        <Text style={styles.pickerText} size="heading">
+          {finalSelection.current ?? 'Category'}
         </Text>
-        <AntDesign name="caretdown" size={15} color="black" />
-      </Pressable>
+        <AntDesign name="caretdown" size={dpw(0.045)} color="black" />
+      </TouchableOpacity>
       <Modal onDismiss={closeModal} visible={visible}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-evenly',
-            paddingVertical: 12
-          }}
-        >
-          <TouchableOpacity onPress={onBackPress}>
-            <Ionicons name="md-chevron-back-sharp" size={24} color="black" />
+        <View style={styles.modalHeader}>
+          <TouchableOpacity hitSlop={styles.hitSlop} onPress={onBackPress}>
+            <Ionicons name="md-chevron-back-sharp" size={dpw(0.065)} color="black" />
           </TouchableOpacity>
           <Text size="subheading" weight="bold">
-            Valitse kategoria
+            Select category
           </Text>
-          <Ionicons name="md-chevron-back-sharp" size={24} color="black" style={{ height: 0 }} />
+          <Ionicons name="md-chevron-back-sharp" size={dpw(0.065)} style={styles.hidden} />
         </View>
         <View>
           {activeCategories
@@ -124,23 +166,22 @@ const CategoryPicker = ({
                     <Line />
                     <TouchableOpacity
                       key={category.name}
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'space-evenly'
-                      }}
+                      style={styles.category}
                       onPress={(): void => onCategoryPress(category)}
                     >
-                      <AntDesign style={{ height: 0 }} name="caretright" size={16} color="black" />
-                      <Text style={{ marginVertical: 12 }} align="center" size="subheading">
-                        {category.name}
-                      </Text>
-                      <AntDesign
-                        style={category.subcategories.length === 0 ? { height: 0 } : null}
-                        name="caretright"
-                        size={16}
-                        color="black"
-                      />
+                      <View style={styles.category}>
+                        <Text style={styles.categoryText} align="center" size="subheading">
+                          {category.name}
+                        </Text>
+                        {category.subcategories.length > 0 && (
+                          <AntDesign
+                            style={styles.caretRight}
+                            name="caretright"
+                            size={16}
+                            color="black"
+                          />
+                        )}
+                      </View>
                     </TouchableOpacity>
                   </View>
                 )

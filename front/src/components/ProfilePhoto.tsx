@@ -1,7 +1,7 @@
 import { StyleSheet, Image } from 'react-native';
 
 const styles = StyleSheet.create({
-  profilePhoto: {
+  photo: {
     alignItems: 'center',
     justifyContent: 'center'
   }
@@ -14,7 +14,7 @@ interface ProfilePhotoProps {
 
 const ProfilePhoto = ({ uri, size = 30 }: ProfilePhotoProps): JSX.Element => (
   <Image
-    style={[styles.profilePhoto, { borderRadius: size / 2, width: size, height: size }]}
+    style={[styles.photo, { borderRadius: size / 2, width: size, height: size }]}
     source={{
       uri:
         uri && uri.startsWith('file')

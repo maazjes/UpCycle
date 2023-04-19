@@ -1,111 +1,81 @@
 import express from 'express';
 import multer from 'multer';
-import { EmailUser, SharedNewUserBody, User as SharedUser } from '@shared/types';
+import {
+  EmailUser,
+  GetUsersQuery,
+  SharedNewUserBody,
+  User as SharedUser,
+  UserBase
+} from '@shared/types';
 import { UpdateUserBody } from 'types.js';
+import { UserBaseAttributes } from '../util/constants.js';
 import { userExtractor } from '../util/middleware.js';
 import { User, Follow } from '../models/index.js';
 import firebase from '../util/firebase.js';
-import { uploadImage } from '../util/helpers.js';
+import { uploadProfileImage } from '../util/helpers.js';
 
 const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage()
 });
 
-router.get<{ userId: string }, SharedUser>(
-  '/:userId',
-  userExtractor,
-  async (req, res): Promise<void> => {
-    if (!req.user) {
-      throw new Error('authentication required');
-    }
+router.get<{}, UserBase[], {}, GetUsersQuery>('/', async (req, res): Promise<void> => {
+  const { username } = req.query;
+  const users = await User.findAll({
+    where: { username: username.toLowerCase() },
+    attributes: UserBaseAttributes
+  });
+  res.json(users);
+});
 
-    const { userId } = req.params;
-    const user = await User.findOne({
-      where: { id: userId },
-      attributes: { exclude: ['createdAt', 'updatedAt'] }
-    });
-
-    const followers = await Follow.count({ where: { followingId: userId } });
-    const following = await Follow.count({ where: { followerId: userId } });
-    const follow = await Follow.findOne({
-      where: { followerId: req.user.id, followingId: userId }
-    });
-    const followId = follow ? follow.id : null;
-
-    if (!user) {
-      throw new Error('user not found');
-    }
-    const { email } = await firebase.auth().getUser(user.id);
-    res.json({
-      ...user.dataValues,
-      email: email!,
-      followers,
-      following,
-      followId
-    });
+router.get<{ id: string }, SharedUser>('/:id', async (req, res): Promise<void> => {
+  const { id } = req.params;
+  const user = await User.findOne({
+    where: { id },
+    attributes: { exclude: ['createdAt', 'updatedAt'] }
+  });
+  const followers = await Follow.count({ where: { followingId: id } });
+  const following = await Follow.count({ where: { followerId: id } });
+  const follow = await Follow.findOne({
+    where: { followerId: req.userId!, followingId: id }
+  });
+  const followId = follow ? follow.id : null;
+  if (!user) {
+    throw new Error('Server error. Please try again.');
   }
-);
+  const { email } = await firebase.auth().getUser(user.id);
+  res.json({
+    ...user.dataValues,
+    email: email!,
+    followers,
+    following,
+    followId
+  });
+});
 
 router.post<{}, EmailUser, SharedNewUserBody>(
   '/',
   upload.single('image'),
   async (req, res): Promise<void> => {
     const { displayName, password, bio, username, email } = req.body;
-    console.log(email);
-    const { uid } = await firebase.auth().getUserByEmail(email);
-    console.log(uid);
-    await firebase.auth().updateUser(uid, { password });
+    const fbUser = await firebase.auth().getUserByEmail(email);
+    await firebase.auth().updateUser(fbUser.uid, { password });
     const user = User.build({
-      id: uid,
+      id: fbUser.uid,
       displayName,
       bio,
-      username,
-      email
+      username: username.toLowerCase()
     });
     if (req.file) {
-      const uri = await uploadImage(req.file, Date.now(), { width: 100, height: 100 });
+      const uri = await uploadProfileImage(req.file);
       user.set({ photoUrl: uri });
     }
     try {
       await user.save();
     } catch (e) {
-      console.log(e);
-      firebase.auth().deleteUser(uid);
-      throw new Error('Username already exists');
+      firebase.auth().deleteUser(fbUser.uid);
+      throw new Error('Username already exists.');
     }
-    res.json({
-      email,
-      id: user.id,
-      displayName: user.displayName,
-      bio: user.bio,
-      photoUrl: user.photoUrl,
-      username: user.username
-    });
-  }
-);
-
-router.put<{ userId: string }, EmailUser, UpdateUserBody>(
-  '/:userId',
-  userExtractor,
-  upload.single('image'),
-  async (req, res): Promise<void> => {
-    const { userId } = req.params;
-    if (!req.user || req.user.id !== userId) {
-      throw new Error('authentication required');
-    }
-    const { email, displayName, password, bio, username } = req.body;
-    const valuesToUpdate = { displayName, bio, username };
-    const fbUser = await firebase.auth().updateUser(req.user.id, { email, password });
-    (Object.keys(valuesToUpdate) as (keyof typeof valuesToUpdate)[]).forEach(
-      (key): boolean => !valuesToUpdate[key] && delete valuesToUpdate[key]
-    );
-    req.user.set(valuesToUpdate);
-    if (req.file) {
-      const uri = await uploadImage(req.file, Date.now(), { width: 100, height: 100 });
-      req.user.set({ photoUrl: uri });
-    }
-    const user = await req.user.save();
     res.json({
       email: fbUser.email!,
       id: user.id,
@@ -113,6 +83,45 @@ router.put<{ userId: string }, EmailUser, UpdateUserBody>(
       bio: user.bio,
       photoUrl: user.photoUrl,
       username: user.username
+    });
+  }
+);
+
+router.put<{ id: string }, EmailUser, UpdateUserBody>(
+  '/:id',
+  userExtractor,
+  upload.single('image'),
+  async (req, res): Promise<void> => {
+    const { id } = req.params;
+    if (req.userId !== id) {
+      throw new Error('Server error. Please login again and retry.');
+    }
+    const user = await User.findOne({ where: { id: req.userId! } });
+    if (!user) {
+      throw new Error('Server error. Please login and retry.');
+    }
+    const { displayName, bio, username } = req.body;
+    const valuesToUpdate = { displayName, bio, username };
+    (Object.keys(valuesToUpdate) as (keyof typeof valuesToUpdate)[]).forEach(
+      (key): boolean => !valuesToUpdate[key] && delete valuesToUpdate[key]
+    );
+    if (valuesToUpdate.username) {
+      valuesToUpdate.username = valuesToUpdate.username.toLowerCase();
+    }
+    user.set(valuesToUpdate);
+    if (req.file) {
+      const uri = await uploadProfileImage(req.file);
+      user.set({ photoUrl: uri });
+    }
+    const savedUser = await user.save();
+    const fbUser = await firebase.auth().getUser(savedUser.id);
+    res.json({
+      email: fbUser.email!,
+      id: savedUser.id,
+      displayName: savedUser.displayName,
+      bio: savedUser.bio,
+      photoUrl: savedUser.photoUrl,
+      username: savedUser.username
     });
   }
 );

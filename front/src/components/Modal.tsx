@@ -3,34 +3,50 @@ import {
   StyleSheet,
   View,
   TouchableWithoutFeedback,
-  ModalProps
+  ModalProps as NativeModalProps,
+  ViewStyle
 } from 'react-native';
+import { dpw } from 'util/helpers';
+import KeyboardAvoidingView from './KeyboardAvoidingView';
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  innerContainer: {
+    flexShrink: 1,
+    backgroundColor: 'white',
+    width: '80%',
+    maxHeight: '60%',
+    borderRadius: dpw(0.03),
+    overflow: 'hidden'
+  },
+  outerContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)'
+  }
+});
 
-const Modal = ({ style, children, ...props }: ModalProps): JSX.Element => (
-  <NativeModal transparent {...props}>
+interface ModalProps extends NativeModalProps {
+  onPress?: () => void;
+  innerContainerStyle?: ViewStyle;
+  avoidKeyboard?: boolean;
+}
+
+const Modal = ({
+  style,
+  children,
+  onPress = undefined,
+  innerContainerStyle = undefined,
+  avoidKeyboard = false,
+  ...props
+}: ModalProps): JSX.Element => (
+  <NativeModal statusBarTranslucent transparent {...props}>
     <TouchableWithoutFeedback onPressOut={props.onDismiss}>
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.4)'
-        }}
-      >
-        <View
-          style={{
-            flexShrink: 1,
-            backgroundColor: 'white',
-            width: '80%',
-            maxHeight: '60%',
-            borderRadius: 10
-          }}
-        >
-          {children}
-        </View>
-      </View>
+      <KeyboardAvoidingView enabled={avoidKeyboard} style={styles.outerContainer}>
+        <TouchableWithoutFeedback onPress={onPress}>
+          <View style={[styles.innerContainer, innerContainerStyle]}>{children}</View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
     </TouchableWithoutFeedback>
   </NativeModal>
 );

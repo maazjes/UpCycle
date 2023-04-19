@@ -24,6 +24,7 @@
     "no-nested-ternary": "off",
     "no-multi-assign": "off",
     "import/prefer-default-export": "off",
+    "no-empty":"off",
     "no-param-reassign": 0,
     "@typescript-eslint/explicit-function-return-type": [
       "error",

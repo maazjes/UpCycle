@@ -24,6 +24,7 @@
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@reduxjs/toolkit": "^1.9.1",
+    "array-move": "^4.0.0",
     "axios": "^1.2.3",
     "datasets-fi-postalcodes": "^1.0.257",
     "dotenv": "^16.0.3",

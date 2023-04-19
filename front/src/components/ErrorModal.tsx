@@ -8,7 +8,7 @@ interface Props extends Omit<ModalProps, 'children'> {
   text: string;
 }
 
-const NotificationModal = ({ text, ...props }: Props): JSX.Element => (
+const ErrorModal = ({ text, ...props }: Props): JSX.Element => (
   <Modal {...props}>
     <View>
       <Text
@@ -32,4 +32,4 @@ const NotificationModal = ({ text, ...props }: Props): JSX.Element => (
   </Modal>
 );
 
-export default NotificationModal;
+export default ErrorModal;

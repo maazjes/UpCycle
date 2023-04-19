@@ -18,7 +18,7 @@ export const PostAttributes = { exclude: ['userId', 'categoryId'] };
 
 export const PostBaseInclude = [{ model: Image, attributes: { exclude: ['postId'] } }];
 
-export const PostBaseAttributes = ['id', 'title', 'price'];
+export const PostBaseAttributes = ['id', 'title', 'price', 'updatedAt'];
 
 export const CategoryInclude = {
   model: Category,

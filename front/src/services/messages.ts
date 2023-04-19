@@ -1,10 +1,10 @@
 import { AxiosResponse } from 'axios';
-import { MessageBody, Message, MessagePage } from '@shared/types';
+import { NewMessageBody, Message, MessagePage } from '@shared/types';
 import { GetMessagesQuery } from '../types';
 import api from '../util/axiosInstance';
 import { addQuery, createFormData } from '../util/helpers';
 
-const createMessage = (body: MessageBody): Promise<AxiosResponse<Message>> => {
+const createMessage = (body: NewMessageBody): Promise<AxiosResponse<Message>> => {
   const formData = createFormData(body);
   return api.postForm<Message>('messages', formData);
 };

@@ -1,76 +1,72 @@
 import { AxiosResponse } from 'axios';
-import { useState, useEffect } from 'react';
+import { useRef } from 'react';
+import { useAppDispatch } from 'hooks/redux';
+import { editPost } from 'reducers/profilePosts';
+import { editSinglePost } from 'reducers/singlePost';
+import { TypedImage } from '@shared/types';
 import { NewPostBody, UserScreen } from '../types';
-import Loading from '../components/Loading';
 import PostForm from '../components/PostForm';
-import { getPost, updatePost } from '../services/posts';
+import { updatePost } from '../services/posts';
 import { deleteImage } from '../services/images';
 
-const EditPost = ({ route, navigation }: UserScreen<'EditPost'>): JSX.Element => {
+const EditPost = ({ route }: UserScreen<'EditPost'>): JSX.Element => {
+  const currentPost = useRef<NewPostBody & { initialCategory: string }>({
+    ...route.params,
+    price: route.params.price.slice(0, -1),
+    categories: route.params.categories.map((c): number => c.id),
+    initialCategory: route.params.categories[route.params.categories.length - 1].name,
+    images: route.params.images.map(
+      (image): TypedImage => ({
+        ...image,
+        uri: `${image.uri}_200x200?alt=media`
+      })
+    )
+  });
+  const dispatch = useAppDispatch();
   const { id: postId } = route.params;
-  const [currentPost, setCurrentPost] = useState<NewPostBody & { initialCategory: string }>();
-
-  useEffect((): void => {
-    const initialize = async (): Promise<void> => {
-      const res = await getPost(postId);
-      const post = {
-        ...res.data,
-        price: res.data.price.slice(0, -1),
-        categories: res.data.categories.map((c): number => c.id),
-        initialCategory: res.data.categories[res.data.categories.length - 1].name
-      };
-      setCurrentPost(post);
-    };
-    initialize();
-  }, []);
-
-  if (!currentPost) {
-    return <Loading />;
-  }
 
   const onSubmit = async ({ images, ...values }: NewPostBody): Promise<void> => {
-    try {
-      const valuesToAdd = { ...values, price: values.price.slice(0, -1) };
-      (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostBody, 'images'>>).forEach(
-        (key): boolean =>
-          (key === 'categories'
-            ? valuesToAdd[key][0] === currentPost[key][0]
-            : valuesToAdd[key] === currentPost[key]) && delete valuesToAdd[key]
-      );
-      const imageUris: string[] = [];
-      images.forEach((newImage): void => {
-        currentPost.images.forEach((currentImage): void => {
-          if (newImage.uri === currentImage.uri) {
-            imageUris.push(newImage.uri);
-          }
-        });
+    const valuesToAdd = { ...values, price: `${values.price}€` };
+    (Object.keys(valuesToAdd) as Array<keyof Omit<NewPostBody, 'images'>>).forEach(
+      (key): boolean =>
+        (key === 'categories'
+          ? valuesToAdd[key][0] === currentPost.current[key][0]
+          : valuesToAdd[key] === currentPost.current[key]) && delete valuesToAdd[key]
+    );
+    const imageUris: string[] = [];
+    images.forEach((newImage): void => {
+      currentPost.current.images.forEach((currentImage): void => {
+        if (newImage.uri === currentImage.uri) {
+          imageUris.push(newImage.uri);
+        }
       });
-      const imagesToAdd = [...images].filter((image): boolean => !imageUris.includes(image.uri));
-      const imagesToDelete = [...currentPost.images].filter(
-        (image): boolean => !imageUris.includes(image.uri)
-      );
-      if (
-        Object.keys(valuesToAdd).length === 0 &&
-        imagesToAdd.length &&
-        imagesToDelete.length === 0
-      ) {
-        return;
-      }
-      const imagePromises = imagesToDelete.map(
-        (image): Promise<AxiosResponse<undefined>> => deleteImage(image.id)
-      );
-      const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
-      await updatePost(Number(postId), finalValuesToAdd);
-      Promise.all(imagePromises);
-      const newcurrentPost = { ...currentPost, ...finalValuesToAdd };
-      setCurrentPost(newcurrentPost);
-      navigation.goBack();
-    } catch (e) {
-      console.log(e);
+    });
+    const imagesToAdd = [...images].filter((image): boolean => !imageUris.includes(image.uri));
+    const imagesToDelete = [...currentPost.current.images].filter(
+      (image): boolean => !imageUris.includes(image.uri)
+    );
+    if (
+      Object.keys(valuesToAdd).length === 0 &&
+      imagesToAdd.length &&
+      imagesToDelete.length === 0
+    ) {
+      return;
     }
+    const imagePromises = imagesToDelete.map(
+      (image): Promise<AxiosResponse<undefined>> => deleteImage(image.id as number)
+    );
+    const finalValuesToAdd = { ...valuesToAdd, images: imagesToAdd };
+    try {
+      const { data: newPost } = await updatePost(Number(postId), finalValuesToAdd);
+      Promise.all(imagePromises);
+      const newCurrentPost = { ...currentPost.current, ...finalValuesToAdd };
+      dispatch(editPost(newPost));
+      dispatch(editSinglePost(newPost));
+      currentPost.current = newCurrentPost;
+    } catch {}
   };
 
-  return <PostForm onSubmit={onSubmit} initialValues={currentPost} />;
+  return <PostForm onSubmit={onSubmit} initialValues={currentPost.current} />;
 };
 
 export default EditPost;

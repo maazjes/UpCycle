@@ -1,27 +1,16 @@
-import { StyleSheet, View, ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { useField } from 'formik';
-import Text from './Text';
 import Picker from './Picker';
 
-const styles = StyleSheet.create({
-  errorText: {
-    color: 'red',
-    marginBottom: 10,
-    marginTop: 2
-  }
-});
-
-interface Props extends ViewProps {
+interface FormikPickerProps extends ViewProps {
   name: string;
   items: string[];
   initialValue: string;
 }
 
-const FormikPicker = ({ name, items, initialValue, ...props }: Props): JSX.Element => {
-  const [field, meta, helpers] = useField<string>(name);
-  const showError = meta.touched;
-  const { error } = meta;
-  console.log(field.value);
+const FormikPicker = ({ name, items, initialValue, ...props }: FormikPickerProps): JSX.Element => {
+  const [field, , helpers] = useField<string>(name);
+
   return (
     <View {...props}>
       <Picker
@@ -31,7 +20,6 @@ const FormikPicker = ({ name, items, initialValue, ...props }: Props): JSX.Eleme
           helpers.setValue(value!);
         }}
       />
-      {showError && error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );
 };

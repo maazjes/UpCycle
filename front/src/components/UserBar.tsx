@@ -1,15 +1,17 @@
 import { View, StyleSheet, ViewProps, TextStyle, TouchableOpacity } from 'react-native';
 import { UserBase } from '@shared/types';
-import { dph } from 'util/helpers';
+import { dpw } from 'util/helpers';
+import { useNavigation } from '@react-navigation/native';
+import { UserStackNavigation } from 'types';
+import { useAppSelector } from 'hooks/redux';
 import Text from './Text';
 import ProfilePhoto from './ProfilePhoto';
 
 const styles = StyleSheet.create({
   userBar: {
-    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly'
+    justifyContent: 'space-between'
   },
   profilePhoto: {
     flexDirection: 'row',
@@ -17,66 +19,83 @@ const styles = StyleSheet.create({
   },
   extra: {
     flexDirection: 'row',
-    justifyContent: 'flex-start'
+    marginTop: 'auto'
+  },
+  leftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1
   }
 });
 
 interface UserBarProps extends ViewProps {
   user: UserBase;
-  textRight?: string;
   profilePhotoSize?: number;
   extra?: JSX.Element;
   extraSecond?: JSX.Element;
   itemRight?: JSX.Element;
   displayNameStyle?: TextStyle;
-  onPress?: () => void;
   onLongPress?: () => void;
+  onPress?: () => void;
 }
 
 const UserBar = ({
   user,
-  textRight = undefined,
   extraSecond = undefined,
   style,
   itemRight = undefined,
-  profilePhotoSize = 32,
+  profilePhotoSize = dpw(0.105),
   extra = undefined,
-  displayNameStyle = {},
   onPress = undefined,
+  displayNameStyle = {},
   onLongPress = undefined
-}: UserBarProps): JSX.Element => (
-  <TouchableOpacity
-    activeOpacity={!onLongPress ? 1 : undefined}
-    onLongPress={onLongPress}
-    delayLongPress={400}
-    style={[styles.userBar, style]}
-    onPress={onPress}
-  >
-    <ProfilePhoto uri={user.photoUrl} size={profilePhotoSize} />
-    <View style={{ marginLeft: profilePhotoSize / 3, marginRight: 'auto' }}>
-      <Text
-        style={[extra || extraSecond ? { marginBottom: dph(0.01) } : {}, displayNameStyle]}
-        size="subheading"
-      >
-        {user.username}
-      </Text>
-      <View style={styles.extra}>
-        {extra}
-        {extra && extraSecond && <View style={{ paddingHorizontal: 4 }} />}
-        {extraSecond}
+}: UserBarProps): JSX.Element => {
+  const { navigate } = useNavigation<UserStackNavigation>();
+  const currentUserId = useAppSelector((state): string => state.currentUserId!);
+
+  const onUserBarPress = (): void => {
+    if (currentUserId === user.id) {
+      navigate('Profile', {
+        screen: 'StackProfile',
+        params: {
+          id: user.id,
+          username: user.username
+        },
+        initial: false
+      });
+    } else {
+      navigate('StackProfile', { id: user.id, username: user.username });
+    }
+  };
+
+  return (
+    <TouchableOpacity
+      activeOpacity={!onLongPress ? 1 : undefined}
+      onLongPress={onLongPress}
+      delayLongPress={400}
+      style={[styles.userBar, style]}
+      onPress={onPress || onUserBarPress}
+    >
+      <View style={styles.leftContainer}>
+        <ProfilePhoto uri={user.photoUrl} size={profilePhotoSize} />
+        <View style={{ marginLeft: profilePhotoSize / 2 }}>
+          <View style={displayNameStyle}>
+            <Text size="subheading">{user.username}</Text>
+          </View>
+          {(extra || extraSecond) && (
+            <View>
+              <View style={styles.extra}>
+                {extra}
+                {extra && extraSecond && <View style={{ paddingHorizontal: dpw(0.008) }} />}
+                {extraSecond}
+              </View>
+            </View>
+          )}
+        </View>
       </View>
-    </View>
-    <View>
-      <Text
-        style={[extra || extraSecond ? { marginBottom: dph(0.01) } : {}, displayNameStyle]}
-        color="grey"
-      >
-        {textRight}
-      </Text>
-      <Text />
-    </View>
-    {itemRight}
-  </TouchableOpacity>
-);
+      {itemRight}
+    </TouchableOpacity>
+  );
+};
 
 export default UserBar;
