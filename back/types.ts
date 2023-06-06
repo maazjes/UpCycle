@@ -7,7 +7,7 @@ import {
   SharedNewPostBody,
   TypedImage,
   SharedNewUserBody
-} from '@shared/types';
+} from '@shared/types.js';
 
 declare global {
   namespace Express {

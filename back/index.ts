@@ -67,6 +67,7 @@ io.on('connection', async (socket): Promise<void> => {
     socket.leave(userId);
   });
 });
+
 app.use('/api/login', login);
 app.use('/api/categories', categories);
 app.use('/api/passwords', passwords);

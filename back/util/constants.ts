@@ -1,7 +1,6 @@
 import { Category, User, Image } from '../models/index.js';
-import { UserBaseKeys } from '../types.js';
 
-export const UserBaseAttributes: UserBaseKeys = ['displayName', 'id', 'photoUrl', 'username'];
+export const UserBaseAttributes = ['displayName', 'id', 'photoUrl', 'username'];
 
 export const PostInclude = [
   {
