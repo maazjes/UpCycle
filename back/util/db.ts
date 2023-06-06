@@ -6,7 +6,7 @@ const sequelize = new Sequelize(DATABASE_URL, { dialect: 'postgres' });
 
 const migrationConf = {
   migrations: {
-    glob: 'migrations/*.ts'
+    glob: 'migrations/*.js'
   },
   storage: new SequelizeStorage({ sequelize, tableName: 'migrations' }),
   context: sequelize.getQueryInterface(),

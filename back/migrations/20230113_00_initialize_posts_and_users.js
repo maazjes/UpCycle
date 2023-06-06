@@ -1,8 +1,7 @@
-// @ts-ignore
-const { DataTypes, QueryInterface } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  up: async ({ context: queryInterface }) => {
     await queryInterface.createTable('posts', {
       id: {
         type: DataTypes.INTEGER,
@@ -73,7 +72,7 @@ module.exports = {
       references: { model: 'users', key: 'id' }
     });
   },
-  down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  down: async ({ context: queryInterface }) => {
     await queryInterface.removeColumn('posts', 'user_id');
     await queryInterface.dropTable('posts');
     await queryInterface.dropTable('users');

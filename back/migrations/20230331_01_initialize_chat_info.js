@@ -1,8 +1,7 @@
-// @ts-ignore
-const { DataTypes, QueryInterface } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  up: async ({ context: queryInterface }) => {
     await queryInterface.removeColumn('chats', 'archived');
     await queryInterface.createTable('chat_info', {
       id: {
@@ -26,7 +25,7 @@ module.exports = {
       }
     });
   },
-  down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  down: async ({ context: queryInterface }) => {
     await queryInterface.addColumn('chats', 'archived', {
       type: DataTypes.BOOLEAN,
       allowNull: false

@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
     "strict": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
@@ -12,10 +14,10 @@
     "alwaysStrict": true,
     "esModuleInterop": true,
     "declaration": true,
-    "target": "ESNext",
+    "target": "ES2022",
     "outDir": "./build/",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
     "noEmit": false,
     "noEmitOnError": false,
     "experimentalDecorators": true,
@@ -23,9 +25,9 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["./shared/*"]
     }
   },
   "include": ["./", "../shared"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "./build/**/*"]
 }

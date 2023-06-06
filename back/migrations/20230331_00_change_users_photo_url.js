@@ -1,14 +1,13 @@
-// @ts-ignore
-const { DataTypes, QueryInterface } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  up: async ({ context: queryInterface }) => {
     await queryInterface.changeColumn('users', 'photo_url', {
       type: DataTypes.STRING,
       allowNull: true
     });
   },
-  down: async ({ context: queryInterface }: { context: typeof QueryInterface }): Promise<void> => {
+  down: async ({ context: queryInterface }) => {
     await queryInterface.changeColumn('users', 'photo_url', {
       type: DataTypes.STRING,
       allowNull: false
