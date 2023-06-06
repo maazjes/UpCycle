@@ -1,5 +1,10 @@
 import {
-  Model, DataTypes, InferAttributes, InferCreationAttributes, CreationOptional, ForeignKey
+  Model,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  CreationOptional,
+  ForeignKey
 } from 'sequelize';
 import { sequelize } from '../util/db.js';
 

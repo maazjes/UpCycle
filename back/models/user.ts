@@ -29,8 +29,7 @@ User.init(
   {
     id: {
       type: DataTypes.STRING,
-      primaryKey: true,
-      autoIncrement: true
+      primaryKey: true
     },
     bio: {
       type: DataTypes.STRING,
