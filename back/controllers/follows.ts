@@ -8,8 +8,6 @@ const router = express.Router();
 
 router.post<{}, RawFollow, NewFollowBody>('/follows', async (req, res): Promise<void> => {
   const { userId } = req.body;
-  console.log(req.userId);
-  console.log(req.body);
   const follow = await Follow.create({ followerId: req.userId!, followingId: userId });
   if (!follow) {
     throw new Error('Server error. Please try again.');

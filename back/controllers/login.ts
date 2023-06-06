@@ -2,7 +2,7 @@ import express from 'express';
 import got from 'got';
 import { TokenUser, LoginBody } from '@shared/types.js';
 import { Op } from 'sequelize';
-import { UserRecord } from 'firebase-admin/lib/auth/user-record';
+import { UserRecord } from 'firebase-admin/auth';
 import { Follow } from '../models/index.js';
 import { FIREBASE_API_KEY } from '../util/config.js';
 import User from '../models/user.js';

@@ -1,6 +1,6 @@
 import express from 'express';
 import { CheckEmailVerified, EmailBody, FirebaseUser } from '@shared/types.js';
-import { UserRecord } from 'firebase-admin/lib/auth/user-record';
+import { UserRecord } from 'firebase-admin/auth';
 import { userExtractor } from '../util/middleware.js';
 import { sendEmail } from '../util/helpers.js';
 import firebase from '../util/firebase.js';

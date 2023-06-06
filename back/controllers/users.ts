@@ -6,7 +6,7 @@ import {
   SharedNewUserBody,
   User as SharedUser,
   UserBase
-} from '@shared/types';
+} from '@shared/types.js';
 import { UpdateUserBody } from 'types.js';
 import { UserBaseAttributes } from '../util/constants.js';
 import { userExtractor } from '../util/middleware.js';

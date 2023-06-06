@@ -106,7 +106,7 @@ router.get<{ id: string }, SharedPost>('/:id', async (req, res): Promise<void> =
   const found = await Favorite.findOne({
     where: { postId: Number(id), userId: req.userId! }
   });
-  let favoriteId = null;
+  let favoriteId: null | number = null;
   if (found) {
     favoriteId = found.id;
   }

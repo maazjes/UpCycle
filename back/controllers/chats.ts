@@ -1,7 +1,7 @@
 import express from 'express';
 import { ChatPage, Chat as SharedChat } from '@shared/types.js';
 import { Op } from 'sequelize';
-import { PaginationQuery } from '../types';
+import { PaginationQuery } from '../types.js';
 import { UserBaseAttributes } from '../util/constants.js';
 import { Chat, Message, User, Image, ChatInfo } from '../models/index.js';
 

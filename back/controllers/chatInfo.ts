@@ -1,4 +1,4 @@
-import { RawChatInfo, UpdateChatInfoBody } from '@shared/types';
+import { RawChatInfo, UpdateChatInfoBody } from '@shared/types.js';
 import express from 'express';
 import { ChatInfo } from '../models/index.js';
 
