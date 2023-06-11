@@ -2,12 +2,21 @@
 <a href="https://www.youtube.com/watch?v=bIdBKF1wvfM">Click to see a demo video</a>
 <br></br>
 
-**The goal of the project** was to make a React Native application that has the functionalities required to operate a second hand market. As a little twist I also added some functionalities better known from social media apps such as the possibility to follow other users. The main goal of this project was however to get better at React / React Native and ExpressJS and SQL. The login / registration functionality is made with Firebase and the images are also stored in Firebase.
+**The goal of the project** was to make a React Native application that has the functionalities required to operate a second hand market. As a little twist I also added some functionalities better known from social media apps such as the possibility to follow other users. The main goal of this project was however to get better at React / React Native, ExpressJS and SQL. The login / registration functionality is made with Firebase and the images are also stored in Firebase.
 <br></br>
 
-**Both the Backend and the Frontend are fully made with TypeScript** using very strict settings for maximal learning experience. The types are shared between the Backend and the Frontend to make everything convenient. After all a response body sent from the Backend is the same shape as a response body received in the Frontend.
+**Both the Backend and the Frontend are fully made with TypeScript** using very strict settings for maximal learning experience. The types are shared between the Backend and the Frontend to make everything convenient. After all, a response body sent from the Backend is the same shape as a response body received in the Frontend.
 
-<H2>Technologies</H2>
+<h2>Deployment</h2>
+
+1. Create a new Heroku app with PostgreSQL addon and add a new git repository to the back folder with "git init".
+2. Add the Heroku remote to the local repository with "heroku git:remote -a appname".
+3. Add environment variables required in back/util/config.ts to your Heroku app. 
+4. Run the deploy script from backend.
+5. Change axios baseURL in front/src/util/axiosInstance.ts to the newly deployed backend's url.
+6. Build frontend by running eas build.
+
+<h2>Technologies</h2>
 
 * **TypeScript**
 * **React Native**
@@ -16,6 +25,7 @@
 * **Sequelize**
 * **Firebase**
 * **Redux**
+
 <h2>Structure</h2>
 
 ```mermaid
@@ -28,18 +38,19 @@ C --> D[Views]
 E[Components] --> D
 F[Hooks] --> E
 F --> D
-D --> H[Redux store]
-E --> H
+H[Redux store] --> D
+H --> E
 S[services] --> E
 S --> D
 S --> F
 end
 subgraph Backend
-I[Index.ts]
+I[index.ts]
 J[Controllers] --> I
 K[Util] --> I
-P(PostgreSQL) --> K
-Migrations --> P
+DB[db.ts] --> K
+P(PostgreSQL) --> DB
+Migrations --> DB
 K --> J
 L(Firebase) --> K
 M[Middleware] --> K
@@ -47,34 +58,7 @@ end
 Frontend --- Backend
 ```
 
-<h2>Workins hours</h2>
-
-```mermaid
-graph TB
-subgraph Frontend
-A[App.tsx] --> B[Main.tsx]
-B --> C{Navigation}
-C --> D[Views]
-E[Components] --> D
-F[Hooks] --> E
-F --> D
-D --> H[Redux store]
-E --> H
-S[services] --> E
-S --> D
-S --> F
-end
-subgraph Backend
-I[Index.ts]
-J[Controllers] --> I
-K[Util] --> I
-P[PostgreSQL] --> K
-Migrations --> P
-K --> J
-L[Firebase] --> K
-M[Middleware] --> K
-end
-```
+<h2>Working hours</h2>
 
 &nbsp;
 qwdqwdwq
@@ -109,7 +93,9 @@ qwdqwdwq
 | Finished chat. Started polishing the app and cleaning up all the code. Spent a lot of time getting the "next" button on forms to work and probably did a bunch of other stuff too. | 40 hours |
 | Changed the structure of archived chats in the backend, made an email verification system with firebase and fixed bugs. | 13 hours |
 | Finalized everything | 50 hours |
+| Learn git rebase by rebasing the whole history | 5 hours |
+| Fix more things such as updating the chats on new messages and change deployment to Heroku. | 15 hours |
 
-**Total: 348 hours**
+**Total: 368 hours**
 
 plus many more additional hours on stupid mistakes...
