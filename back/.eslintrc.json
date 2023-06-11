@@ -1,5 +1,5 @@
 {
-  "plugins": ["prettier"],
+  "plugins": ["prettier", "import", "unused-imports"],
   "files": ["**/*.ts", "**/*.tsx"],
   "settings": {
     "react": {
@@ -19,6 +19,7 @@
     //"@typescript-eslint/no-unsafe-call": "error",
     //"@typescript-eslint/no-unsafe-member-access": "error",
     "@typescript-eslint/no-unsafe-return": "error",
+    "unused-imports/no-unused-imports": "error",
     "@typescript-eslint/restrict-plus-operands": "error",
     "@typescript-eslint/restrict-template-expressions": "error",
     "multiline-ternary": ["error", "always-multiline"],
