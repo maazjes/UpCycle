@@ -4,6 +4,7 @@ import cors from 'cors';
 import 'express-async-errors';
 import { Server } from 'socket.io';
 import http from 'http';
+import { PORT } from './util/config.js';
 import { isString } from './util/helpers.js';
 import { connectToDatabase } from './util/db.js';
 import posts from './controllers/posts.js';
@@ -86,8 +87,8 @@ app.use(errorHandler);
 
 const start = async (): Promise<void> => {
   await connectToDatabase();
-  server.listen(8080, (): void => {
-    console.log(`Server running on port ${8080}`);
+  server.listen(PORT, (): void => {
+    console.log(`Server running on port ${PORT}`);
   });
 };
 
