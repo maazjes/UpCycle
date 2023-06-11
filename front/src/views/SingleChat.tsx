@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Pressable, StyleSheet, View, Keyboard, Image, Dimensions } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { TypedImage } from '@shared/types';
+import { Message, TypedImage } from '@shared/types';
 import { UserScreen } from 'types';
 import { dpw, formatDate, pickImage } from 'util/helpers';
 import MenuModal from 'components/MenuModal';
@@ -169,19 +169,23 @@ const SingleChat = ({ route, navigation }: UserScreen<'SingleChat'>): JSX.Elemen
       tabBarStyle: { display: 'none' }
     });
 
-    socket.on('message', (newMessage): void => {
-      addMessage({
-        ...newMessage,
-        senderId: currentUserId,
-        receiverId: userId
-      });
-    });
-
     return (): void =>
       parent?.setOptions({
         tabBarStyle: { display: 'flex' }
       });
   }, []);
+
+  useEffect((): (() => void) => {
+    const onMessage = (newMessage: Message): void => {
+      addMessage(newMessage);
+    };
+
+    socket.on('message', onMessage);
+
+    return (): void => {
+      socket.off('message', onMessage);
+    };
+  }, [messages]);
 
   const onNewMessage = async (): Promise<void> => {
     if (images.length === 0) {
@@ -195,12 +199,7 @@ const SingleChat = ({ route, navigation }: UserScreen<'SingleChat'>): JSX.Elemen
         receiverId: userId,
         images: images.map((image): string => image.uri)
       });
-      socket.emit('message', {
-        text: message,
-        receiverId: currentUserId,
-        createdAt: data.createdAt,
-        images: data.images
-      });
+      socket.emit('message', data);
       if (messages!.data.length === 0) {
         const res = await getChat(data.chatId);
         dispatch(addChat(res.data));
