@@ -15,7 +15,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "target": "ES2022",
-    "outDir": "./build/",
+    "outDir": "./dist/",
     "module": "ESNext",
     "moduleResolution": "nodenext",
     "noEmit": false,
@@ -25,9 +25,8 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "@shared/*": ["../shared/*"]
+      "@shared/*": ["../shared/*", "./shared/*"]
     }
   },
-  "include": ["./", "../shared"],
-  "exclude": ["node_modules", "./build/**/*"]
+  "include": ["assets", "controllers", "migrations", "models", "util", "index.ts", "package.json", "../shared"]
 }
