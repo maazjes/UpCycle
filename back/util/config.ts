@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { ServiceAccount } from 'firebase-admin';
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY!;
 const FIREBASE_BUCKET_URL = process.env.FIREBASE_BUCKET_URL!;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY!;
 const VERIFIED_EMAIL = process.env.VERIFIED_SENDER!;
+const SERVICE_ACCOUNT = JSON.parse(process.env.SERVICE_ACCOUNT!) as ServiceAccount
 
 export {
   DATABASE_URL,
@@ -21,5 +23,6 @@ export {
   FIREBASE_API_KEY,
   FIREBASE_BUCKET_URL,
   SENDGRID_API_KEY,
-  VERIFIED_EMAIL
+  VERIFIED_EMAIL,
+  SERVICE_ACCOUNT
 };

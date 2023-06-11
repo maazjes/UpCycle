@@ -1,9 +1,8 @@
-import admin, { ServiceAccount } from 'firebase-admin';
-
-import serviceAccount from './serviceAccount.json' assert { type: 'json' };
+import admin from 'firebase-admin';
+import { SERVICE_ACCOUNT } from './config.js';
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount as ServiceAccount),
+  credential: admin.credential.cert(SERVICE_ACCOUNT),
   storageBucket: 'second-hand-images'
 });
 
