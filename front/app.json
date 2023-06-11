@@ -22,7 +22,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/50f614ef-880d-4ebb-8b68-cfc9a7a5cb0d"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -49,6 +50,9 @@
       "eas": {
         "projectId": "50f614ef-880d-4ebb-8b68-cfc9a7a5cb0d"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     }
   },
   "name": "second-hand"
