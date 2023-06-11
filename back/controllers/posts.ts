@@ -36,25 +36,31 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', async (req, res): Promise<void>
   if (categoryId) {
     const { rows, count } = await Post.findAndCountAll({
       attributes: PostBaseAttributes,
-      include: [...PostBaseInclude, { model: PostCategory, attributes: ['categoryId'], where: { categoryId } }],
+      include: [
+        ...PostBaseInclude,
+        { model: PostCategory, attributes: ['categoryId'], where: { categoryId } }
+      ],
       limit: Number(limit),
       offset: Number(offset),
       where
     });
     finalPosts = rows as PostBase[];
-    finalCount = count
+    finalCount = count;
   }
 
   if (favorite) {
-    const {rows, count} = await Post.findAndCountAll({
+    const { rows, count } = await Post.findAndCountAll({
       attributes: PostBaseAttributes,
-      include: [...PostBaseInclude, { model: Favorite, attributes: [], where: { userId: req.userId! } }],
+      include: [
+        ...PostBaseInclude,
+        { model: Favorite, attributes: [], where: { userId: req.userId! } }
+      ],
       limit: Number(limit),
       offset: Number(offset),
       order: [['id', 'DESC']],
       where
     });
-    finalPosts = rows as PostBase[]
+    finalPosts = rows as PostBase[];
     finalCount = count;
   }
 
@@ -68,8 +74,8 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', async (req, res): Promise<void>
     distinct: true
   });
 
-  finalPosts = rows as PostBase[]
-  finalCount = count
+  finalPosts = rows as PostBase[];
+  finalCount = count;
 
   res.json({
     totalItems: finalCount,

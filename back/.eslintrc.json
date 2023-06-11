@@ -1,6 +1,5 @@
 {
   "plugins": ["prettier", "import", "unused-imports"],
-  "files": ["**/*.ts", "**/*.tsx"],
   "settings": {
     "react": {
       "version": "detect"

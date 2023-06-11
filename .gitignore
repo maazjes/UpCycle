@@ -2,7 +2,6 @@ node_modules
 .env
 format.py
 raw.dat
-.vscode
 serviceAccount.json
 fly.toml
 build
