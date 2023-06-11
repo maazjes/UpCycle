@@ -19,8 +19,15 @@ module.exports = function (api) {
             'reducers': './src/reducers',
             'assets': './assets'
           },
-        },
+        }
       ],
+      [
+        "module:react-native-dotenv",
+        {
+            moduleName: "@env",
+            path: ".env",
+        },
+      ]
     ]
   };
 };

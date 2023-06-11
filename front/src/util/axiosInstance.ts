@@ -1,8 +1,9 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { ErrorBody } from '@shared/types';
+import { API_URL } from '@env';
 
 const api = axios.create({
-  baseURL: 'http://192.168.0.104:8080/api/',
+  baseURL: API_URL || 'https://upcycleapi.herokuapp.com/',
   timeout: 1000
 });
 
