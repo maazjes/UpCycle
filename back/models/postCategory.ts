@@ -18,8 +18,6 @@ class PostCategory extends Model<
   declare postId: ForeignKey<Post['id']>;
 
   declare categoryId: ForeignKey<Category['id']>;
-
-  declare post?: Post;
 }
 
 PostCategory.init(

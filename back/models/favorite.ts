@@ -15,8 +15,6 @@ class Favorite extends Model<InferAttributes<Favorite>, InferCreationAttributes<
   declare postId: ForeignKey<Post['id']>;
 
   declare userId: ForeignKey<User['id']>;
-
-  declare post?: Post;
 }
 
 Favorite.init(

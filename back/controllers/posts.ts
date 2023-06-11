@@ -27,56 +27,38 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', async (req, res): Promise<void>
       }
     : {};
 
+  let finalPosts: PostBase[];
+  let finalCount: number;
   let where: WhereOptions = userWhere || containsWhere;
   where = condition ? { ...where, condition } : where;
   where = city ? { ...where, city } : where;
 
   if (categoryId) {
-    const postCategories = await PostCategory.findAndCountAll({
-      where: { categoryId: Number(categoryId) },
-      include: {
-        model: Post,
-        attributes: PostBaseAttributes,
-        include: PostBaseInclude,
-        where,
-        order: [['updatedAt', 'DESC']]
-      },
+    const { rows, count } = await Post.findAndCountAll({
+      attributes: PostBaseAttributes,
+      include: [...PostBaseInclude, { model: PostCategory, attributes: ['categoryId'], where: { categoryId } }],
+      limit: Number(limit),
       offset: Number(offset),
-      limit: Number(limit)
+      where
     });
-
-    const categoryPosts = postCategories.rows.map((c): PostBase => c.dataValues.post! as PostBase);
-    res.json({
-      totalItems: postCategories.count,
-      offset: Number(offset),
-      data: categoryPosts
-    });
-    return;
+    finalPosts = rows as PostBase[];
+    finalCount = count
   }
 
   if (favorite) {
-    const favorites = await Favorite.findAndCountAll({
-      where: { userId: req.userId! },
-      include: {
-        model: Post,
-        attributes: PostBaseAttributes,
-        include: PostBaseInclude,
-        where
-      },
-      attributes: [],
+    const {rows, count} = await Post.findAndCountAll({
+      attributes: PostBaseAttributes,
+      include: [...PostBaseInclude, { model: Favorite, attributes: [], where: { userId: req.userId! } }],
       limit: Number(limit),
       offset: Number(offset),
-      order: [['id', 'DESC']]
+      order: [['id', 'DESC']],
+      where
     });
-    const favoritePosts = favorites.rows.map((f): PostBase => f.dataValues.post! as PostBase);
-    res.json({
-      totalItems: favorites.count,
-      offset: Number(offset),
-      data: favoritePosts
-    });
+    finalPosts = rows as PostBase[]
+    finalCount = count;
   }
 
-  const posts = await Post.findAndCountAll({
+  const { rows, count } = await Post.findAndCountAll({
     attributes: PostBaseAttributes,
     include: PostInclude,
     limit: Number(limit),
@@ -86,11 +68,14 @@ router.get<{}, PostPage, {}, GetPostsQuery>('/', async (req, res): Promise<void>
     distinct: true
   });
 
+  finalPosts = rows as PostBase[]
+  finalCount = count
+
   res.json({
-    totalItems: posts.count,
+    totalItems: finalCount,
     offset: Number(offset),
-    data: posts.rows
-  } as PostPage);
+    data: finalPosts
+  });
 });
 
 router.get<{ id: string }, SharedPost>('/:id', async (req, res): Promise<void> => {
