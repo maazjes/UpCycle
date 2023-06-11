@@ -20,6 +20,5 @@
     }
   },
   "extends": "expo/tsconfig.base",
-  "include": ["./", "../../shared", ".babelrc.js"],
-  "exclude": ["node_modules", "metro.config.js"]
+  "include": ["src"]
 }

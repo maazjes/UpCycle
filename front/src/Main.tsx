@@ -31,7 +31,7 @@ export default (): JSX.Element | null => {
   const { refreshLogin } = useAuth();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
-  const handle = useRef<NodeJS.Timer>();
+  const handle = useRef<number>();
   const [fontsLoaded] = useFonts({
     OpenSans_400Regular,
     OpenSans_500Medium,
