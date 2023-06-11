@@ -16,10 +16,8 @@
   "exports": "./index.ts",
   "scripts": {
     "start": "node build/back/index.js",
-    "build": "tsc && tsc-alias",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch --loader ts-node/esm index.ts",
-    "devtest": "ts-node-dev -esm -r tsconfig-paths/register index.ts",
+    "build": "tsc && tsc-alias",
     "migration:down": "node --loader ts-node/esm util/rollback.ts"
   },
   "engines": {
