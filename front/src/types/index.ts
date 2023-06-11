@@ -10,7 +10,8 @@ import {
   SharedNewUserBody,
   Post,
   User,
-  PostPage
+  PostPage,
+  Message
 } from '@shared/types';
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
@@ -126,31 +127,11 @@ export type LoginStackScreen<S extends keyof LoginStackParams> = NativeStackScre
 // SocketIO
 
 export interface ServerToClientEvents {
-  message: ({
-    text,
-    createdAt,
-    images
-  }: {
-    text: string;
-    createdAt: Date;
-    images: TypedImage[];
-  }) => void;
+  message: (message: Message) => void;
 }
 
 export interface ClientToServerEvents {
-  message: ({
-    text,
-    receiverId,
-    createdAt,
-    images
-  }: {
-    text: string;
-    receiverId: string;
-    createdAt: Date;
-    images: TypedImage[];
-  }) => void;
-  join: (chatId: number) => void;
-  leave: (chatId: number) => void;
+  message: (message: Message) => void;
 }
 
 // components

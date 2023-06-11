@@ -5,8 +5,8 @@ import {
   SharedGetPostsQuery,
   UserBase,
   SharedNewPostBody,
-  TypedImage,
-  SharedNewUserBody
+  SharedNewUserBody,
+  Message
 } from '@shared/types.js';
 
 declare global {
@@ -72,40 +72,14 @@ export interface RequestWithHeader<P, ResBody, ReqBody, ReqQuery, ReqHeaders>
 }
 
 export interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
-  message: ({
-    text,
-    createdAt,
-    images
-  }: {
-    text: string;
-    createdAt: Date;
-    images?: TypedImage[];
-  }) => void;
+  message: (message: Message) => void;
 }
 
 export interface ClientToServerEvents {
-  hello: () => void;
-  message: ({
-    text,
-    userId,
-    createdAt,
-    images
-  }: {
-    text: string;
-    userId: string;
-    createdAt: Date;
-    images: TypedImage[];
-  }) => void;
-  join: (userId: string) => void;
-  leave: (userId: string) => void;
+  message: (message: Message) => void;
 }
 
-export interface InterServerEvents {
-  ping: () => void;
-}
+export interface InterServerEvents {}
 
 export interface SocketData {
   userId: string;

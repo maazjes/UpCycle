@@ -5,7 +5,6 @@ import 'express-async-errors';
 import { Server } from 'socket.io';
 import http from 'http';
 import { PORT } from './util/config.js';
-import { isString } from './util/helpers.js';
 import { connectToDatabase } from './util/db.js';
 import posts from './controllers/posts.js';
 import users from './controllers/users.js';
@@ -50,22 +49,14 @@ io.use((socket, next): void => {
 });
 
 io.on('connection', async (socket): Promise<void> => {
-  const { userId } = socket.handshake.auth;
-  if (!userId || !isString(userId)) {
-    throw new Error('invalid username');
-  }
-  socket.join(userId);
+  socket.join(socket.data.userId!);
 
-  socket.on('message', ({ text, userId, createdAt, images }): void => {
-    socket.broadcast.to(userId).emit('message', { text, createdAt, images });
+  socket.on('message', (message): void => {
+    socket.broadcast.to(message.receiverId).emit('message', message);
   });
 
-  socket.on('join', (userId): void => {
-    socket.join(userId);
-  });
-
-  socket.on('leave', (userId): void => {
-    socket.leave(userId);
+  socket.on('disconnect', (): void => {
+    socket.leave(socket.data.userId!);
   });
 });
 
