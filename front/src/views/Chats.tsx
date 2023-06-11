@@ -7,10 +7,13 @@ import Line from 'components/Line';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import Button from 'components/Button';
 import MenuModal from 'components/MenuModal';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from 'hooks/redux';
 import { updateChatInfo } from 'services/chatInfo';
-import { editChat } from 'reducers/chats';
+import { addChat, editChat } from 'reducers/chats';
+import { Message } from '@shared/types';
+import { getChat } from 'services/chats';
+import socket from 'util/socket';
 import { MenuModalItems, UserScreen } from '../types';
 import Loading from '../components/Loading';
 import UserBar from '../components/UserBar';
@@ -42,6 +45,27 @@ const Chats = ({ navigation }: UserScreen<'StackChats'>): JSX.Element => {
   const [modalItems, setModalItems] = useState<MenuModalItems | undefined>();
   const dispatch = useAppDispatch();
   const currentUserId = useAppSelector((state): string => state.currentUserId!);
+
+  useEffect((): (() => void) => {
+    const onMessage = async (message: Message): Promise<void> => {
+      if (!chats) {
+        return;
+      }
+
+      if (chats.data.find((chat): boolean => chat.id === message.chatId)) {
+        dispatch(editChat({ id: message.chatId, lastMessage: message }));
+      } else {
+        const res = await getChat(message.chatId);
+        dispatch(addChat(res.data));
+      }
+    };
+
+    socket.on('message', onMessage);
+
+    return (): void => {
+      socket.off('message', onMessage);
+    };
+  }, [chats]);
 
   if (!chats) {
     return <Loading />;
