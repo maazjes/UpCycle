@@ -1,13 +1,12 @@
-<h2>Overview</h2>
-<a href="https://www.youtube.com/watch?v=bIdBKF1wvfM">Click to see a demo video</a>
-<br></br>
+# UpCycle
+
+[Demo video](https://www.youtube.com/watch?v=bIdBKF1wvfM)  
 
 **The goal of the project** was to make a React Native application that has the functionalities required to operate a second hand market. As a little twist I also added some functionalities better known from social media apps such as the possibility to follow other users. The main goal of this project was however to get better at React / React Native, ExpressJS and SQL. The login / registration functionality is made with Firebase and the images are also stored in Firebase.
-<br></br>
 
 **Both the Backend and the Frontend are fully made with TypeScript** using very strict settings for maximal learning experience. The types are shared between the Backend and the Frontend to make everything convenient. After all, a response body sent from the Backend is the same shape as a response body received in the Frontend.
 
-<h2>Deployment</h2>
+## Deployment
 
 1. Create a new Heroku app with PostgreSQL addon and add a new git repository to the back folder with "git init".
 2. Add the Heroku remote to the local repository with "heroku git:remote -a appname".
@@ -16,7 +15,7 @@
 5. Change axios baseURL in front/src/util/axiosInstance.ts to the newly deployed backend's url.
 6. Build frontend by running eas build.
 
-<h2>Technologies</h2>
+## Technologies
 
 * **TypeScript**
 * **React Native**
@@ -26,7 +25,7 @@
 * **Firebase**
 * **Redux**
 
-<h2>Structure</h2>
+## Structure
 
 ```mermaid
 %%{init: {'theme': 'forest', "flowchart" : { "curve" : "basis" } } }%%
@@ -58,10 +57,8 @@ end
 Frontend --- Backend
 ```
 
-<h2>Working hours</h2>
+## Working hours
 
-&nbsp;
-qwdqwdwq
 | Tasks | Time used |
 | ------------- | ------------- |
 | Initialized an Expo app with TypeScript and ESLint. | 3 hours |
